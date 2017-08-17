@@ -89,7 +89,6 @@ NLPStudio <- R6::R6Class(
 
             private$..currentLab <- lab
             private$..modified <- Sys.time()
-            SOAR::Store(self, remove = FALSE)
 
             }
           }
@@ -130,7 +129,7 @@ NLPStudio <- R6::R6Class(
             studio = list(
               name = private$..name,
               desc = self$desc,
-              labs = self$listlabs(),
+              labList = self$listlabs(),
               currentLab = private$..currentLab,
               modified = private$..modified,
               created = private$..created
@@ -153,30 +152,29 @@ NLPStudio <- R6::R6Class(
 
           addLab = function(lab, current = FALSE) {
 
+            labData <- lab$getLab()
+
             # Validation
-            method <- "addLab"
             v <- ValidateExists$new()
-            v$validate(cls = cls, method = method,
-                       fieldName = "lab", value = lab, level = "Error",
+            v$validate(cls = "NLPStudio", method = "addLab",
+                       fieldName = "lab", value = labData$name, level = "Error",
                        msg = paste("Invalid lab,", lab, "does not exist."),
                        expect = TRUE)
 
             v <- ValidateLogical$new()
-            v$validate(cls = cls, method = method,
-                       fieldName = "current", value = curent, level = "Error",
+            v$validate(cls = "NLPStudio", method = "addLab",
+                       fieldName = "current", value = current, level = "Error",
                        msg = paste("Invalid logical,", current, "must be TRUE or FALSE"),
                        expect = TRUE)
 
             # Add lab to lab list
             if (length(private$..labsList) == 0) {
-              private$..labsList <- list(lab)
+              private$..labList <- list(lab)
             } else {
-              private$..labsList <- list(private$..labsList, list(lab))
+              private$..labList <- list(private$..labList, list(lab))
             }
 
             private$..modified <- Sys.time()
-
-            SOAR::Store(self, remove = FALSE)
 
             invisible(self)
 
@@ -186,7 +184,7 @@ NLPStudio <- R6::R6Class(
 
             # Validate
             e <- ValidateExists$new()
-            e$validate(cls = cls, method = "removeLab",
+            e$validate(cls = "NLPStudio", method = "removeLab",
                        fieldName = "lab", value = lab, level = "Error",
                        msg = paste("Invalid lab,", lab, "does not exist."),
                        expect = TRUE)
@@ -197,17 +195,15 @@ NLPStudio <- R6::R6Class(
 
             # private$..modified <- Sys.time()
 
-            #SOAR::Store(self, remove = FALSE)
-
             # TODO: Confirm lab is removed from list of labs during testing
           },
 
           listlabs = function(verbose = FALSE) {
 
-            labs = rbindlist(lapply(private$..labsList, function(e) {
+            labs = rbindlist(lapply(private$..labList, function(e) {
               lab <- list(
                 name = e$private$..name,
-                desc = e$desc,
+                desc = e$private$..desc,
                 current = e$private$..currentLab,
                 created = e$private$..created
               )

@@ -1,0 +1,36 @@
+---
+title: "NLPStudio: Natural Language Processing Environment"
+author: John James jjamse@datasciencesalon.org
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Design 
+
+## Cache
+1. All NLPStudio objects will be stored in cache.
+2. Cache will be updated/created on every update/create operation
+3. The cache will be an environment variable
+4. When variables are created, the names given as a variable in the instantiation method will be assigned to the object. It will be cached under this name. 
+5. When the package is loaded, the cache is read from file if available.  Objects in the cache but not in the current environment are loaded. If not available, load the package as normal.
+6. Each instantiation / update method updates the variable in the current and cache environments. The cache environment is saved to disk on each change so that it mirrors the collection of NLPStudio objects in the current environment.
+7. When the package is loaded, variables are loaded from cache.

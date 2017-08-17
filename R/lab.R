@@ -13,7 +13,7 @@
 #' @section Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of Lab Class}
-#'  \item{\code{getLab(verbose = FALSE)}}{Retrieves the meta data for the Lab, as well as a list of its document collections. If verbose is false, a list of two data frames is returned.  If verbose is true, the data frames are additionally printed to console.
+#'  \item{\code{getLab(verbose = FALSE)}}{Retrieves the meta data for the Lab, as well as a list of its document collections. If verbose is false, a data frame is returned.  If verbose is true, data frame is returned and the lab and its colllections are printed to console.}
 #'   \item{\code{archiveLab()}}{Compresses and stores the lab in the archive directory. This method is also called prior to removing a lab from the Studio. }
 #'   \item{\code{addCollection(name, desc)}}{Adds a document collection to the list of collections in the lab}
 #'   \item{\code{removeCollection(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
@@ -68,55 +68,52 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
       private$..created = Sys.time()
 
-      # Bind Lab in global environment
-      assign(name, self, envir = .GlobalEnv)
-
-      # Add Lab to NLPStudio
-      nlpStudio$addLab(self, current)
-
       invisible(self)
     },
 
-    getLab = function(verbose = FALSE) {
-      Lab = data.frame(
-        parent = private$..parent,
-        name = self$name,
-        desc = self$desc,
-        path = private$..path,
-        created = private$..created,
-        archived = private$..archived,
-        stringsAsFactors = FALSE
+    getLab = function(verbose = TRUE) {
+      lab = list(
+        name = private$..name,
+        desc = private$..desc,
+        collections = self$listCollections(FALSE),
+        modified = private$..modified,
+        created = private$..created
       )
 
       if (verbose == TRUE) {
-        print.data.frame(Lab)
+        cat("\n\n================================================================================",
+            "\nLab: ", lab$name, " ", lab$desc, " ", " Created: ", format(lab$created), "Modified:", format(lab$modified))
+        cat("\n---------------------------------------------------------------------------------",
+            "\nCollections:\n")
+        print.data.frame(lab$collections)
+        cat("\n================================================================================\n")
       }
-
-      return(Lab)
+      return(lab)
     },
 
     archiveLab = function() {
 
-      a <- Archive0$new()
+      # TODO: Finish archive class
+      # TODO: Implement INFO logs in log directory established for the lab
+
+      a <- Archive$new()
       object = list(
-        name = self$name,
-        desc = paste0(self$name, "-archived-Lab"),
-        path = self$path)
+        name = private$..name,
+        desc = paste0(private$..name, "-archived-Lab")
+      )
       a$archive(object)
-      private$..archived <- Sys.time()
+      private$..modified <- Sys.time()
     },
 
     addCollection = function(collection) {
 
-      private$validate(what = "class", cls = "Lab",
-                       level = "Error", method = "addCollection",
-                       fieldName = "collection", value = collection,
-                       expect = "Collection")
-
-      # Update collection path
-      collection$parent <- self$name
-      collection$path <- file.path(
-        private$..path, gsub(" ", "-", collection$name))
+      # Validate
+      v <- ValidateClass$new()
+      v$validation(cls = "Lab", level = "Error", method = "addCollection",
+                   fieldName = "collection", value = collection,
+                   msg = paste("Invalid class. Collection class expected",
+                               class(collection), "encountered."),
+                   expect = "Collection")
 
       # Add collection to list of collections
       if (length(private$..collections) == 0) {
@@ -125,8 +122,7 @@ Lab <- R6::R6Class(
         private$..collections <- list(private$..collections, list(collection))
       }
 
-      # Create Directory
-      dir.create(collection$path)
+      invisible(self)
 
     },
 
@@ -141,22 +137,26 @@ Lab <- R6::R6Class(
       }
     },
 
-    removeCollection = function(name) {
+    removeCollection = function(name, purge = FALSE) {
 
       self$archiveLab()
-      collectionIdx <- searchStudio(name)
+      collectionIdx <- searchCollections(name)
       private$..collections[[collectionIdx]] <- NULL
-      rm(name, Labir = .GlobalEnv)
+      if (purge == TRUE) { rm(name, envir = .GlobalEnv) }
+
     },
 
     listCollections = function(verbose = FALSE) {
+      message("see collections")
+      cat(private$..collections)
+      message("catch that?")
 
       collections = rbindlist(lapply(private$..collections, function(c) {
         col <- list(
-          name = c[[1]]$name,
-          description = c[[1]]$desc,
-          path = c[[1]]$path,
-          created = c[[1]]$created
+          name = c$private$..name,
+          desc = c$private$..desc,
+          modified = c$private$..modified,
+          created = c$private$..created
         )
         col
       }))
@@ -166,5 +166,5 @@ Lab <- R6::R6Class(
       }
       return(collections)
     }
-  )
+  ), lock_objects = FALSE
 )

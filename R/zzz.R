@@ -18,13 +18,15 @@
     futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
   }
 
+  loadCache <- function() {
+
+  }
   # Reload from cache if available.
-  caches <- SOAR::Objects()
-  if (length(caches) > 0) {
+
+  if (file.exists("./.StudioCache.Rdata")) {
     packageStartupMessage("\nWelcome back to the NLPStudio (Beta)!\n\n")
   } else {
     packageStartupMessage("\nWelcome to the NLPStudio (Beta)! Your NLPStudio has been created and is called 'nlpStudio'!\n\n")
     nlpStudio <<- NLPStudio$new()$getInstance()
-    SOAR::Store("nlpStudio", remove = FALSE)
   }
 }
