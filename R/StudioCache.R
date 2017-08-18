@@ -1,8 +1,7 @@
-## ---- Lab
 #==============================================================================#
-#                                 Cache                                        #
+#                                 StudioCache                                  #
 #==============================================================================#
-#' Cache
+#' StudioCache
 #'
 #' \code{Cache} Class for managing the cache for all NLP objects.
 #'
@@ -13,11 +12,17 @@
 #'
 #' @section Methods:
 #' \describe{
-#'  \item{\code{new()}}{Creates the cache environment.}
-#'  \item{\code{get(key)}}{Retrieves object from cache.}
-#'  \item{\code{set(key, value)}}{Save a key value pair to the cache environment.}
-#'  \item{\code{load(filePath)}}{Loads data from file into the cache environment.}
-#'  \item{\code{ls}}{Lists the items in the cache environment.}
+#'  \item{\code{initialize()}}{Creates the cache environment.}
+#'  \item{\code{getCache(key)}}{Retrieves object from cache.}
+#'  \item{\code{setCache(key, value)}}{Save a key value pair to the cache environment.}
+#'  \item{\code{purgeCache()}}{Purges the entire cache.}
+#'  \item{\code{loadCache()}}{Loads the cache from file.}
+#'  \item{\code{saveCache()}}{Restores items in cache to the global environment.}
+#'  \item{\code{restoreCache()}}{Purges the entire cache.}
+#'  \item{\code{lsCache}}{Lists the names of the items in the cache environment.}
+#'  \item{\code{printCache()}}{Prints the contents of the cache environment.}
+#'  \item{\code{getAllCache()}}{Returns the entire cache environment.}
+#'  \item{\code{getInstance()}}{Returns the instance of the singleton StudioCache class.}
 #' }
 #'
 #' @docType class
@@ -36,34 +41,35 @@ StudioCache <- R6::R6Class(
           ..cacheFile = "./.StudioCache.Rdata"
         ),
         public = list(
-          initialize = function() private$..cache <- list(),
-          getCache = function(key) private$..cache[[key]],
+          initialize = function() private$..cache <- new.env(parent = emptyenv()),
+          getCache = function(key) unlist(private$..cache[[key]]),
           setCache = function(key, value) private$..cache[[key]] <- value,
-          purgeCache = function() private$..cache <- list(),
+          purgeCache = function() {
+            private$..cache <- new.env(parent = emptyenv())
+          },
           loadCache = function() {
-            name <- assign("c", load(file = private$..cacheFile))
+            assign("c", load(file = private$..cacheFile))
             private$..cache <- get(c)
           },
           saveCache = function() {
-            cache <- list()
-            for (i in 1:length(private$..cache)) {
-              cache[[names(private$..cache[i])]] <- private$..cache[i]
-            }
+            cache <- lapply(private$..cache, function(c) c)
             save(cache, file = private$..cacheFile)
+          },
+          restoreCache = function() {
+            objNames <- names(private$..cache)
+            lapply(seq_along(private$..cache), function(c) {
+              objName <- objNames[c]
+              assign(objName, private$..cache[[c]], .GlobalEnv)
+            })
           },
           lsCache = function() names(private$..cache),
           printCache = function() {
             cat("\n\n################################ CACHE #########################################\r")
-            lapply(private$..cache, function(c) ({ print(c) }))
+            print(self$getAllCache())
             cat("\n\n################################ CACHE #########################################\n")
           },
-          globalize = function() {
-            lapply(seq_along(private$..cache), function(c) {
-              objName <- name(private$..cache[[c]])
-              if (!exists(objName, envir = .GlobalEnv)) {
-                assign(objName, value = private$..cache[[c]], envir = .GlobalEnv)
-              }
-            })
+          getAllCache = function() {
+            return(unlist(lapply(private$..cache, function(c) ({c}))))
           },
           getInstance = function() invisible(self)
         )

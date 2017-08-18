@@ -3,7 +3,7 @@
 \docType{class}
 \name{StudioCache}
 \alias{StudioCache}
-\title{Cache}
+\title{StudioCache}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 StudioCache
@@ -20,11 +20,17 @@ of the cache environment.
 \section{Methods}{
 
 \describe{
- \item{\code{new()}}{Creates the cache environment.}
- \item{\code{get(key)}}{Retrieves object from cache.}
- \item{\code{set(key, value)}}{Save a key value pair to the cache environment.}
- \item{\code{load(filePath)}}{Loads data from file into the cache environment.}
- \item{\code{ls}}{Lists the items in the cache environment.}
+ \item{\code{initialize()}}{Creates the cache environment.}
+ \item{\code{getCache(key)}}{Retrieves object from cache.}
+ \item{\code{setCache(key, value)}}{Save a key value pair to the cache environment.}
+ \item{\code{purgeCache()}}{Purges the entire cache.}
+ \item{\code{loadCache()}}{Loads the cache from file.}
+ \item{\code{saveCache()}}{Restores items in cache to the global environment.}
+ \item{\code{restoreCache()}}{Purges the entire cache.}
+ \item{\code{lsCache}}{Lists the names of the items in the cache environment.}
+ \item{\code{printCache()}}{Prints the contents of the cache environment.}
+ \item{\code{getAllCache()}}{Returns the entire cache environment.}
+ \item{\code{getInstance()}}{Returns the instance of the singleton StudioCache class.}
 }
 }
 

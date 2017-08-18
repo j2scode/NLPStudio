@@ -52,7 +52,7 @@ Lab <- R6::R6Class(
       v$validate(cls = "NLPStudio", level = "Error",
                  method = "initialize", fieldName = "name",
                  value = name, msg = paste(
-                   "Lab name", name, "already exists."),
+                   "Object", name, "already exists."),
                  expect = FALSE)
 
       v <- ValidateLogical$new()
