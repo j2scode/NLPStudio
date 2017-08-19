@@ -18,7 +18,7 @@
 #' }
 #'
 #' @return A logical TRUE if class is equal to expected value, FALSE otherwise.
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 ValidateClass <- R6::R6Class(
   "ValidateClass",

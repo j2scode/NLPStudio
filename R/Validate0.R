@@ -39,7 +39,7 @@
 #'
 #' @return A logical, TRUE if outcome was expected, FALSE otherwise
 #'
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 Validate0 <- R6::R6Class(
   "Validate0",
@@ -64,8 +64,7 @@ Validate0 <- R6::R6Class(
                       level, perl = TRUE)
 
         note <- paste0(level, " in class '", cls, "', method '", method,
-                       "' with variable '", fieldName, "' with value '",
-                       value, "'. ", msg)
+                       "' with variable '", fieldName, "'. ", msg)
         switch(level,
                Info  = private$notifyInfo(note),
                Warn  = private$notifyWarn(note),
@@ -76,6 +75,53 @@ Validate0 <- R6::R6Class(
                       "validate(cls, method, fieldName, value, level,",
                       " and msg)")
         private$notifyError(note)
+      }
+    },
+
+    validateName = function(cls, method, name, expect = FALSE) {
+
+      # Validate name is not missing
+      if (missing(name)) {
+        v$notify(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = NULL,
+                 msg = "Document name is required", expect = NULL)
+      }
+
+      # Validation: Name is not empty
+      v <- ValidateNotEmpty$new()
+      v$validate(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = name,
+                 msg = "Name must not be empty", expect = TRUE)
+
+      # Validation: Name existence
+      v <- ValidateExists$new()
+      v$validate(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = name,
+                 msg = "Name already exists", expect = expect)
+
+      # Validation: name is character class
+      v <- ValidateClass$new()
+      v$validate(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = class(name),
+                 msg = "Name isn't a character class", expect = "character")
+
+      # Validation: No spaces
+      v <- ValidateNoSpaces$new()
+      v$validate(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = name,
+                 msg = "Name must have no spaces", expect = TRUE)
+
+      rm(v)
+    },
+
+    validateFileName = function(cls, method, fileName) {
+
+      # Validate fileName is not missing
+      if (missing(fileName)) {
+        v$notify(cls = cls, method = method, fieldName = "fileName",
+                 level = "Error", value = NULL,
+                 msg = "Document file name is required", expect = NULL)
+        rm(v)
       }
     }
   ),

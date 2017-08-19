@@ -16,7 +16,7 @@
 #'  \item{\code{getInstance(...)}}{Gets instance of singleton object }
 #' }
 #'
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 Singleton <- R6::R6Class(
   "Singleton",

@@ -147,9 +147,6 @@ Lab <- R6::R6Class(
     },
 
     listCollections = function(verbose = FALSE) {
-      message("see collections")
-      cat(private$..collections)
-      message("catch that?")
 
       collections = rbindlist(lapply(private$..collections, function(c) {
         col <- list(

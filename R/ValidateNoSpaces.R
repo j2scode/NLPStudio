@@ -18,7 +18,7 @@
 #' }
 #'
 #' @return a logical TRUE if valid string, FALSE otherwise
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 ValidateNoSpaces <- R6::R6Class(
   "ValidateNoSpaces",

@@ -49,7 +49,7 @@
 #' }
 #'
 #'
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 NLPStudio <- R6::R6Class(
   "SingletonContainer",
@@ -80,15 +80,14 @@ NLPStudio <- R6::R6Class(
 
             } else {
 
-            method <- "setLabCurrent"
-            v <- ValidateExists$new()
-            v$validate(cls = cls, method = method,
-                       fieldName = "lab", value = lab, level = "Error",
-                       msg = paste("Invalid lab,", lab, "does not exist."),
-                       expect = TRUE)
-
-            private$..currentLab <- lab
-            private$..modified <- Sys.time()
+              if ("Lab" %in% class(lab)) {
+                private$..currentLab <- lab
+                private$..modified <- Sys.time()
+              } else {
+                v <- Validate0$new()
+                v$notify(cls = "NLPStudio", method = "currentLab", fieldName = "lab",
+                         value = lab, level = "Error", msg = "Object is not of class 'Lab'")
+              }
 
             }
           }
