@@ -13,7 +13,7 @@
 #' The following methods are defined in this class.
 #' \describe{
 #'  \item{\code{new(name, desc, url)}}{Method for instantiating the builder}
-#'  \item{\code{buildComposite()}}{Method for building the composite document.This will create a composite document with itself as a component document. }
+#'  \item{\code{buildComposite()}}{Method for building the composite document. }
 #'  \item{\code{buildComponent()}}{Method for building the component document.}
 #'  \item{\code{obtainCorpus()}}{Method for obtaining the corpus. The corpus is downloaded from its web source }
 #'  \item{\code{processCorpus()}}{Method for processing the corpus. This returns true as there is no processing.}

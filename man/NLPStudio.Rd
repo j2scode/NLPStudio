@@ -64,6 +64,6 @@ nlpStudio$listlabs()
 
 }
 \author{
-John James, \email{j2sdatalab@gmail.com}
+John James, \email{jjames@datasciencesalon.org}
 }
 \keyword{datasets}

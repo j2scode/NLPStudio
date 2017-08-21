@@ -26,6 +26,11 @@ opts_knit$set(width=75)
 
 # Design 
 
+## NLPStudio
+
+### removeLab
+1. Can't remove a current lab. Client must assign a new lab current.  
+
 ## Cache
 1. All NLPStudio objects will be stored in cache.
 2. Cache will be updated/created on every update/create operation
@@ -35,5 +40,5 @@ opts_knit$set(width=75)
 6. Each instantiation / update method updates the variable in the current and cache environments. The cache environment is saved to disk on each change so that it mirrors the collection of NLPStudio objects in the current environment.
 7. When the package is loaded, variables are loaded from cache.
 
-## Instantiation and Object Names
-In order to programmatically manipulate objects, the object must be instantiated with a name.  This name will be used to do things like store it to cache and other things.  Thus the name variable can be required for all new objects and the object can be assigned the name during instantiation.  It can then be manipulated by name.  This opens up the possibility of having duplicate names for the same object.  If the object is returned invisibly (as self), the user can assign that object to a variable not equal to the name.  Thus object exists in the environment under both names.  To avoid this problem, instantiation will not return the self invisibly.  The user will instantiate just by typing Classname$new(name...).  This will create the object under that name in the environment and on chance of being assigned another name an confusing the hell out of everyone.
+
+

@@ -8,6 +8,19 @@
 \usage{
 Document0
 }
+\arguments{
+\item{name}{Character string indicating the name of the document (required)}
+
+\item{desc}{Character string indicating the description for the document}
+
+\item{path}{Character string containing the relative directory path to the document}
+
+\item{documents}{A list of Document objects contained in the object of the DocumentCollection class}
+
+\item{created}{A date time variable indicating the date / time the object was created}
+
+\item{modified}{A date time variable indicating the date / time the object was modified}
+}
 \description{
 \code{Document0} Abstract class for all documents in the NLPStudio
 }

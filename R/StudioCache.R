@@ -7,7 +7,7 @@
 #'
 #' Class and methods to create a cache environment, retrieve objects from
 #' the cache, and write objects to the cache.  There are also methods for
-#' obtaininig cached objects from a file and generating a list of the contents
+#' obtaining cached objects from a file and generating a list of the contents
 #' of the cache environment.
 #'
 #' @section Methods:
@@ -43,17 +43,26 @@ StudioCache <- R6::R6Class(
         public = list(
           initialize = function() private$..cache <- new.env(parent = emptyenv()),
           getCache = function(key) unlist(private$..cache[[key]]),
-          setCache = function(key, value) private$..cache[[key]] <- value,
+
+          setCache = function(key, value) {
+            private$..cache[[key]] <- value
+            self$saveCache()
+          },
+
           purgeCache = function() {
             private$..cache <- new.env(parent = emptyenv())
           },
           loadCache = function() {
-            assign("c", load(file = private$..cacheFile))
-            private$..cache <- get(c)
+            load(file = private$..cacheFile)
+            private$..cache <- nlpStudioCache
+            return(nlpStudioCache)
           },
           saveCache = function() {
-            cache <- lapply(private$..cache, function(c) c)
-            save(cache, file = private$..cacheFile)
+            nlpStudioCache <- lapply(private$..cache, function(c) c)
+            save(nlpStudioCache, file = private$..cacheFile)
+          },
+          replaceCache = function(newCache) {
+            private$..cache <- newCache
           },
           restoreCache = function() {
             objNames <- names(private$..cache)

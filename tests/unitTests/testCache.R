@@ -16,16 +16,16 @@ testCache <- function() {
     test <- "Test0"
     cat(paste("\n",test,"Commencing\r"))
     swipe()
-    if (length(studioCache$lsCache() > 0)) studioCache$purgeCache()
-    studioCache$setCache(key = "Lab", value = Lab)
-    studioCache$setCache(key = "swipe", value = swipe)
-    studioCache$setCache(key = "Singleton", value = Singleton)
+    if (length(nlpStudioCache$lsCache() > 0)) nlpStudioCache$purgeCache()
+    nlpStudioCache$setCache(key = "Lab", value = Lab)
+    nlpStudioCache$setCache(key = "swipe", value = swipe)
+    nlpStudioCache$setCache(key = "Singleton", value = Singleton)
 
 
-    stopifnot(class(studioCache$getCache("Lab")) == "R6ClassGenerator")
-    stopifnot(class(studioCache$getCache("swipe")) == "function")
-    stopifnot(class(studioCache$getCache("Singleton")) == "R6ClassGenerator")
-    stopifnot(studioCache$lsCache() == c( "swipe", "Lab","Singleton"))
+    stopifnot(class(nlpStudioCache$getCache("Lab")) == "R6ClassGenerator")
+    stopifnot(class(nlpStudioCache$getCache("swipe")) == "function")
+    stopifnot(class(nlpStudioCache$getCache("Singleton")) == "R6ClassGenerator")
+    stopifnot(nlpStudioCache$lsCache() == c( "swipe", "Lab","Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
   }
@@ -37,17 +37,17 @@ testCache <- function() {
     test <- "Test1"
     cat(paste("\n",test,"Commencing\r"))
 
-    studioCache$saveCache()
-    studioCache$purgeCache()
-    stopifnot(studioCache$lsCache() == character(0))
-    rm(studioCache, envir = .GlobalEnv)
+    nlpStudioCache$saveCache()
+    nlpStudioCache$purgeCache()
+    stopifnot(nlpStudioCache$lsCache() == character(0))
+    rm(nlpStudioCache, envir = .GlobalEnv)
 
-    studioCache <<- StudioCache$new()$getInstance()
-    studioCache$loadCache()
-    stopifnot(class(studioCache$getCache("Lab")) ==  "R6ClassGenerator")
-    stopifnot(class(studioCache$getCache("swipe")) ==  "function")
-    stopifnot(class(studioCache$getCache("Singleton")) ==  "R6ClassGenerator")
-    stopifnot(studioCache$lsCache() == c("swipe", "Lab", "Singleton"))
+    nlpStudioCache <<- StudioCache$new()$getInstance()
+    nlpStudioCache$loadCache()
+    stopifnot(class(nlpStudioCache$getCache("Lab")) ==  "R6ClassGenerator")
+    stopifnot(class(nlpStudioCache$getCache("swipe")) ==  "function")
+    stopifnot(class(nlpStudioCache$getCache("Singleton")) ==  "R6ClassGenerator")
+    stopifnot(nlpStudioCache$lsCache() == c("swipe", "Lab", "Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
   }
@@ -62,7 +62,7 @@ testCache <- function() {
     if (exists("swipe", envir = .GlobalEnv)) rm(swipe, envir = .GlobalEnv)
     if (exists("Singleton", envir = .GlobalEnv)) rm(Singleton, envir = .GlobalEnv)
 
-    studioCache$restoreCache()
+    nlpStudioCache$restoreCache()
 
     stopifnot(exists("Lab"))
     stopifnot(exists("swipe"))
@@ -82,7 +82,7 @@ testCache <- function() {
     cat(paste("\n",test,"Commencing\r"))
 
     rm(swipe, envir = .GlobalEnv)
-    studioCacheManager$getCache("swipe")
+    nlpStudioCache$getCache("swipe")
     stopifnot(class(swipe) ==  "function")
 
     cat(paste("\n",test,"Completed: Success!\n"))
@@ -94,12 +94,12 @@ testCache <- function() {
     test <- "Test4"
     cat(paste("\n",test,"Commencing\r"))
 
-    cacheNames <<- studioCache$lsCache()
+    cacheNames <<- nlpStudioCache$lsCache()
 
     key <- "cacheNames"
-    studioCacheManager$setCache(key, cacheNames)
+    nlpStudioCache$setCache(key, cacheNames)
     rm(cacheNames, envir = .GlobalEnv)
-    cacheNames <<- studioCacheManager$getCache(key)
+    cacheNames <<- nlpStudioCache$getCache(key)
     stopifnot(class(cacheNames) ==  "character")
 
     cat(paste("\n",test,"Completed: Success!\n"))

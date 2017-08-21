@@ -61,7 +61,8 @@ NLPStudio <- R6::R6Class(
         classname = "NLPStudio",
         private = list(
           ..cls = "NLPStudio",
-          ..name = character(0),
+          ..name = "nlpStudio",
+          ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
             archive = "./Archive",
             labs = "./Labs"),
@@ -80,22 +81,33 @@ NLPStudio <- R6::R6Class(
 
             } else {
 
-              if ("Lab" %in% class(lab)) {
+              v <- ValidateClass$new()
+              v$validate(cls = "NLPStudio", method = "currentLab",
+                         fieldName = "lab", value = lab, level = "Error",
+                         msg = "Object is not of type 'Lab' ",
+                         expect = "Lab")
+
+              labData <- lab$getLab(verbose = FALSE)
+
+              if (identical(private$..currentLab, lab)) {
+                v <- Validate0$new()
+                v$notify(cls = "NLPStudio", method = "currentLab",
+                         fieldName = "lab", value = labData$name, level = "Warn",
+                         msg = paste(labData$name, "is already current."),
+                         expect = "Lab")
+              } else {
                 private$..currentLab <- lab
                 private$..modified <- Sys.time()
-              } else {
-                v <- Validate0$new()
-                v$notify(cls = "NLPStudio", method = "currentLab", fieldName = "lab",
-                         value = lab, level = "Error", msg = "Object is not of class 'Lab'")
-              }
 
+                # Update Cache
+                nlpStudioCache$setCache("nlpStudio", self)
+
+              }
             }
           }
         ),
 
         public = list(
-
-          desc = character(0),
 
           initialize = function() {
 
@@ -112,7 +124,7 @@ NLPStudio <- R6::R6Class(
 
             # Create single instance of NLPStudio object
             private$..name <- name
-            self$desc <- desc
+            private$..desc <- desc
             private$..currentLab <- "None"
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
@@ -127,7 +139,7 @@ NLPStudio <- R6::R6Class(
           getStudio = function(verbose = FALSE) {
             studio = list(
               name = private$..name,
-              desc = self$desc,
+              desc = private$..desc,
               labList = self$listlabs(),
               currentLab = private$..currentLab,
               modified = private$..modified,
@@ -151,14 +163,12 @@ NLPStudio <- R6::R6Class(
 
           addLab = function(lab, current = FALSE) {
 
-            labData <- lab$getLab()
-
             # Validation
-            v <- ValidateExists$new()
+            v <- ValidateClass$new()
             v$validate(cls = "NLPStudio", method = "addLab",
-                       fieldName = "lab", value = labData$name, level = "Error",
-                       msg = paste("Invalid lab,", lab, "does not exist."),
-                       expect = TRUE)
+                       fieldName = "lab", value = lab, level = "Error",
+                       msg = paste("Object is not a valid 'Lab' type."),
+                       expect = "Lab")
 
             v <- ValidateLogical$new()
             v$validate(cls = "NLPStudio", method = "addLab",
@@ -167,13 +177,15 @@ NLPStudio <- R6::R6Class(
                        expect = TRUE)
 
             # Add lab to lab list
-            if (length(private$..labsList) == 0) {
-              private$..labList <- list(lab)
-            } else {
-              private$..labList <- list(private$..labList, list(lab))
-            }
-
+            labData <- lab$getLab(verbose = FALSE)
+            private$..labList[[labData$name]] <- lab
             private$..modified <- Sys.time()
+
+            # Update Current
+            if (current == TRUE) private$..currentLab <- lab
+
+            # Update Cache
+            nlpStudioCache$setCache("nlpStudio", self)
 
             invisible(self)
 
@@ -181,32 +193,56 @@ NLPStudio <- R6::R6Class(
 
           removeLab = function(lab) {
 
-            # Validate
-            e <- ValidateExists$new()
-            e$validate(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "lab", value = lab, level = "Error",
-                       msg = paste("Invalid lab,", lab, "does not exist."),
-                       expect = TRUE)
+            if (class(lab) == "character") { labObject <- get(lab, envir = .GlobalEnv)}
 
-            #lab$archive()
+            # Confirm lab is a lab
+            v <- ValidateClass$new()
+            v$validate(cls = "NLPStudio", method = "removeLab",
+                       fieldName = "lab", value = labObject, level = "Error",
+                       msg = paste("Object is not a valid 'lab' type."),
+                       expect = "Lab")
 
-            #rm(lab, envir = .GlobalEnv)
+            labData <- labObject$getLab(verbose = FALSE)
 
-            # private$..modified <- Sys.time()
+            # Confirm lab is not current
+            if (identical(lab,private$..currentLab)) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "removeLab",
+                       fieldName = "lab", value = labData$name, level = "Error",
+                       msg = "Unable to remove a current lab.  See ?NLPStudio",
+                       expect = "Lab")
+            }
 
-            # TODO: Confirm lab is removed from list of labs during testing
+            # Archive, and remove lab, and update modified date
+            rm(list = ls(envir = .GlobalEnv)[grep(lab, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+            newCache <- new.env()
+            oldCache <- nlpStudioCache$loadCache()
+            newCache <- oldCache
+            newCache[[lab]] <- NULL
+            nlpStudioCache$replaceCache(newCache)
+            nlpStudioCache$saveCache()
+            rm(newCache)
+            private$..labList[[lab]] <- NULL
+            private$..modified <- Sys.time()
+
+            # Update Cache
+            nlpStudioCache$setCache("nlpStudio", self)
+
+            invisible(self)
+
           },
 
           listlabs = function(verbose = FALSE) {
 
             labs = rbindlist(lapply(private$..labList, function(e) {
-              lab <- list(
-                name = e$private$..name,
-                desc = e$private$..desc,
-                current = e$private$..currentLab,
-                created = e$private$..created
+              labData <- e$getLab(verbose = FALSE)
+              l <- list(
+                name = labData$name,
+                desc = labData$desc,
+                created = labData$created,
+                modified = labData$modified
               )
-              lab
+              l
             }))
 
             if (verbose == TRUE) {

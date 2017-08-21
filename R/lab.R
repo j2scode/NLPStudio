@@ -39,7 +39,7 @@ Lab <- R6::R6Class(
 
   public = list(
 
-    initialize = function(name, desc = NULL, current = FALSE) {
+    initialize = function(name, desc = NULL) {
 
       # Validation
       v <- ValidateNoSpaces$new()
@@ -55,18 +55,17 @@ Lab <- R6::R6Class(
                    "Object", name, "already exists."),
                  expect = FALSE)
 
-      v <- ValidateLogical$new()
-      v$validate(cls = "NLPStudio", level = "Error",
-                 method = "initialize", fieldName = "current",
-                 value = current, msg = paste(
-                   "Current must be a valid logical"),
-                 expect = TRUE)
-
       private$..name <- name
       if (is.null(desc)) { desc <- paste(name, "Lab") }
       private$..desc <- desc
       private$..modified <- Sys.time()
-      private$..created = Sys.time()
+      private$..created <- Sys.time()
+
+      # Assign its name in the global environment
+      assign(name, self, envir = .GlobalEnv)
+
+      # Update Cache
+      nlpStudioCache$setCache(name, self)
 
       invisible(self)
     },
@@ -75,7 +74,7 @@ Lab <- R6::R6Class(
       lab = list(
         name = private$..name,
         desc = private$..desc,
-        collections = self$listCollections(FALSE),
+        collections = self$listCollections(verbose = FALSE),
         modified = private$..modified,
         created = private$..created
       )
@@ -92,17 +91,21 @@ Lab <- R6::R6Class(
     },
 
     archiveLab = function() {
+      return("archived")
 
       # TODO: Finish archive class
       # TODO: Implement INFO logs in log directory established for the lab
 
-      a <- Archive$new()
-      object = list(
-        name = private$..name,
-        desc = paste0(private$..name, "-archived-Lab")
-      )
-      a$archive(object)
-      private$..modified <- Sys.time()
+      # a <- Archive$new()
+      # object = list(
+      #   name = private$..name,
+      #   desc = paste0(private$..name, "-archived-Lab")
+      # )
+      # a$archive(object)
+      # private$..modified <- Sys.time()
+
+      # Update Cache
+      # nlpStudioCache$setCache(private$..name)
     },
 
     addCollection = function(collection) {
@@ -121,6 +124,9 @@ Lab <- R6::R6Class(
       } else {
         private$..collections <- list(private$..collections, list(collection))
       }
+
+      # Update Cache
+      nlpStudioCache$setCache(private$..name)
 
       invisible(self)
 
@@ -144,6 +150,8 @@ Lab <- R6::R6Class(
       private$..collections[[collectionIdx]] <- NULL
       if (purge == TRUE) { rm(name, envir = .GlobalEnv) }
 
+      # Update Cache
+      nlpStudioCache$setCache(private$..name)
     },
 
     listCollections = function(verbose = FALSE) {

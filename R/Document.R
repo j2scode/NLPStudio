@@ -87,7 +87,7 @@ Document <- R6::R6Class(
       private$..modified <- Sys.time()
 
       assign(name, self, envir = .GlobalEnv)
-      studioCacheManager$setCache(key = name, value = self)
+      nlpStudioCache$setCache(key = name, value = self)
       invisible(self)
 
     },

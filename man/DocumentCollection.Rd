@@ -27,8 +27,6 @@ collections.
  \item{\code{getDocument()}}{Method for retrieving and printing collection meta data.}
  \item{\code{readDocument()}}{Method for reading the document collection, using the read behavior strategy set below.}
  \item{\code{writeDocument()}}{Method for writing the document collection, using the write behavior strategy set below.}
- \item{\code{downloadDocument()}}{Method for downloading the document collection from the web.}
- \item{\code{unzipDocument()}}{Method for unzipping the document collection.}
 }
 }
 
@@ -43,12 +41,14 @@ The composite methods control the document tree structure and include:
 }
 }
 
-\section{Behavior Methods}{
+\section{Behavior Strategy Methods}{
 
-These methods allow the client to manage read and write behaviors at runtime.
+These methods enable clients to define behaviors for Register and Korpus class object at runtime.
 \describe{
- \item{reader}{Method for getting and setting current Read strategy.}
- \item{writer}{Method for getting and setting current Write strategy.}
+ \item{getReader}{Method for getting the current Read strategy for the object.}
+ \item{setReader}{Method for setting the current Read strategy for the object.}
+ \item{getWriter}{Method for getting the current Write strategy for the object.}
+ \item{setWriter}{Method for setting the current Write strategy for the object.}
 }
 }
 
@@ -57,6 +57,6 @@ Other Document classes: \code{\link{Document0}},
   \code{\link{Document}}
 }
 \author{
-John James, \email{j2sdatalab@gmail.com}
+John James, \email{jjames@datasciencesalon.org}
 }
 \keyword{datasets}

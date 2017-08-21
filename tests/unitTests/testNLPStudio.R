@@ -1,149 +1,203 @@
 testNLPStudio <- function() {
 
+  init <- function() {
+    if (exists("Development", envir = .GlobalEnv)) rm("Development", envir = .GlobalEnv)
+    if (exists("Bart", envir = .GlobalEnv))rm("Bart", envir = .GlobalEnv)
+    source("./tests/checkCache.r")
+    source("./tests/logTests.r")
+  }
+
   # Test 0: Confirm instantiation of nlpStudio
   test0 <- function() {
-    cat("\rTest0 Commencing\r")
+    test <- "test0"
+    cat(paste("\r",test, " Commencing\r"))
+
     studio <<- nlpStudio$getStudio()
     stopifnot("NLPStudio" %in% class(nlpStudio))
     stopifnot(studio$name == "nlpStudio")
     stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(studio$current == "None")
+    stopifnot(nrow(studio$labList) == 0)
     stopifnot("POSIXct" %in% class(studio$created))
-    cat("\nTest0 Completed: Success!\r")
+    stopifnot("POSIXct" %in% class(studio$modified))
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "initiate", note = "Successfully created nlpStudio")
+    logTests(cls = cls, mthd = "getStudio", note = "Current = none, no labs")
+
+
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-
-  # Test 1: Confirm nlpStudio directories created
+  # Test 1: Test addLab, getLabs, listLabs, cache
   test1 <- function() {
-    cat("\nTest1 Commencing\r")
-    stopifnot(dir.exists(archiveDir))
-    stopifnot(dir.exists(labsDir))
-    cat("\nTest1 Completed: Success!\r")
+    test <- "test1"
+    cat(paste("\n\n",test, " Commencing\r"))
+    Lab$new(name = "Development", desc = "Development Lab")
+    nlpStudio$addLab(Development)
+    studio <<- nlpStudio$getStudio()
+    stopifnot(difftime(studio$modified, Sys.time(), units = "secs") < 1)
+
+    # #GetStudio
+    stopifnot("NLPStudio" %in% class(nlpStudio))
+    stopifnot(studio$name == "nlpStudio")
+    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(all.equal(studio$current,"None"))
+    stopifnot("POSIXct" %in% class(studio$created))
+    stopifnot("POSIXct" %in% class(studio$modified))
+
+    # AddLab
+    stopifnot(nrow(studio$labList) == 1)
+    stopifnot(studio$labList$name[1] == "Development")
+    stopifnot(studio$labList$desc[1] == "Development Lab")
+    stopifnot("POSIXct" %in% class(studio$labList$created[1]))
+    stopifnot("POSIXct" %in% class(studio$labList$modified[1]))
+    stopifnot(studio$current == "None")
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "addLab", note = "Development lab, current = FALSE")
+    logTests(cls = cls, mthd = "addLab", note = "Tested nlpstudio cache")
+    logTests(cls = cls, mthd = "listLabs", note = "Listed a single lab successfully")
+    logTests(cls = "StudioCache", mthd = "setCache", note = "Updated NLPStudio cache with new lab")
+    logTests(cls = "StudioCache", mthd = "getCache", note = "Compared cache to current nlpStudio")
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  # Test 2: Confirm initial environment automatically created properly
+  # Test 2: Test addLab, getLabs, listLabs, cache 2nd lab current = TRUE
   test2 <- function() {
-    cat("\n\nTest2 Commencing\r")
-    stopifnot(nrow(studio$environment) == 1)
-    stopifnot(studio$environment$name[1] == "Main")
-    stopifnot(studio$environment$desc[1] == "Main NLP Context")
-    stopifnot(studio$environment$path[1] == "./Contexts/Main")
-    stopifnot(studio$current == "Main")
-    cat("\nTest2 Completed: Success!\r")
+    test <- "test2"
+    cat(paste("\n\n",test, " Commencing\r"))
+
+    Lab$new(name = "Bart",desc = "Simpsons Lab")
+    nlpStudio$addLab(Bart, current = TRUE)
+    studio <<- nlpStudio$getStudio()
+    stopifnot(difftime(studio$modified, Sys.time(), units = "secs") < 1)
+
+    #GetStudio
+    stopifnot("NLPStudio" %in% class(nlpStudio))
+    stopifnot(studio$name == "nlpStudio")
+    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot("POSIXct" %in% class(studio$created))
+    stopifnot("POSIXct" %in% class(studio$modified))
+
+    # AddLab
+    stopifnot(nrow(studio$labList) == 2)
+    stopifnot(studio$labList$name[1] == "Development")
+    stopifnot(studio$labList$desc[1] == "Development Lab")
+    stopifnot("POSIXct" %in% class(studio$labList$created[1]))
+    stopifnot("POSIXct" %in% class(studio$labList$modified[1]))
+
+    stopifnot(studio$labList$name[2] == "Bart")
+    stopifnot(studio$labList$desc[2] == "Simpsons Lab")
+    stopifnot("POSIXct" %in% class(studio$labList$created[2]))
+    stopifnot("POSIXct" %in% class(studio$labList$modified[2]))
+    stopifnot(all.equal(studio$currentLab, Bart))
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "addLab", note = "Added 2nd lab, current = TRUE")
+    logTests(cls = cls, mthd = "addLab", note = "Tested nlpstudio cache, match!")
+    logTests(cls = "StudioCache", mthd = "setCache", note = "Updated NLPStudio cache with new lab")
+    logTests(cls = "StudioCache", mthd = "getCache", note = "Compared cache to current nlpStudio")
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  # Test 3: Add environment with current = FALSE
+  # Test 3: Test change current lab
   test3 <- function() {
-    cat("\n\nTest3 Commencing\r")
-    nlpStudio$addContext(environment = "Development",
-                         environmentDesc = "Development Context",
-                         environmentCurrent = FALSE)
-    studio <<- nlpStudio$getStudio()
-    test1()
-    stopifnot(nrow(studio$environment) == 2)
-    stopifnot(studio$environment$id[1] == "Main")
-    stopifnot(studio$environment$desc[1] == "Main NLP Context")
-    stopifnot(studio$environment$path[1] == "./Contexts/Main")
-    stopifnot(studio$environment$id[2] == "Development")
-    stopifnot(studio$environment$desc[2] == "Development Context")
-    stopifnot(studio$environment$path[2] == "./Contexts/Development")
-    stopifnot(studio$current == "Main")
-    cat("\nTest3 Completed: Success!\r")
+    test <- "test3"
+    cat(paste("\n\n",test, " Commencing\r"))
+
+    # Attempt to change to non-existing lab: should fail, Success!
+    #nlpStudio$currentLab <- "Bart"
+
+    # Attempt to change to a function: should fail, Success
+    #nlpStudio$currentLab <- logTests
+
+    # Attempt to change to current lab: should issue warning
+    nlpStudio$currentLab <- Bart
+
+    # Successful change
+    nlpStudio$currentLab <- Development
+    studio <<- nlpStudio$getStudio(verbose = FALSE)
+    stopifnot(identical(Development, nlpStudio$currentLab))
+    stopifnot(difftime(studio$modified, Sys.time(), units = "secs") < 1)
+
+    #GetStudio
+    stopifnot("NLPStudio" %in% class(nlpStudio))
+    stopifnot(studio$name == "nlpStudio")
+    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot("POSIXct" %in% class(studio$created))
+    stopifnot("POSIXct" %in% class(studio$modified))
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "currentLab", note = "Validation and successful change, date modified updated")
+    logTests(cls = "StudioCache", mthd = "setCache", note = "Updated NLPStudio cache with new current lab")
+    logTests(cls = "StudioCache", mthd = "getCache", note = "Compared cache to current nlpStudio")
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  # Test 4: Add environment with current = TRUE
+  # Test 4: Test remove lab
   test4 <- function() {
-    cat("\n\nTest4 Commencing\r")
-    nlpStudio$addContext(environmentId = "Tuesday",
-                         environmentDesc = "Tuesday Context",
-                         environmentCurrent = TRUE)
-    studio <<- nlpStudio$getStudio()
-    test1()
-    stopifnot(nrow(studio$environment) == 3)
-    stopifnot(studio$environment$id[1] == "Main")
-    stopifnot(studio$environment$desc[1] == "Main NLP Context")
-    stopifnot(studio$environment$path[1] == "./Contexts/Main")
-    stopifnot(studio$environment$id[2] == "Development")
-    stopifnot(studio$environment$desc[2] == "Development Context")
-    stopifnot(studio$environment$path[2] == "./Contexts/Development")
-    stopifnot(studio$environment$id[3] == "Tuesday")
-    stopifnot(studio$environment$desc[3] == "Tuesday Context")
-    stopifnot(studio$environment$path[3] == "./Contexts/Tuesday")
-    stopifnot(studio$current == "Tuesday")
-    cat("\nTest4 Completed: Success!\r")
+    test <- "test4"
+    cat(paste("\n\n",test, " Commencing\r"))
+
+    # Attempt to remove a non-existent lab ( a function): Success
+    #nlpStudio$removeLab(logTests)
+
+    # Attempt to remove a current lab Success!
+    # nlpStudio$removeLab(Development)
+
+    # Successfuly remove Bart
+    nlpStudio$removeLab("Bart")
+    stopifnot(exists("Bart") == FALSE)
+    labs <<- nlpStudio$listlabs()
+    labs <<- labs[labs$name == "Bart"]
+    stopifnot(nrow(labs) == 0)
+    stopifnot(difftime(studio$modified, Sys.time(), units = "secs") < 1)
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "removeLab", note = "Tested validation and removal of lab")
+    logTests(cls = "StudioCache", mthd = "setCache", note = "Updated NLPStudio cache with removed lab")
+    logTests(cls = "StudioCache", mthd = "getCache", note = "Compared cache to current nlpStudio")
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  # Test 5: Change current environment
-  test5 <- function() {
-    cat("\n\nTest5 Commencing\r")
 
-    nlpStudio$currentContext <- "Main"
-    studio <<- nlpStudio$getStudio()
-    test1()
-    stopifnot(nrow(studio$environment) == 3)
-    stopifnot(studio$environment$id[1] == "Main")
-    stopifnot(studio$environment$desc[1] == "Main NLP Context")
-    stopifnot(studio$environment$path[1] == "./Contexts/Main")
-    stopifnot(studio$environment$id[2] == "Development")
-    stopifnot(studio$environment$desc[2] == "Development Context")
-    stopifnot(studio$environment$path[2] == "./Contexts/Development")
-    stopifnot(studio$environment$id[3] == "Tuesday")
-    stopifnot(studio$environment$desc[3] == "Tuesday Context")
-    stopifnot(studio$environment$path[3] == "./Contexts/Tuesday")
-    stopifnot(studio$current == "Main")
-    cat("\nTest5 Completed: Success!\r")
-  }
-
-  # Test6: Test validation of environments all should stop processing with log
-  test6 <- function() {
-    cat("\n\nTest6 Commencing\r")
-    #nlpStudio$currentContext <- "DAKDSAS" Works
-    #nlpStudio$addContext(92)
-    #nlpStudio$addContext("Test", "Test Description", environmentCurrent = 9)
-    cat("\nTest6 Completed: Success!\r")
-  }
-
-  test7 <- function() {
-    # Tests for NLPStudio recall after reboot
-    cat("\n\nTest7 Commencing\r")
-    environments <- nlpStudio$listContexts()
-    stopifnot(environments$environmentId[1] == "Main")
-    stopifnot(environments$environmentId[2] == "Development")
-    stopifnot(environments$environmentId[3] == "Tuesday")
-
-    stopifnot(environments$environmentDesc[1] == "Main NLP Context")
-    stopifnot(environments$environmentDesc[2] == "Development Context")
-    stopifnot(environments$environmentDesc[3] == "Tuesday Context")
-
-    stopifnot(environments$environmentPath[1] == "./Contexts/Main")
-    stopifnot(environments$environmentPath[2] == "./Contexts/Development")
-    stopifnot(environments$environmentPath[3] == "./Contexts/Tuesday")
-
-    #stopifnot(nlpStudio$currentContext != "Tuesday")
-    cat("\nTest7 Completed: Success!\r")
-  }
-
+init()
 test0()
 test1()
-# test2()
-# test3()
-# test4()
+test2()
+test3()
+test4()
 # test5()
 # test6()
 # test7()
 }
 
-
+cls <- "NLPStudio"
 labsDir <- "./Labs"
 archiveDir <- "./Archive"
 nlpStudioFile <- "./NLPStudio.Rdata"
+cacheFile <- "./.StudioCache.Rdata"
 
-# base::unlink(labsDir, recursive = FALSE)
-# base::unlink(archiveDir, recursive = TRUE)
-# base::file.remove(nlpStudioFile)
+base::unlink(labsDir, recursive = FALSE)
+base::unlink(archiveDir, recursive = TRUE)
+base::unlink(nlpStudioFile)
+base::unlink(cacheFile)
 
 devtools::load_all()
-
-studio <- nlpStudio$getStudio()
-
 testNLPStudio()

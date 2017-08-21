@@ -54,6 +54,6 @@ This class provide a methods for validating file paths.
 }
 
 \author{
-John James, \email{j2sdatalab@gmail.com}
+John James, \email{jjames@datasciencesalon.org}
 }
 \keyword{datasets}

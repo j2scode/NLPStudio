@@ -19,15 +19,15 @@
   }
 
   # Instantiate Singleton Classes
-  nlpStudio <<- NLPStudio$new()$getInstance()
-  studioCache <<- StudioCache$new()$getInstance()
-  studioCacheManager <<- StudioCacheManager$new()$getInstance()
-
   if (file.exists("./.StudioCache.Rdata")) {
     packageStartupMessage("\nWelcome back to the NLPStudio (Beta)!\n\n")
-    studioCache$loadCache()
-    studioCache$restoreCache()
+    nlpStudioCache <<- StudioCache$new()$getInstance()
+    nlpStudioCache$loadCache()
+    nlpStudioCache$restoreCache()
   } else {
-    packageStartupMessage("\nWelcome to the NLPStudio (Beta)! Your NLPStudio has been created and is called 'nlpStudio'!\n\n")
+    packageStartupMessage("\nWelcome to the NLPStudio (Beta)!")
+    nlpStudioCache <<- StudioCache$new()$getInstance()
+    nlpStudio <<- NLPStudio$new()$getInstance()
+    nlpStudioCache$setCache("nlpStudio", nlpStudio)
   }
 }

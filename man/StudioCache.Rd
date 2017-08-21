@@ -14,7 +14,7 @@ StudioCache
 \details{
 Class and methods to create a cache environment, retrieve objects from
 the cache, and write objects to the cache.  There are also methods for
-obtaininig cached objects from a file and generating a list of the contents
+obtaining cached objects from a file and generating a list of the contents
 of the cache environment.
 }
 \section{Methods}{

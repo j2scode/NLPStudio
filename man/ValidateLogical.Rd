@@ -26,6 +26,6 @@ This class provide a methods for validating logicals.
 }
 
 \author{
-John James, \email{j2sdatalab@gmail.com}
+John James, \email{jjames@datasciencesalon.org}
 }
 \keyword{datasets}

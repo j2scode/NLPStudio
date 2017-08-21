@@ -13,14 +13,39 @@ Document
 }
 \details{
 This leaf class contains the data and methods used to instantiate objects of
-the Document class, to print the document meta data and to read  and write
-the document. The methods are as follows:
-\describe{
- \item{\code{new()}}{Method for instantiating an object of the Document class}
- \item{\code{getDocument()}}{Method for returning and printing the document object meta data.}
- \item{\code{readDocument(reader)}}{Method for reading the document using the designated reader.}
- \item{\code{writeDocument(writer)}}{Method for writing the document using the designated writer.}
+the Document class, print the document meta data and to read  and write
+the document.
 }
+\section{Core Methods}{
+
+The methods are as follows:
+\describe{
+ \item{\code{new(name, desc, fileName)}}{Method for instantiating an object of the Document class}
+ \item{\code{getDocument()}}{Method for returning and printing the document object meta data.}
+ \item{\code{readDocument(reader, labName, collectionName)}}{Method for reading the document using the designated reader.}
+ \item{\code{writeDocument(writer, labName, collectionName)}}{Method for writing the document using the designated writer.}
+}
+}
+
+\section{Behavior Strategy Methods}{
+
+These methods enable clients to define behaviors for Register and Korpus class object at runtime.
+\describe{
+ \item{getReader}{Method for getting the current Read strategy for the object.}
+ \item{setReader}{Method for setting the current Read strategy for the object.}
+ \item{getWriter}{Method for getting the current Write strategy for the object.}
+ \item{setWriter}{Method for setting the current Write strategy for the object.}
+}
+}
+
+\examples{
+\dontrun{
+Document$new(name = "news", desc = "News register of Brown Corpus" fileName = "news.txt")
+news$getDocument() # Returns the document meta data in data frame format and prints it to console.
+news$getDocument(verbose = FALSE) Returns the document metea data in data frame format, but does not print to console.
+news$readDocument(reader = readText, labName = "alphaLab", collectionName =  "brown")
+}
+
 }
 \seealso{
 Other Document classes: \code{\link{Document0}},
