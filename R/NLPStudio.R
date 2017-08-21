@@ -215,13 +215,11 @@ NLPStudio <- R6::R6Class(
 
             # Archive, and remove lab, and update modified date
             rm(list = ls(envir = .GlobalEnv)[grep(lab, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-            newCache <- new.env()
-            oldCache <- nlpStudioCache$loadCache()
-            newCache <- oldCache
-            newCache[[lab]] <- NULL
-            nlpStudioCache$replaceCache(newCache)
+            cache <- nlpStudioCache$loadCache()
+            cache[[lab]] <- NULL
+            nlpStudioCache$replaceCache(cache)
             nlpStudioCache$saveCache()
-            rm(newCache)
+            rm(cache)
             private$..labList[[lab]] <- NULL
             private$..modified <- Sys.time()
 
