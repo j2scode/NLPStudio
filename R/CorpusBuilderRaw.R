@@ -289,7 +289,10 @@ CorpusBuilderRaw <- R6::R6Class(
       }
 
       # Upload the corpus into the Document objects.
+<<<<<<< HEAD
       document <- private$..documentCollection$
+=======
+>>>>>>> 44d1a3651728d41042f1971d3bb0d36b19e99c77
 
 
     },
