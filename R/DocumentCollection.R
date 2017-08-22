@@ -139,14 +139,7 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     addDocument = function(document) {
 
-      # Get current lab and document name
-      lab <- nlpStudio$currentLab
-      lab <- lab$getLab()
-      doc <- document$getDocument()
-
-      # Add path to document
-      document$path <<- file.path(lab$name, private$..name, doc$name)
-
+      # Add document to list of documents for collection
       if (length(private$..documents) == 0) {
         private$..documents <- list(document)
       } else {

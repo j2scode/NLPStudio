@@ -114,14 +114,14 @@
 #' @param corpusName String containing the name of the corpus to be built.
 #' @param corpusDesc String containing the dscription of the corpus to be built.
 #' @param documentNames Character vector listing one or more names of the documents in the corpus.
-#' @param documentFileNames Character vector listing one or more file names for the documents in the corpus.
+#' @param documentFileNames Character vector listing one or more names for the files in the coprus source.
 #' @param documentDescs Character vector listing one or more file descriptions for the documents in the corpus.
 #' @param corpusSource Object of class CorpusSource, indicating the methods for sourcing the corpus.
 #' @param analyzer Object of class Analyzer that conducts an analysis on the obtained corpus.
 #' @param designer Object of class Designer that designates the features of the corpus.
 #' @param processor Object of class Processor that renders the corpus.
-#' @param url String conitaining the URL from which the corpus will be sourced
-#' @param downloadFile String containing the file name into which the corpus will be downloaded
+#' @param url String containing the URL from which the corpus will be sourced
+#' @param zipFile String containing the name of the zipfile to be downloaded
 #'
 #' @return An object of the DocumentCollection class and one instance of the Document class
 #' for each file or register within the corpus.  The objects will contain the corpus
@@ -139,35 +139,11 @@ CorpusBuilderRaw <- R6::R6Class(
 
   private = list(
     ..url = character(0),
-    ..downloadFile = character(0)
+    ..downloadDir = "download",
+    ..rawDir = "raw"
   ),
 
   active = list(
-    #TODO: Add validation
-    documentNames = function(value) {
-      if (missing(value)) {
-        private$..documentNames
-      } else {
-        private$..documentNames <- value
-      }
-    },
-
-    documentFileNames = function(value) {
-      if (missing(value)) {
-        private$..documentFileNames
-      } else {
-        private$..documentFileNames <- value
-      }
-    },
-
-    documentDescs = function(value) {
-      if (missing(value)) {
-        private$..documentDescs
-      } else {
-        private$..documentDescs <- value
-      }
-    },
-
     corpusSource = function(value) {
       if (missing(value)) {
         private$..corpusSource
@@ -232,8 +208,15 @@ CorpusBuilderRaw <- R6::R6Class(
     buildDocuments = function(documentNames, documentFileNames,
                               documentDescs = NULL) {
 
-      # Build Documents
-      if (length(documentNames) != length(documentFileNames)) {
+      # Validate and format parameters
+      v <- ValidationManager$new()
+      for (d in 1:length(documentNames)) {
+        v$validateName(cls = "CorpusBuilderRaw", method = "buildDocuments",
+                       name = documentNames[d], expect = FALSE)
+      }
+
+      if (!identical(length(documentNames),
+                     length(documentFileNames))) {
         v <- Validate0$new()
         v$notify(cls = "CorpusBuilderRaw", method = "buildDocument",
                  fieldName = "documentNames", value = documentNames,
@@ -242,11 +225,22 @@ CorpusBuilderRaw <- R6::R6Class(
                  expect = NULL)
       }
 
+      if (is.null(documentDescs)) {
+        documentDescs <- documentNames
+      }
+
+      for (d in 1:length(documentNames)) {
+        if (is.null(documentDescs[d]) | length(documentDescs[d] == 0)) {
+          documentDescs[d] < documentNames[d]
+        }
+      }
+
       # Format object variables
       private$..documentNames <- documentNames
       private$..documentFileNames <- documentFileNames
       private$..documentDescs <- documentDescs
 
+      # Create Document objects
       for (d in 1:length(private$..documentNames)) {
         Document$new(name = private$..documentName[d],
                      fileName = private$..documentFileNames[d],
@@ -255,12 +249,50 @@ CorpusBuilderRaw <- R6::R6Class(
       }
       # Add Documents to Corpus
       for (d in 1:length(private$..documentNames)) {
-        document <- get(private$..documentNames[d], envir = .GlobalEnv, inherits = TRUE)
+        document <- get(private$..documentNames[d],
+                        envir = .GlobalEnv, inherits = TRUE)
         private$..documentCollection$addDocument(document)
       }
     },
 
-    obtainCorpus = function() {},
+    obtainCorpus = function(url, zipFile, compressed = TRUE) {
+
+      # Validate Parameters
+      v <- ValidateUrl$new()
+      v$validate(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+                 fieldName = "url", value = url, level = "Error",
+                 msg = paste("URL,", url, "is invalid."),
+                 expect = TRUE)
+      v <- ValidateLogical$new()
+      v$validate(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+                 fieldName = "compressed", value = compressed, level = "Error",
+                 msg = paste("Compressed must be TRUE or FALSE"),
+                 expect = TRUE)
+
+      # Format variables
+      private$..url <- url
+      private$..zipFile <- zipFile
+      zipDir <- file.path(private$..corpusPath, private$..downloadDir)
+      zipFile <- file.path(zipDir, zipFile)
+      rawDir <- file.path(private$..corpusPath, private$..rawDir)
+
+      # Download (and uncompress) corpus data
+      if (compressed == TRUE) {
+
+        download.file(url = url, destfile = zipDir, mode = "wb")
+
+        unzip(zipfile = zipFile, overwrite = FALSE,
+              exdir = rawDir, junkpaths = TRUE,
+              files = private$..documentFileNames)
+      } else {
+        download.file(url = url, destfile = rawDir, mode = "wb")
+      }
+
+      # Upload the corpus into the Document objects.
+      document <- private$..documentCollection$
+
+
+    },
     analyzeCorpus = function() {},
     designCorpus = function() {},
     processCorpus = function() {},
