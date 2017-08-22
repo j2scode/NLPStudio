@@ -48,7 +48,8 @@ Document <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
-    ..fileName = character(0)
+    ..fileName = character(0),
+    ..content = character(0)
   ),
 
   public = list(
@@ -92,12 +93,14 @@ Document <- R6::R6Class(
 
     getDocument = function(verbose = TRUE) {
 
+      # Validation
       v <- ValidateLogical$new()
       v$validate(cls = "Document", method = "getDocument", fieldName = "verbose",
                  level = "Warn", value = verbose,
                  msg = "Verbose must be a logical.")
       rm(v)
 
+      # Format Meta Data for printing to console
       d <- data.frame(name = private$..name,
                       desc = private$..desc,
                       path = private$..path,
@@ -109,7 +112,18 @@ Document <- R6::R6Class(
       if (verbose == TRUE) {
         print.data.frame(d)
       }
-      return(d)
+
+      # Format for export
+      document = list(
+        name = private$..name,
+        desc = private$..desc,
+        path = private$..path,
+        fileName = private$..fileName,
+        created = private$..created,
+        modified = private$..modified,
+        content = private$..content
+      )
+      return(document)
     },
 
     readDocument = function(reader) {
