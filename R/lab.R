@@ -37,24 +37,29 @@ Lab <- R6::R6Class(
     ..created = "None"
   ),
 
+  active = list(
+
+    desc = function(value) {
+      if (missing(value)) {
+        private$..desc
+      } else {
+        private$..desc <- value
+      }
+      nlpStudioCache$setCache("nlpStudio")
+      nlpStudioCache$setCache(private$..name, self)
+    }
+  ),
+
   public = list(
 
     initialize = function(name, desc = NULL) {
 
       # Validation
-      v <- ValidateNoSpaces$new()
-      v$validate(cls = "NLPStudio", level = "Error", method = "initializes",
-                 fieldName = "name", value = name,
-                 msg = "Lab names must contain alphanumeric characters and no spaces.",
-                 expect = TRUE)
+      v <- ValidationManager$new()
+      v$validateName(cls = "NLPStudio", method = "initialize", name = name,
+                     expect = FALSE)
 
-      v <- ValidateExists$new()
-      v$validate(cls = "NLPStudio", level = "Error",
-                 method = "initialize", fieldName = "name",
-                 value = name, msg = paste(
-                   "Object", name, "already exists."),
-                 expect = FALSE)
-
+      # Instantiate variables
       private$..name <- name
       if (is.null(desc)) { desc <- paste(name, "Lab") }
       private$..desc <- desc
@@ -105,7 +110,8 @@ Lab <- R6::R6Class(
       # private$..modified <- Sys.time()
 
       # Update Cache
-      # nlpStudioCache$setCache(private$..name)
+      # nlpStudioCache$setCache("nlpStudio")
+      # nlpStudioCache$setCache(private$..name, self)
     },
 
     addCollection = function(collection) {
@@ -126,31 +132,19 @@ Lab <- R6::R6Class(
       }
 
       # Update Cache
+      nlpStudioCache$setCache("nlpStudio")
       nlpStudioCache$setCache(private$..name)
 
       invisible(self)
 
     },
 
-    searchCollections = function(name) {
-      if (length(private$..collections) > 0) {
-        for (i in 1:length(private$..collections)) {
-          if (private$..collections[[i]]$name == name) { return(i) }
-        }
-        return(FALSE)
-      } else {
-        return(FALSE)
-      }
-    },
-
     removeCollection = function(name, purge = FALSE) {
 
-      self$archiveLab()
-      collectionIdx <- searchCollections(name)
-      private$..collections[[collectionIdx]] <- NULL
-      if (purge == TRUE) { rm(name, envir = .GlobalEnv) }
+      private$..collections[[name]] <- NULL
 
       # Update Cache
+      nlpStudioCache$setCache(private$..name)
       nlpStudioCache$setCache(private$..name)
     },
 

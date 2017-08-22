@@ -22,8 +22,7 @@ content to the calling environment.
 }
 \seealso{
 Other CorpusBuilder Classes: \code{\link{CorpusBuilder0}},
-  \code{\link{CorpusBuilderRawWeb}},
-  \code{\link{CorpusBuilderWeb}}
+  \code{\link{CorpusBuilderRaw}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

@@ -55,13 +55,14 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                            Core Methods                                 #
     #-------------------------------------------------------------------------#
-    initialize = function(name, desc = NULL) {
+    initialize = function(name, path, desc = NULL) {
 
       v <- ValidationManager$new()
       v$validateName(cls = "DocumentCollection", method = "initialize",
                      name, expect = FALSE)
 
-      private$..name = name
+      private$..name <- name
+      private$..path <- path
       if (is.null(desc)) {
         desc <- paste(name, "collection")
       }

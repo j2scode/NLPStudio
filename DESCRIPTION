@@ -12,14 +12,13 @@ LazyData: true
 Depends:
     data.table,
     futile.logger,
+    parallel,
     R (>= 3.4.1),
     R.utils
 Suggests: 
     knitr,
-    rmarkdown,
-    testthat
+    rmarkdown
 VignetteBuilder: knitr
 Imports:
-    R6,
-    parallel
+    R6
 RoxygenNote: 6.0.1

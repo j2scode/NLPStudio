@@ -48,17 +48,7 @@ Document <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
-
-    ..fileName = character(0),
-    ..path = character(0)
-  ),
-
-  active = list(
-
-    path = function(value) {
-      if (missing(value)) private$..path
-      else private$...path <- value
-    }
+    ..fileName = character(0)
   ),
 
   public = list(
@@ -66,7 +56,7 @@ Document <- R6::R6Class(
     #=========================================================================#
     #                           Core Methods                                  #
     #=========================================================================#
-    initialize = function(name, desc, fileName) {
+    initialize = function(name, fileName, path, desc = NULL) {
 
       v <- ValidationManager$new()
       v$validateName(cls = "Document", method = "initialize", name, expect = FALSE)
@@ -77,12 +67,20 @@ Document <- R6::R6Class(
                  value = fileName, level = "Error", msg = "File name is required.",
                  expect = NULL)
       }
+
+      if (missing(path)) {
+        v <- Validate0$new()
+        v$notify(cls = "Document", method = "initialize", fieldName = "path",
+                 value = path, level = "Error", msg = "Path is required.",
+                 expect = NULL)
+      }
       rm(v)
 
       private$..name <- name
       if (is.null(desc)) desc <- paste(name, "document")
       private$..desc <- desc
       private$..fileName <- fileName
+      private$..path<- path
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
 
@@ -102,6 +100,7 @@ Document <- R6::R6Class(
 
       d <- data.frame(name = private$..name,
                       desc = private$..desc,
+                      path = private$..path,
                       fileName = private$..fileName,
                       created = private$..created,
                       modified = private$..modified,
@@ -113,7 +112,7 @@ Document <- R6::R6Class(
       return(d)
     },
 
-    readDocument = function(reader, labName, collectionName) {
+    readDocument = function(reader) {
 
       v <- ValidateNotEmpty$new()
       v$validate(cls = "Document", method = "readDocument", fieldName = "reader",
@@ -121,19 +120,14 @@ Document <- R6::R6Class(
                  msg = paste("Unable to conduct read. Reader has not been set.",
                              "See ?Document for assistance."))
 
-      v$validate(cls = "Document", method = "readDocument", fieldName = "labName",
-                 level = "Error", value = labName,
-                 msg = paste("Unable to conduct read. Lab name variable is empty.",
-                             "See ?Document for assistance."))
-
-      v$validate(cls = "Document", method = "readDocument", fieldName = "collectionName",
-                 level = "Error", value = collectionName,
-                 msg = paste("Unable to conduct read. Collection variable is empty.",
+      v$validate(cls = "Document", method = "readDocument", fieldName = "path",
+                 level = "Error", value = private$..path,
+                 msg = paste("Unable to conduct read. Document path is required.",
                              "See ?Document for assistance."))
 
       v$validate(cls = "Document", method = "readDocument", fieldName = "fileName",
                  level = "Error", value = private$..fileName,
-                 msg = paste("Unable to conduct read. File name variable is empty.",
+                 msg = paste("Unable to conduct read. File name is required.",
                              "See ?Document for assistance."))
       rm(v)
 

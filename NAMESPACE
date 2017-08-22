@@ -2,8 +2,7 @@
 
 export(Archive0)
 export(CorpusBuilder0)
-export(CorpusBuilderRawWeb)
-export(CorpusBuilderWeb)
+export(CorpusBuilderRaw)
 export(CorpusDirector)
 export(Document)
 export(Document0)
