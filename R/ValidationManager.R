@@ -46,17 +46,17 @@ ValidationManager <- R6::R6Class(
                  level = "Error", value = name,
                  msg = "Name must not be empty", expect = TRUE)
 
-      # Validation: Name's existence is what is expected
-      v <- ValidateExists$new()
-      v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = name,
-                 msg = "Name already exists", expect = expect)
-
       # Validation: name is character class
       v <- ValidateClass$new()
       v$validate(cls = cls, method = method, fieldName = "name",
                  level = "Error", value = class(name),
                  msg = "Name isn't a character class", expect = "character")
+
+      # Validation: Name's existence is what is expected
+      v <- ValidateExists$new()
+      v$validate(cls = cls, method = method, fieldName = "name",
+                 level = "Error", value = name,
+                 msg = "Name already exists", expect = expect)
 
       # Validation: No spaces
       v <- ValidateNoSpaces$new()

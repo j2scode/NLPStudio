@@ -90,10 +90,9 @@
 #'
 #' \strong{Core interfaces:}
 #' \describe{
-#'  \item{\code{new(corpusName, corpusDesc = NULL)}}{Instantiates object of class CorpusBuilderRaw. Parameters are:
-#'   \item corpusName required
-#'   \item corpusDesc optional}
-#'  \item{\code{buildCollection()}}{Instantiates object of DocumentCollection class.}
+#'  \item{\code{new(name)}}{Instantiates object of CorpusBuilderRaw class.}
+#'  \item{\code{getBuilder()}}{Returns values of CorpusBuilderRaw object}
+#'  \item{\code{buildCollection(corpusName, corpusDesc = NULL)}}{Instantiates object of DocumentCollection class.}
 #'  \item{\code{buildCDocument(documentNames, fileNames)}}{Instantiates object of Document class. Both parameters are required.}
 #'  \item{\code{sourceCorpus(url, downloadFile)}}{Downloads the corpus from the designated URL and unzips the content into the downloadFile.  The files are stored in the directory designated for this object and data are loaded into the Document objects in memory.}
 #'  \item{\code{analyzeCorpus()}}{Abstract method not implemented in this class.}
@@ -178,84 +177,82 @@ CorpusBuilderRaw <- R6::R6Class(
   ),
 
   public = list(
-    initialize = function(corpusName, corpusDesc = NULL) {
+    initialize = function(name) {
 
       # Validate Name
       v <- ValidationManager$new()
       v$validateName(cls = "CorpusBuilderRaw", method = "initialize",
+                     name = name, expect = FALSE)
+
+      # Format parameters
+      private$..name <- name
+      private$..created <- Sys.time()
+      private$..modified <- Sys.time()
+
+      # Assign name in global environment, cache and return self
+      assign(name, self, .GlobalEnv)
+      nlpStudioCache$setCache(name, self)
+      invisible(self)
+    },
+
+    getBuilder = function() {
+      b <- list(
+        name = private$..name,
+        created = private$..created,
+        modified = private$..modified
+      )
+      return(b)
+    },
+
+    buildCollection = function(corpusName, corpusDesc = NULL) {
+
+      # Validation
+      v <- ValidationManager$new()
+      v$validateName(cls = "CorpusBuilderRaw", method = "buildCollection",
                      name = corpusName, expect = FALSE)
 
       # Format parameters
       private$..corpusName <- corpusName
-      if (is.null(desc)) corpusDesc <- paste(corpusName, "raw corpus")
-      private$..corpusDesc <- desc
-      private$..corpusPath <- file.path(getLabPath(), corpusName)
-      private$..created <- Sys.time()
-      private$..modified <- Sys.time()
+      private$..corpusPath <- file.path(private$getLabPath(), corpusName)
+      private$..corpusDesc <- corpusDesc
 
-      assign(corpusName, self, .GlobalEnv)
+      # Instantiate collection
+      private$..collection <-
+        DocumentCollection$new(name = private$..corpusName,
+                               path = private$..corpusPath,
+                               desc = private$..corpusDesc)
 
-      nlpStudioCache$setCache(corpusName, self)
+      # Assign name in global environment, cache and return self
+      assign(private$..name, self, .GlobalEnv)
+      nlpStudioCache$setCache(private$..name, self)
+      invisible(self)
 
+    },
+
+    buildDocument = function(name, fileName, desc  = NULL) {
+
+      # Validate
+      v <- ValidationManager$new()
+      for (d in 1:length(name)) {
+        v$validateName(cls = "CorpusBuilderRaw", method = "buildDocument",
+                       name = name, expect = FALSE)
+      }
+
+      # Instantiate document
+      private$..collection$documents[[name]] <-
+        Document$new(name, fileName, private$..corpusPath, desc)
+
+      # Assign name in global environment, cache and return self
+      assign(private$..name, self, .GlobalEnv)
+      nlpStudioCache$setCache(private$..name, self)
       invisible(self)
     },
-    buildCollection = function() {
-      private$..documentCollection <-
-        DocumentCollection$new(private$..corpusName,
-                               private$..corpusDesc, private$..corpusPath)
+
+    addDocument = function(document) {
+      private$..collection$addDocument(document)
     },
 
-    buildDocuments = function(documentNames, documentFileNames,
-                              documentDescs = NULL) {
-
-      # Validate and format parameters
-      v <- ValidationManager$new()
-      for (d in 1:length(documentNames)) {
-        v$validateName(cls = "CorpusBuilderRaw", method = "buildDocuments",
-                       name = documentNames[d], expect = FALSE)
-      }
-
-      if (!identical(length(documentNames),
-                     length(documentFileNames))) {
-        v <- Validate0$new()
-        v$notify(cls = "CorpusBuilderRaw", method = "buildDocument",
-                 fieldName = "documentNames", value = documentNames,
-                 level = "Error",
-                 msg = "Document names and filename vectors are of different lengths",
-                 expect = NULL)
-      }
-
-      if (is.null(documentDescs)) {
-        documentDescs <- documentNames
-      }
-
-      for (d in 1:length(documentNames)) {
-        if (is.null(documentDescs[d]) | length(documentDescs[d] == 0)) {
-          documentDescs[d] < documentNames[d]
-        }
-      }
-
-      # Format object variables
-      private$..documentNames <- documentNames
-      private$..documentFileNames <- documentFileNames
-      private$..documentDescs <- documentDescs
-
-      # Create Document objects
-      for (d in 1:length(private$..documentNames)) {
-        Document$new(name = private$..documentName[d],
-                     fileName = private$..documentFileNames[d],
-                     path = private$..corpusPath,
-                     desc = private$..documentDescs[d])
-      }
-      # Add Documents to Corpus
-      for (d in 1:length(private$..documentNames)) {
-        document <- get(private$..documentNames[d],
-                        envir = .GlobalEnv, inherits = TRUE)
-        private$..documentCollection$addDocument(document)
-      }
-    },
-
-    obtainCorpus = function(url, zipFile, compressed = TRUE) {
+    obtainCorpus = function(url, zipFile, fileNames) {
 
       # Validate Parameters
       v <- ValidateUrl$new()
@@ -263,42 +260,44 @@ CorpusBuilderRaw <- R6::R6Class(
                  fieldName = "url", value = url, level = "Error",
                  msg = paste("URL,", url, "is invalid."),
                  expect = TRUE)
-      v <- ValidateLogical$new()
-      v$validate(cls = "CorpusBuilderRaw", method = "obtainCorpus",
-                 fieldName = "compressed", value = compressed, level = "Error",
-                 msg = paste("Compressed must be TRUE or FALSE"),
+
+      if (missing(zipFile)) {
+        v <- Validate0$new()
+        v$notify(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+                 fieldName = "zipFile", value = NULL, level = "Error",
+                 msg = "Zipfile is a required parameter.",
                  expect = TRUE)
+      }
+
+      if (missing(fileNames)) {
+        v <- Validate0$new()
+        v$notify(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+                 fieldName = "fileNames", value = NULL, level = "Error",
+                 msg = "Filenames is a required parameter.",
+                 expect = TRUE)
+      }
 
       # Format variables
-      private$..url <- url
-      private$..zipFile <- zipFile
       zipDir <- file.path(private$..corpusPath, private$..downloadDir)
       zipFile <- file.path(zipDir, zipFile)
       rawDir <- file.path(private$..corpusPath, private$..rawDir)
 
-      # Download (and uncompress) corpus data
-      if (compressed == TRUE) {
-
-        download.file(url = url, destfile = zipDir, mode = "wb")
-
-        unzip(zipfile = zipFile, overwrite = FALSE,
+      # Download and unzip file
+      download.file(url = url, destfile = zipDir, mode = "wb")
+      unzip(zipfile = zipFile, overwrite = FALSE,
               exdir = rawDir, junkpaths = TRUE,
-              files = private$..documentFileNames)
-      } else {
-        download.file(url = url, destfile = rawDir, mode = "wb")
-      }
+              files = fileNames)
 
       # Upload the corpus into the Document objects.
-<<<<<<< HEAD
-      document <- private$..documentCollection$
-=======
->>>>>>> 44d1a3651728d41042f1971d3bb0d36b19e99c77
-
-
+      private$..collection$reader <- ReadBin$new()
+      lapply(private$..collection$documents, function(d) {
+        private$..collection$documents[[d]]$content <- d$readDocument()
+      })
     },
-    analyzeCorpus = function() {},
-    designCorpus = function() {},
-    processCorpus = function() {},
-    getCorpus = function() {}
+
+    analyzeCorpus = function() return(private$..documentCollection),
+    designCorpus = function()  {}, #TODO: Implement feature selection
+    processCorpus = function() {}, #TODO: Implement feature selection
+    getCorpus = function() return(private$..documentCollection)
   )
 )

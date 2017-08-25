@@ -50,7 +50,6 @@
 #'
 #'
 #' @param name Character string indicating the name of the document (required)
-#' @param desc Character string indicating the description for the document
 #' @param path Character string containing the relative directory path to the document
 #' @param documents A list of Document objects contained in the object of the DocumentCollection class
 #' @param created A date time variable indicating the date / time the object was created
@@ -75,6 +74,24 @@ Document0 <- R6::R6Class(
 
     ..reader = character(0),
     ..writer = character(0)
+  ),
+
+  active = list(
+    reader = function(value) {
+      if (missing(value)) {
+        private$..reader
+      } else {
+        private$..reader <- value
+      }
+    },
+
+    writer = function(value) {
+      if (missing(value)) {
+        private$..writer
+      } else {
+        private$..writer <- value
+      }
+    }
   ),
 
   public = list(

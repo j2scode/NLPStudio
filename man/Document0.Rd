@@ -11,8 +11,6 @@ Document0
 \arguments{
 \item{name}{Character string indicating the name of the document (required)}
 
-\item{desc}{Character string indicating the description for the document}
-
 \item{path}{Character string containing the relative directory path to the document}
 
 \item{documents}{A list of Document objects contained in the object of the DocumentCollection class}

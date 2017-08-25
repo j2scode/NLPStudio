@@ -28,7 +28,6 @@
 #'  \item{setWriter}{Method for setting the current Write strategy for the object.}
 #' }
 #'
-#'
 #' @examples
 #' \dontrun{
 #' Document$new(name = "news", desc = "News register of Brown Corpus" fileName = "news.txt")
@@ -48,8 +47,8 @@ Document <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
-    ..fileName = character(0),
-    ..content = character(0)
+    ..fileName = "",
+    ..content = ""
   ),
 
   public = list(
@@ -59,6 +58,7 @@ Document <- R6::R6Class(
     #=========================================================================#
     initialize = function(name, fileName, path, desc = NULL) {
 
+      # Validate
       v <- ValidationManager$new()
       v$validateName(cls = "Document", method = "initialize", name, expect = FALSE)
 
@@ -77,8 +77,8 @@ Document <- R6::R6Class(
       }
       rm(v)
 
+      # Instantiate variables
       private$..name <- name
-      if (is.null(desc)) desc <- paste(name, "document")
       private$..desc <- desc
       private$..fileName <- fileName
       private$..path<- path
@@ -91,7 +91,7 @@ Document <- R6::R6Class(
 
     },
 
-    getDocument = function(verbose = TRUE) {
+    getDocument = function(verbose = FALSE) {
 
       # Validation
       v <- ValidateLogical$new()
@@ -100,16 +100,16 @@ Document <- R6::R6Class(
                  msg = "Verbose must be a logical.")
       rm(v)
 
-      # Format Meta Data for printing to console
-      d <- data.frame(name = private$..name,
-                      desc = private$..desc,
-                      path = private$..path,
-                      fileName = private$..fileName,
-                      created = private$..created,
-                      modified = private$..modified,
-                      stringsAsFactors = FALSE
-      )
       if (verbose == TRUE) {
+        # Format Meta Data for printing to console
+        d <- data.frame(name = private$..name,
+                        desc = private$..desc,
+                        path = private$..path,
+                        fileName = private$..fileName,
+                        created = private$..created,
+                        modified = private$..modified,
+                        stringsAsFactors = FALSE
+        )
         print.data.frame(d)
       }
 
@@ -126,59 +126,10 @@ Document <- R6::R6Class(
       return(document)
     },
 
-    readDocument = function(reader) {
-
-      v <- ValidateNotEmpty$new()
-      v$validate(cls = "Document", method = "readDocument", fieldName = "reader",
-                 level = "Error", value = reader,
-                 msg = paste("Unable to conduct read. Reader has not been set.",
-                             "See ?Document for assistance."))
-
-      v$validate(cls = "Document", method = "readDocument", fieldName = "path",
-                 level = "Error", value = private$..path,
-                 msg = paste("Unable to conduct read. Document path is required.",
-                             "See ?Document for assistance."))
-
-      v$validate(cls = "Document", method = "readDocument", fieldName = "fileName",
-                 level = "Error", value = private$..fileName,
-                 msg = paste("Unable to conduct read. File name is required.",
-                             "See ?Document for assistance."))
-      rm(v)
-
-      r <- private$..reader
-      return(r$readData(self))
-    },
-
-    writeDocument = function(content) {
-      v <- ValidateNotEmpty$new()
-      v$validate(cls = "Document", method = "writeDocument", fieldName = "writer",
-                 level = "Error", value = private$..writer,
-                 msg = paste("Unable to conduct write. Writer has not been set.",
-                             "See ?Document0 for assistance."))
-
-      v$validate(cls = "Document", method = "writeDocument", fieldName = "path",
-                 level = "Error", value = private$..path,
-                 msg = paste("Unable to conduct write. Path variable is empty.",
-                             "See ?Document for assistance."))
-
-      v$validate(cls = "Document", method = "writeDocument", fieldName = "fileName",
-                 level = "Error", value = self$fileName,
-                 msg = paste("Unable to conduct write. File name is empty.",
-                             "See ?Document for assistance."))
-
-      v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
-                 level = "Error", value = content,
-                 msg = paste("Unable to conduct write. Content is empty.",
-                             "See ?Document for assistance."))
-      rm(v)
-      w <- private$..writer
-      w$writeData(self, content)
-    },
-
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
-    addDocument = function(document) {
+    addDocuments = function(document) {
       invisible(self)
     },
 
@@ -206,11 +157,56 @@ Document <- R6::R6Class(
     },
 
     #-------------------------------------------------------------------------#
-    #                          Behavior Methods                               #
+    #                                  I/O                                    #
     #-------------------------------------------------------------------------#
-    getReader = function() private$..reader <- ReadText$new(),
-    setReader = function(value) private$..reader <- value,
-    getWriter = function() private$..reader <- WriteText$new(),
-    setWriter = function(value) private$..writer <- value
+    readDocument = function(reader) {
+
+      v <- ValidateNotEmpty$new()
+      v$validate(cls = "Document", method = "readDocument", fieldName = "reader",
+                 level = "Error", value = reader,
+                 msg = paste("Unable to conduct read. Reader has not been set.",
+                             "See ?Document for assistance."))
+
+      v$validate(cls = "Document", method = "readDocument", fieldName = "path",
+                 level = "Error", value = private$..path,
+                 msg = paste("Unable to conduct read. Document path is required.",
+                             "See ?Document for assistance."))
+
+      v$validate(cls = "Document", method = "readDocument", fieldName = "fileName",
+                 level = "Error", value = private$..fileName,
+                 msg = paste("Unable to conduct read. File name is required.",
+                             "See ?Document for assistance."))
+      rm(v)
+
+      r <- private$..reader
+      private$..content <- r$readData(self)
+      return(private$..content)
+    },
+
+    writeDocument = function(content) {
+      v <- ValidateNotEmpty$new()
+      v$validate(cls = "Document", method = "writeDocument", fieldName = "writer",
+                 level = "Error", value = private$..writer,
+                 msg = paste("Unable to conduct write. Writer has not been set.",
+                             "See ?Document0 for assistance."))
+
+      v$validate(cls = "Document", method = "writeDocument", fieldName = "path",
+                 level = "Error", value = private$..path,
+                 msg = paste("Unable to conduct write. Path variable is empty.",
+                             "See ?Document for assistance."))
+
+      v$validate(cls = "Document", method = "writeDocument", fieldName = "fileName",
+                 level = "Error", value = self$fileName,
+                 msg = paste("Unable to conduct write. File name is empty.",
+                             "See ?Document for assistance."))
+
+      v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
+                 level = "Error", value = content,
+                 msg = paste("Unable to conduct write. Content is empty.",
+                             "See ?Document for assistance."))
+      rm(v)
+      w <- private$..writer
+      w$writeData(self, content)
+    }
   )
 )

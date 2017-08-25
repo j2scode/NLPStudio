@@ -9,19 +9,21 @@
 CorpusBuilder0
 }
 \arguments{
-\item{name}{String containing the name of the corpus to be built. Required.}
+\item{corpusName}{String containing the name of the corpus to be built.}
 
-\item{desc}{String containing the dscription of the corpus to be built. Optional.}
+\item{corpusDesc}{String containing the dscription of the corpus to be built.}
 
-\item{fileNames}{Character vector listing the names of the files in the corpus. Required.}
+\item{documentNames}{Character vector listing the names of the documents in the corpus.}
 
-\item{corpusSource}{Object of class CorpusSource, indicating the methods for sourcing the corpus. Required.}
+\item{documentFileNames}{Character vector listing the file names for the documents in the corpus.}
 
-\item{analyzer}{Object of class Analyzer that conducts an analysis on the obtained corpus. Required for some methods.}
+\item{corpusSource}{Object of class CorpusSource, indicating the methods for sourcing the corpus.}
 
-\item{designer}{Object of class Designer that designates the features of the corpus. Required for some methods.}
+\item{analyzer}{Object of class Analyzer that conducts an analysis on the obtained corpus.}
 
-\item{processor}{Object of class Processor that renders the corpus. Required for some methods.}
+\item{designer}{Object of class Designer that designates the features of the corpus.}
+
+\item{processor}{Object of class Processor that renders the corpus.}
 }
 \value{
 This abstract class is not implemented.
@@ -81,7 +83,7 @@ defined as follows:
  \item buildCollection: Constructs an object of the DocumentCollection
  class. This is a composite class containing other DocumentCollection
  objects or individual objects of the Document class.
- \item buildDocument: Constructs an object of the Document class. This
+ \item buildDocuments: Constructs an object of the Document class. This
  method requires the designation of file names as a required parameter.
  \item sourceCorpus: Obtains the originator corpus from sources such
  as web sites or directories, and stores it to disk.

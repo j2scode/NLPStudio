@@ -52,6 +52,7 @@ Validate0 <- R6::R6Class(
     }
   ),
 
+  #TODO: Have validation methods return false and place stop in calling methods.
   public = list(
     validate = function(cls, method, fieldName, value, level, msg, expect = NULL)
       stop("This method is not available"),

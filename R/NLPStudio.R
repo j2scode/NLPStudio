@@ -65,7 +65,7 @@ NLPStudio <- R6::R6Class(
           ..studioDirs = list(
             archive = "./Archive",
             labs = "./Labs"),
-          ..labList = list(),
+          ..labs = list(),
           ..currentLab = "None",
           ..created = "None",
           ..modified = "None"
@@ -79,41 +79,8 @@ NLPStudio <- R6::R6Class(
             } else {
             private$..desc <- value
             }
-          },
-
-          currentLab = function(lab) {
-
-            if (missing(lab)) {
-              private$..currentLab
-
-            } else {
-
-              v <- ValidateClass$new()
-              v$validate(cls = "NLPStudio", method = "currentLab",
-                         fieldName = "lab", value = lab, level = "Error",
-                         msg = "Object is not of type 'Lab' ",
-                         expect = "Lab")
-
-              labData <- lab$getLab(verbose = FALSE)
-
-              if (identical(private$..currentLab, lab)) {
-                v <- Validate0$new()
-                v$notify(cls = "NLPStudio", method = "currentLab",
-                         fieldName = "lab", value = labData$name, level = "Warn",
-                         msg = paste(labData$name, "is already current."),
-                         expect = "Lab")
-              } else {
-                private$..currentLab <- lab
-                private$..modified <- Sys.time()
-
-                # Update Cache
-                nlpStudioCache$setCache("nlpStudio", self)
-
-              }
-            }
           }
         ),
-
         public = list(
 
           initialize = function() {
@@ -143,35 +110,96 @@ NLPStudio <- R6::R6Class(
             invisible(self)
           },
 
-          getStudio = function(verbose = FALSE) {
-            studio = list(
-              name = private$..name,
-              desc = private$..desc,
-              labList = self$listlabs(),
-              currentLab = private$..currentLab,
-              modified = private$..modified,
-              created = private$..created
-            )
+          getStudio = function(format = "object") {
 
-            if (verbose == TRUE) {
-              cat("\n\n================================================================================",
-                  "\nNLPStudio: ", studio$name, " ", studio$desc, " ",
-                  "\nCurrent Lab: ",studio$currentLab, " Created: ",
-                  format(studio$created), "Modified:", format(studio$modified))
-
-              cat("\n---------------------------------------------------------------------------------",
-                  "\nLabs:\n")
-              print.data.frame(studio$labs)
-              cat("\n================================================================================\n")
+            if ("Lab" %in% class(private$..currentLab)) {
+              lab <- private$..currentLab
+              lab <- lab$getLab(format = "list")
+              labName <- lab$name
+            } else {
+              labName <- "None"
             }
 
+            if (format == "object") {
+              studio <- self
+            } else if (format == "list") {
+              studio = list(
+                name = private$..name,
+                desc = private$..desc,
+                currentLab = labName,
+                labs = self$getLabs(format = 'list'),
+                modified = private$..modified,
+                created = private$..created
+              )
+            } else if (format == "df") {
+              studio = list(
+                studioDf = data.frame(name = private$..name,
+                                      desc = private$..desc,
+                                      currentLab = labName,
+                                      created = private$..created,
+                                      modified = private$..modified,
+                                      stringsAsFactors = FALSE),
+                labsDf = self$getLabs(format = "df")
+              )
+            } else {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "getLabs",
+                       fieldName = "format", value = format, level = "Error",
+                       msg = paste("Invalid format requested.",
+                                   "Must be 'object', 'list', or 'df'.",
+                                   "See ?NLPStudio"),
+                       expect = NULL)
+            }
             return(studio)
           },
 
-          addLab = function(lab, current = FALSE) {
+          getLabs = function(format = "list") {
 
-            # Wait one second (for asynchronous calls)
-            Sys.sleep(1)
+            if (format == "object") {
+              labs = lapply(private$..labs, function(l) l)
+            } else if (format == "list") {
+              labs = lapply(private$..labs, function(l) {
+                l$getLab(format = "list")
+              })
+            } else if (format == "df") {
+              labs = rbindlist(lapply(private$..labs, function(l) {
+                lab <- l$getLab(format = "list")
+                labData = list(
+                  name = lab$name,
+                  desc = lab$desc,
+                  modified = lab$modified,
+                  created = lab$created
+                )
+                labData
+              }))
+            } else {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "getLabs",
+                       fieldName = "format", value = format, level = "Error",
+                       msg = paste("Invalid format requested.",
+                                   "Must be 'object', 'list', or 'df'.",
+                                   "See ?NLPStudio"),
+                       expect = NULL)
+            }
+            return(labs)
+          },
+
+          printStudio = function() {
+
+            studio <- self$getStudio(format == "df")
+
+            cat("\n\n================================================================================",
+                "\nNLPStudio: ")
+            print.data.frame(studio$studioDf)
+
+            cat("\n---------------------------------------------------------------------------------",
+                "\nLabs:\n")
+            print.data.frame(studio$labsDf)
+            cat("\n================================================================================\n")
+
+          },
+
+          addLab = function(lab, enter = FALSE) {
 
             # Validation
             v <- ValidateClass$new()
@@ -182,17 +210,17 @@ NLPStudio <- R6::R6Class(
 
             v <- ValidateLogical$new()
             v$validate(cls = "NLPStudio", method = "addLab",
-                       fieldName = "current", value = current, level = "Error",
-                       msg = paste("Invalid logical,", current, "must be TRUE or FALSE"),
+                       fieldName = "enter", value = enter, level = "Error",
+                       msg = paste("Invalid logical,", enter, "must be TRUE or FALSE"),
                        expect = TRUE)
 
             # Add lab to lab list
-            labData <- lab$getLab(verbose = FALSE)
-            private$..labList[[labData$name]] <- lab
+            labData <- lab$getLab(format = "list")
+            private$..labs[[labData$name]] <- lab
             private$..modified <- Sys.time()
 
-            # Update Current
-            if (current == TRUE) private$..currentLab <- lab
+            # Update enter ...
+            if (enter == TRUE) private$..currentLab <- lab
 
             # Update Cache
             nlpStudioCache$setCache("nlpStudio", self)
@@ -203,19 +231,17 @@ NLPStudio <- R6::R6Class(
 
           removeLab = function(lab) {
 
-            if (class(lab) == "character") { labObject <- get(lab, envir = .GlobalEnv)}
-
             # Confirm lab is a lab
             v <- ValidateClass$new()
             v$validate(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "lab", value = labObject, level = "Error",
-                       msg = paste("Object is not a valid 'lab' type."),
+                       fieldName = "lab", value = lab, level = "Error",
+                       msg = paste("Object is not a valid 'Lab' type."),
                        expect = "Lab")
 
-            labData <- labObject$getLab(verbose = FALSE)
+            labData <- lab$getLab(format = "list")
 
             # Confirm lab is not current
-            if (identical(lab,private$..currentLab)) {
+            if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "removeLab",
                        fieldName = "lab", value = labData$name, level = "Error",
@@ -224,13 +250,13 @@ NLPStudio <- R6::R6Class(
             }
 
             # Archive, and remove lab, and update modified date
-            rm(list = ls(envir = .GlobalEnv)[grep(lab, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+            rm(list = ls(envir = .GlobalEnv)[grep(labData$name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
             cache <- nlpStudioCache$loadCache()
-            cache[[lab]] <- NULL
+            cache[[labData$name]] <- NULL
             nlpStudioCache$replaceCache(cache)
             nlpStudioCache$saveCache()
             rm(cache)
-            private$..labList[[lab]] <- NULL
+            private$..labs[[labData$name]] <- NULL
             private$..modified <- Sys.time()
 
             # Update Cache
@@ -240,23 +266,60 @@ NLPStudio <- R6::R6Class(
 
           },
 
-          listlabs = function(verbose = FALSE) {
+          enterLab = function(lab) {
 
-            labs = rbindlist(lapply(private$..labList, function(e) {
-              labData <- e$getLab(verbose = FALSE)
-              l <- list(
-                name = labData$name,
-                desc = labData$desc,
-                created = labData$created,
-                modified = labData$modified
-              )
-              l
-            }))
+            labData <- lab$getLab(format = "list")
 
-            if (verbose == TRUE) {
-              print.data.frame(labs)
+            if (isTRUE(all.equal(lab, private$..currentLab))) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "enterLab",
+                       fieldName = "lab", value = labData$name, level = "Info",
+                       msg = "Already entered lab.",
+                       expect = NULL)
+            } else {
+
+              if (!isTRUE(all.equal(private$..currentLab, "None"))) {
+                currentLab <- private$..currentLab$getLab("list")
+                v <- Validate0$new()
+                v$notify(cls = "NLPStudio", method = "enterLab",
+                         fieldName = "lab", value = labData$name, level = "Info",
+                         msg = paste("Leaving", currentLab$name, ". Entering", labData$name),
+                         expect = NULL)
+              }
+              private$..currentLab <- lab
+              private$..modified <- Sys.time()
             }
-            return(labs)
+
+
+            # Update Cache
+            nlpStudioCache$setCache("nlpStudio", self)
+
+            invisible(self)
+
+          },
+
+          leaveLab = function(lab) {
+
+            labData <- lab$getLab(format = "list")
+            currentLab <- private$..currentLab$getLab(format = "list")
+
+            if (!isTRUE(all.equal(lab, private$..currentLab))) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "leaveLab",
+                       fieldName = "lab", value = labData$name, level = "Warn",
+                       msg = paste("Unable to leave lab", labData$name,
+                                   ". Current lab is", currentLab$name, "."),
+                       expect = NULL)
+            } else {
+              private$..currentLab <- "None"
+              private$..modified <- Sys.time()
+            }
+
+            # Update Cache
+            nlpStudioCache$setCache("nlpStudio", self)
+
+            invisible(self)
+
           }
         )
       )

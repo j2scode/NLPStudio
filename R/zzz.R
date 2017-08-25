@@ -5,9 +5,9 @@
   if (!dir.exists("./log")) {
     dir.create("./log")
     futile.logger::flog.threshold(INFO)
-    futile.logger::flog.logger("green", INFO, appender=appender.file('./log/green.log'))
-    futile.logger::flog.logger("green", Info, appender=appender.file('./log/green.log'))
-    futile.logger::flog.logger("green", info, appender=appender.file('./log/green.log'))
+    futile.logger::flog.logger("green", INFO, appender=appender.tee('./log/green.log'))
+    futile.logger::flog.logger("green", Info, appender=appender.tee('./log/green.log'))
+    futile.logger::flog.logger("green", info, appender=appender.tee('./log/green.log'))
     futile.logger::flog.logger("yellow", WARN, appender=appender.tee('./log/yellow.log'))
     futile.logger::flog.logger("yellow", Warn, appender=appender.tee('./log/yellow.log'))
     futile.logger::flog.logger("yellow", warn, appender=appender.tee('./log/yellow.log'))

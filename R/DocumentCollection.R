@@ -57,16 +57,22 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, path, desc = NULL) {
 
+      # Validate
       v <- ValidationManager$new()
       v$validateName(cls = "DocumentCollection", method = "initialize",
                      name, expect = FALSE)
 
+      if (missing(path)) {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "initialize", fieldName = "path",
+                 value = path, level = "Error", msg = "Path is required.",
+                 expect = NULL)
+      }
+
+      # Instantiate variables
       private$..name <- name
       private$..path <- path
-      if (is.null(desc)) {
-        desc <- paste(name, "collection")
-      }
-      private$..desc = desc
+      private$..desc <- desc
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
@@ -75,38 +81,112 @@ DocumentCollection <- R6::R6Class(
       invisible(self)
     },
 
-    getDocument = function(verbose = TRUE) {
-      collection <- data.frame(name = private$..name,
-                      desc = private$..desc,
-                      created = private$..created,
-                      modified = private$..modified,
-                      stringsAsFactors = FALSE)
+    getDocument = function(format = "object") {
 
-      documents <- rbindlist(lapply(private$..documents, function(x) {
-        doc <- list(
-          name = x$private$..name,
-          desc = x$private$..desc,
-          fileName = x$private$..fileName,
-          created = x$private$..created,
-          modified = x$private$..modified
+      if (format == "object") {
+        collection <- self
+      } else if (format == "list") {
+        collection = list(
+          name = private$..name,
+          desc = private$..desc,
+          path = private$..path,
+          documents = self$getDocuments(format = "list"),
+          modified = private$..modified,
+          created = private$..created
         )
-        doc
-      }))
-
-      if (verbose == TRUE) {
-        cat("\n\n#===============================================================================#")
-        cat("\n                            DOCUMENT COLLECTION                                 \n")
-        print.data.frame(collection)
-        cat("\n#-------------------------------------------------------------------------------#")
-        cat("\n                              DOCUMENTS                                        \n")
-        print.data.frame(documents)
-        cat("\n#===============================================================================#\n\n")
+      } else if (format == "df") {
+        collection = list(
+          collectionDf = data.frame(name = private$..name,
+                                    path = private$..path,
+                                    desc = private$..desc,
+                                    modified = private$..modified,
+                                    created = private$..created,
+                                    stringsAsFactors = FALSE),
+          documentsDf = self$getDocuments(format = "df")
+        )
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getLab",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
       }
-
-      document = list(collection = collection, documents = documents)
-      return(document)
+      return(collection)
     },
 
+    getDocuments = function(format = "object") {
+
+      if (format == "object") {
+        documents = lapply(private$..documents, function(d) d)
+      } else if (format == "list") {
+        documents = lapply(private$..documents, function(d) {
+          d$getDocument(format = "list")
+        })
+      } else if (format == "df") {
+        documents = rbind(lapply(private$..documents, function(d) {
+          d$getDocument(format = "df")
+        }))
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getdocuments",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
+      }
+      return(documents)
+    },
+
+    printDocument = function() {
+
+      document <- self$getDocument(format = "df")
+
+        cat("\n\n#===============================================================================#")
+        cat("\n                            DOCUMENT COLLECTION                                 \n")
+        print.data.frame(document$collectionDf)
+        cat("\n#-------------------------------------------------------------------------------#")
+        cat("\n                              DOCUMENTS                                        \n")
+        print.data.frame(document$documentsDf)
+        cat("\n#===============================================================================#\n\n")
+    },
+
+    #-------------------------------------------------------------------------#
+    #                          Composite Methods                              #
+    #-------------------------------------------------------------------------#
+    addDocument = function(document) {
+
+      # Validate document
+      v <- ValidateClass$new()
+      v$validate(cls = "DocumentCollection", method = "addDocument",
+                 fieldName = "document", value = document, level = "Error",
+                 msg = "Argument is not a Document class object.",
+                 expect = "Document")
+
+      # Add document to list of documents for collection
+      doc <- document$getDocument()
+      private$..documents[[doc$name]] <- document
+
+      # Update path variable in document
+      document$updatePath(private$..name)
+
+      # Update cache
+      assign(private$..name, self, envir = .GlobalEnv)
+      nlpStudioCache$setCache(key = private$..name, value = self)
+    },
+
+    removeDocument = function(name) {
+
+      # TODO: Implement archive for environment
+      private$..documents[[name]] <- NULL
+      rm(name, envir = .GlobalEnv)
+    },
+
+    #-------------------------------------------------------------------------#
+    #                                  I/O                                    #
+    #-------------------------------------------------------------------------#
     readDocument = function() {
 
       r <- private$..reader
@@ -131,72 +211,6 @@ DocumentCollection <- R6::R6Class(
       lapply(private$..documents, function(d) {
         w$writeData(content[[d]])
       })
-    },
-
-
-    #-------------------------------------------------------------------------#
-    #                          Composite Methods                              #
-    #-------------------------------------------------------------------------#
-    addDocument = function(document) {
-
-      # Add document to list of documents for collection
-      if (length(private$..documents) == 0) {
-        private$..documents <- list(document)
-      } else {
-        private$..documents <- list(private$..documents, list(document))
-      }
-
-      # Update cache
-      assign(name, self, envir = .GlobalEnv)
-      nlpStudioCache$setCache(key = name, value = self)
-    },
-
-    searchDocuments = function(name) {
-      if (length(private$..documents) > 0) {
-        for (i in 1:length(private$..documents)) {
-          if (private$..documents[[i]]$name == name) { return(i) }
-        }
-        return(FALSE)
-      } else {
-        return(FALSE)
-      }
-    },
-
-    removeDocument = function(name) {
-
-      # TODO: Implement archive for environment
-      docIdx <- searchDocuments(name)
-      private$..documents[[docIdx]] <- NULL
-      rm(name, envir = .GlobalEnv)
-    },
-
-    listDocuments = function(verbose = TRUE) {
-
-      documents = lapply(private$..documents, function(d) {
-        docs <- list(
-          name = d[[1]]$private$..name,
-          desc = d[[1]]$private$..desc,
-          path = d[[1]]$private$..path,
-          fileName = d[[1]]$private$..fileName,
-          created = d[[1]]$private$..created,
-          modified = d[[1]]$private$..modified
-        )
-        docs
-      })
-
-      if (verbose == TRUE) {
-        print.data.frame(as.data.frame(documents))
-      }
-      return(documents)
-    },
-
-    #-------------------------------------------------------------------------#
-    #                          Behavior Methods                               #
-    #-------------------------------------------------------------------------#
-    getReader = function() private$..reader <- ReadText$new(),
-    setReader = function(value) private$..reader <- value,
-    getWriter = function() private$..reader <- WriteText$new(),
-    setWriter = function(value) private$..writer <- value
-
+    }
   )
 )

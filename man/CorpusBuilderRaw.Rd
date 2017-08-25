@@ -9,23 +9,27 @@
 CorpusBuilderRaw
 }
 \arguments{
-\item{name}{String containing the name of the corpus to be built. Required.}
+\item{corpusName}{String containing the name of the corpus to be built.}
 
-\item{desc}{String containing the dscription of the corpus to be built. Optional.}
+\item{corpusDesc}{String containing the dscription of the corpus to be built.}
 
-\item{fileNames}{Character vector listing the names of the files in the corpus. Required.}
+\item{documentNames}{Character vector listing one or more names of the documents in the corpus.}
 
-\item{corpusSource}{Object of class CorpusSource, indicating the methods for sourcing the corpus. Required.}
+\item{documentFileNames}{Character vector listing one or more names for the files in the coprus source.}
 
-\item{analyzer}{Object of class Analyzer that conducts an analysis on the obtained corpus. Required for some methods.}
+\item{documentDescs}{Character vector listing one or more file descriptions for the documents in the corpus.}
 
-\item{designer}{Object of class Designer that designates the features of the corpus. Required for some methods.}
+\item{corpusSource}{Object of class CorpusSource, indicating the methods for sourcing the corpus.}
 
-\item{processor}{Object of class Processor that renders the corpus. Required for some methods.}
+\item{analyzer}{Object of class Analyzer that conducts an analysis on the obtained corpus.}
 
-\item{url}{String conitaining the URL from which the corpus will be sourced}
+\item{designer}{Object of class Designer that designates the features of the corpus.}
 
-\item{downloadFile}{String containing the file name into which the corpus will be downloaded}
+\item{processor}{Object of class Processor that renders the corpus.}
+
+\item{url}{String containing the URL from which the corpus will be sourced}
+
+\item{zipFile}{String containing the name of the zipfile to be downloaded}
 }
 \value{
 An object of the DocumentCollection class and one instance of the Document class
@@ -128,10 +132,11 @@ The concrete implementation of the abstract interface includes both core and beh
 
 \strong{Core interfaces:}
 \describe{
- \item{\code{new(name, desc = NULL)}}{Instantiates object of class CorpusBuilderRaw. The name parameter is required and must be a contiguous character string without spaces. The description field is optional.}
- \item{\code{buildCollection(name, desc = NULL)}}{Instantiates object of DocumentCollection class. The name parameter is required and must be a contiguous character string without spaces. The description field is optional.}
- \item{\code{buildCDocument(name, fileName, desc = NULL)}}{Instantiates object of Document class. The name parameter is required and must be a contiguous character string without spaces. The file name is required.  The description field is optional.}
- \item{\code{sourceCorpus(name, url, fileNames, downloadFile, desc = NULL)}}{Downloads the corpus from the designated URL and unzips the content into the downloadFile.  The files are stored in the directory designated for this object and data are loaded into the Document objects in memory.}
+ \item{\code{new(name)}}{Instantiates object of CorpusBuilderRaw class.}
+ \item{\code{getBuilder()}}{Returns values of CorpusBuilderRaw object}
+ \item{\code{buildCollection(corpusName, corpusDesc = NULL)}}{Instantiates object of DocumentCollection class.}
+ \item{\code{buildCDocument(documentNames, fileNames)}}{Instantiates object of Document class. Both parameters are required.}
+ \item{\code{sourceCorpus(url, downloadFile)}}{Downloads the corpus from the designated URL and unzips the content into the downloadFile.  The files are stored in the directory designated for this object and data are loaded into the Document objects in memory.}
  \item{\code{analyzeCorpus()}}{Abstract method not implemented in this class.}
  \item{\code{designCorpus()}}{Abstract method not implemented in this class.}
  \item{\code{processCorpus()}}{Abstract method not implemented in this class.}

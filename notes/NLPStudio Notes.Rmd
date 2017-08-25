@@ -24,12 +24,27 @@ opts_chunk$set(echo=FALSE,
 opts_knit$set(width=75)
 ```
 
+# NLPSTudio
+
+## Overview
+## Phase I
+Classes and objects to perform primative tasks, any other composite tasks that are required to complete the data science capstone.   
+
+
 # Design 
 
 ## NLPStudio
 
-### removeLab
+###
 1. Can't remove a current lab. Client must assign a new lab current.  
+
+## Labs
+Labs are separate environments into which, documents exist.  One can create, enter and leave a lab. When one enters the lab, one can bring a corpus with them, or not.  Bringing in an existing corpus will copy it into the lab. The client can also build and manipulate corpora and documents. The objects in the lab are not effected by other objects in other labs.  Implementation note:
+  1. This will require a new document class that provides the lab 
+
+2. Each lab will have its own collection of documents, builders, etc...
+3. There neednt' be the notion of a current lab. This was a relic of the principle of lab polymorphism. All objects (copora, files) were to be defined analogously to classes. They wouldn't be "instantiated" until they were assigned to a lab. There the objects could be manipulated and chained with other objects in the lab without effecting instances in other labs.  This would require    independent of the notion of a lab.  The assignment of an object to a lab would allow the client to make changes to that instance without effecting other
+
 
 ## Cache
 1. All NLPStudio objects will be stored in cache.

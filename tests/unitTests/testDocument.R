@@ -1,91 +1,147 @@
 testDocument <- function() {
 
-  swipe <- function() {
-
-    if (exists("alpha")) rm(alpha, envir = .GlobalEnv)
-    if (exists("alpha2")) rm(alpha2, envir = .GlobalEnv)
-    if (exists("brown")) rm(brown, envir = .GlobalEnv)
-    if (exists("oxford")) rm(oxford, envir = .GlobalEnv)
+  init <- function() {
+    objs <- ls(pos = ".GlobalEnv")
+    if (exists("blue", envir = .GlobalEnv))  rm(list = objs[grep("blue", objs)], pos = ".GlobalEnv")
+    if (exists("green", envir = .GlobalEnv))  rm(list = objs[grep("green", objs)], pos = ".GlobalEnv")
+    if (exists("caroline", envir = .GlobalEnv))  rm(list = objs[grep("caroline", objs)], pos = ".GlobalEnv")
+    if (exists("cassie", envir = .GlobalEnv))  rm(list = objs[grep("cassie", objs)], pos = ".GlobalEnv")
   }
 
-  # Test 0: Test document instantiation
+  # Test 0: Confirm instantiation of Document
   test0 <- function() {
+    test <- "test0"
+    cat(paste("\n",test, " Commencing\r"))
+    cls <- "Document"
 
-    test <- "Test0"
-    cat(paste("\n",test,"Commencing\r"))
+    # Error handling: Success 8/22/17
+    #Document$new()   # Fail, no name, Success
+    #Document$new(logTests): # Fail func as name
+    #Document$new(9)
+    #Document$new(name = 'blue')
+    #Document$new(name = 'blue', fileName = 'blue.txt')
 
-    swipe()
-    Document$new(name = "alpha", desc = "alpha document", fileName = "alpha.txt")
-    doc <- alpha$getDocument(verbose = FALSE)
-    stopifnot(doc$name == "alpha")
-    stopifnot(doc$desc == "alpha document")
-    stopifnot(doc$fileName == "alpha.txt")
-    stopifnot("POSIXct" %in% class(doc$created))
-    stopifnot("POSIXct" %in% class(doc$modified))
-    # Document$new(name = "alpha", desc = "alpha document", fileName = "alpha.txt")   # should error, duplicate
-    swipe()
-    # Document$new(name = "alpha doc") # should error no spaces and/or filename is blank
-    # Document$new(name = "alpha2", "alpha2 doc") # should error filename is blank
-    # Document$new(name = "alpha2", "alpha2 doc", "alpha2.txt") # alpha or alpha2
-    #Document$new()
+    # Success w/o description
+    Document$new(name = 'blue', fileName = 'blue.txt', path = 'ocean')
+    doc <- blue$getDocument()
+    stopifnot(doc$name == "blue")
+    stopifnot(doc$fileName == "blue.txt")
+    stopifnot(doc$path == "ocean")
+    stopifnot(doc$desc == "blue document")
+    stopifnot((Sys.time()- doc$modified) <1 )
+    stopifnot((Sys.time()- doc$created) <1 )
 
-    cat(paste("\n",test,"Completed: Success!\n"))
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+    stopifnot(checkCache("blue") == TRUE)
+
+    # Success w/o description
+    #Document$new(name = 'blue', fileName = 'blue.txt', path = 'ocean', desc = 'blue ocean') # fail as duplicate
+    Document$new(name = 'green', fileName = 'green.txt', path = 'pastures', desc = 'green pastures')
+    #doc <- green$getDocument(verbose = 5)
+    doc <- green$getDocument(verbose = TRUE)
+    stopifnot(doc$name == "green")
+    stopifnot(doc$fileName == "green.txt")
+    stopifnot(doc$path == "pastures")
+    stopifnot(doc$desc == "green pastures")
+    stopifnot((Sys.time()- doc$modified) <1 )
+    stopifnot((Sys.time()- doc$created) <1 )
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+    stopifnot(checkCache("green") == TRUE)
+
+    # Logit
+    logTests(cls = cls, mthd = "initiate", note = "Successfully created document ww/o Desc, validation ok")
+    logTests(cls = cls, mthd = "getDocument", note = "Success. Validation ok ")
+
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-
-  #Test 01 Test document collection instantiation
+  # Test 1: Document Collection Instantiation
   test1 <- function() {
+    test <- "test1"
+    cat(paste("\r",test, " Commencing\r"))
+    cls <- "DocumentCollection"
 
-    test <- "Test1"
-    cat(paste("\n",test,"Commencing\r"))
+    # Error handling: Success 8/22/17
+    #DocumentCollection$new()
+    #DocumentCollection$new(name = logTests)
+    #DocumentCollection$new(name = "cassie")
 
-    DocumentCollection$new(name = "brown") # Description automated created
-    doc <<- brown$getDocument()
-    stopifnot(doc$collection$name == "brown")
-    stopifnot(doc$collection$desc == "brown collection")
-    stopifnot("POSIXct" %in% class(doc$collection$created))
-    stopifnot("POSIXct" %in% class(doc$collection$modified))
+    # Test successful instantiation
+    DocumentCollection$new(name = "caroline", path = "voice")
+    doc <- caroline$getDocument()
+    stopifnot(doc$name == "caroline")
+    stopifnot(doc$path == "voice")
+    stopifnot(doc$desc == "caroline collection")
+    stopifnot((Sys.time()- doc$modified) <1 )
+    stopifnot((Sys.time()- doc$created) <1 )
 
-    DocumentCollection$new(name = "oxford", desc = "Oxford University Corpus")
-    doc <<- oxford$getDocument(verbose = FALSE)
-    stopifnot(doc$collection$name == "oxford")
-    stopifnot(doc$collection$desc == "Oxford University Corpus")
-    stopifnot("POSIXct" %in% class(doc$collection$created))
-    stopifnot("POSIXct" %in% class(doc$collection$modified))
-    cat(paste("\n",test,"Completed: Success!\n"))
+    DocumentCollection$new(name = "cassie", path = "cassie", desc = "blue and red amore")
+    doc <- cassie$getDocument()
+    stopifnot(doc$name == "cassie")
+    stopifnot(doc$path == "cassie")
+    stopifnot(doc$desc == "blue and red amore")
+    stopifnot((Sys.time()- doc$modified) <1 )
+    stopifnot((Sys.time()- doc$created) <1 )
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+    stopifnot(checkCache("green") == TRUE)
+    stopifnot(checkCache("blue") == TRUE)
+    stopifnot(checkCache("cassie") == TRUE)
+    stopifnot(checkCache("caroline") == TRUE)
+
+
+    # Logit
+    logTests(cls = cls, mthd = "initiate", note = "Successfully created document ww/o Desc, validation ok")
+    logTests(cls = cls, mthd = "getDocument", note = "Success. Validation ok ")
+
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  #Test 2 Restore objects in cache into the global environment.
+  # Test 1: Test add document
   test2 <- function() {
+    test <- "test2"
+    cat(paste("\n",test, " Commencing\r"))
+    cls <- "DocumentCollection"
 
-    test <- "Test2"
-    cat(paste("\n",test,"Commencing\r"))
+    # Error handling
+    #caroline$addDocument("cls")
+    #caroline$addDocument(Lab)
 
-    cat(paste("\n",test,"Completed: Success!\n"))
+    # Successful addition
+    caroline$addDocument(green)
+    doc <- caroline$getDocument(verbose = FALSE)
+    stopifnot(doc$documents[[1]]$name == "green")
+    stopifnot(doc$documents[[1]]$fileName == "green.txt")
+    stopifnot(doc$documents[[1]]$path == "pastures")
+    stopifnot(doc$documents[[1]]$desc == "green pastures")
+    stopifnot((Sys.time()- doc$modified) <1 )
+    stopifnot((Sys.time()- doc$created) <1 ) # Should fail
+
+    # Check cache
+    stopifnot(checkCache("nlpStudio") == TRUE)
+    stopifnot(checkCache("green") == TRUE)
+    stopifnot(checkCache("blue") == TRUE)
+    stopifnot(checkCache("cassie") == TRUE)
+    stopifnot(checkCache("caroline") == TRUE)
+
+
+    # Logit
+    logTests(cls = cls, mthd = "addDocument", note = "Successfully added document to collection")
+    logTests(cls = cls, mthd = "getDocument", note = "Success. Validation ok ")
+
+    cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-  #Test 3 Get information from the cache
-  test3 <- function() {
-
-    test <- "Test3"
-    cat(paste("\n",test,"Commencing\r"))
-
-    cat(paste("\n",test,"Completed: Success!\n"))
-  }
-
-  #Test 4 Write information from the cache and save the cache
-  test4 <- function() {
-
-    test <- "Test4"
-    cat(paste("\n",test,"Commencing\r"))
-
-    cat(paste("\n",test,"Completed: Success!\n"))
-  }
+init()
 test0()
 test1()
-# test2()
-# test3()
-# test4()
+test2()
+
 }
 
-  testDocument()
+devtools::load_all()
+testDocument()

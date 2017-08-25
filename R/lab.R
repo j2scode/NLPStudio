@@ -75,24 +75,84 @@ Lab <- R6::R6Class(
       invisible(self)
     },
 
-    getLab = function(verbose = TRUE) {
-      lab = list(
-        name = private$..name,
-        desc = private$..desc,
-        collections = self$listCollections(verbose = FALSE),
-        modified = private$..modified,
-        created = private$..created
-      )
+    getLab = function(format = "object") {
 
-      if (verbose == TRUE) {
-        cat("\n\n================================================================================",
-            "\nLab: ", lab$name, " ", lab$desc, " ", " Created: ", format(lab$created), "Modified:", format(lab$modified))
-        cat("\n---------------------------------------------------------------------------------",
-            "\nCollections:\n")
-        print.data.frame(lab$collections)
-        cat("\n================================================================================\n")
+      if (format == "object") {
+        lab <- self
+      } else if (format == "list") {
+        lab = list(
+          name = private$..name,
+          desc = private$..desc,
+          collections = self$getCollections(format = "list"),
+          modified = private$..modified,
+          created = private$..created
+        )
+      } else if (format == "df") {
+        lab = list(
+          labDf = data.frame(name = private$..name,
+                             desc = private$..desc,
+                             modified = private$..modified,
+                             created = private$..created,
+                             stringsAsFactors = FALSE),
+          collectionsDf = self$getCollections(format = "df")
+          )
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getLab",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
       }
+
       return(lab)
+    },
+
+    enterLab = function() {
+      nlpStudio$enterLab(self)
+    },
+
+    leaveLab = function() {
+      nlpStudio$leaveLab(self)
+    },
+
+
+    getCollections = function(format = "object") {
+
+      if (format == "object") {
+        collections = lapply(private$..collections, function(c) c)
+      } else if (format == "list") {
+        collections = lapply(private$..collections, function(c) {
+          c$getDocument(format = "list")
+        })
+      } else if (format == "df") {
+        collections = rbindlist(lapply(private$..collections, function(c) {
+          c$getDocument(format = "df")
+        }))
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getCollections",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
+      }
+      return(collections)
+    },
+
+    printLab = function() {
+
+      lab <- self$getLab(format = "df")
+
+      cat("\n\n================================================================================",
+          "\nLab:")
+      print.data.frame(lab$labDf)
+      cat("\n---------------------------------------------------------------------------------",
+          "\nCollections:\n")
+      print.data.frame(lab$collectionsDf)
+      cat("\n================================================================================\n")
     },
 
     archiveLab = function() {
@@ -146,24 +206,6 @@ Lab <- R6::R6Class(
       # Update Cache
       nlpStudioCache$setCache(private$..name)
       nlpStudioCache$setCache(private$..name)
-    },
-
-    listCollections = function(verbose = FALSE) {
-
-      collections = rbindlist(lapply(private$..collections, function(c) {
-        col <- list(
-          name = c$private$..name,
-          desc = c$private$..desc,
-          modified = c$private$..modified,
-          created = c$private$..created
-        )
-        col
-      }))
-
-      if (verbose == TRUE) {
-        print.data.frame(collections)
-      }
-      return(collections)
     }
   ), lock_objects = FALSE
 )

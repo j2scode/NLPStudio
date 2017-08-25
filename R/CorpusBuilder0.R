@@ -107,23 +107,22 @@ CorpusBuilder0 <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
+    ..name = character(0),
     ..corpusName = character(0),
-    ..corpusDesc = character(0),
     ..corpusPath = character(0),
-    ..documentCollection = character(0),
-    ..documentNames = character(0),
-    ..documentFileNames = character(0),
-    ..documentDescs = character(0),
-    ..corpusSource = character(0),
+    ..corpus = character(0),
     ..analyzer = character(0),
     ..designer = character(0),
     ..processor = character(0),
     ..created = character(0),
     ..modified = character(0),
 
+    ..downloadDir = "download",
+    ..rawDir = "raw",
+
     getLabPath = function()  {
       lab <- nlpStudio$currentLab
-      lab <- nlpStudio$getLab(lab)
+      lab <- lab$getLab()
       lab$name
     }
   ),
@@ -137,9 +136,10 @@ CorpusBuilder0 <- R6::R6Class(
 
   public = list(
     initialize = function(name, desc = NULL) stop("Method is not available from CorpusBuilder0, an abstract class!"),
+    getBuilder = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
     buildCollection = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
-    buildDocument = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
-    addDocument = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
+    buildDocuments = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
+    addDocuments = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
     obtainCorpus = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
     analyzeCorpus = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
     designCorpus = function() stop("Method is not available from CorpusBuilder0, an abstract class!"),
