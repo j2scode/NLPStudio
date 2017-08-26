@@ -37,19 +37,19 @@ ValidatePath <- R6::R6Class(
         self$notify(cls, method, fieldName, value, level, msg, expect)
         return(FALSE)
       } else if (isDirectory(value) & !dir.exists(value) & expect == TRUE) {
-        msg <- "Invalid directory. Directory does not exist."
+        msg <- paste("Invalid directory,", value, "directory does not exist.")
         self$notify(cls, method, fieldName, value, level, msg, expect)
         return(FALSE)
       } else if (isDirectory(value) & dir.exists(value) & expect == FALSE) {
-        msg <- "Directory already exists."
+        msg <- msg <- paste("Invalid directory,", value, "directory already exists.")
         self$notify(cls, method, fieldName, value, level, msg, expect)
         return(FALSE)
       } else if (!file.exists(value) & expect == TRUE) {
-        msg <- "Invalid file name. File does not exist."
+        msg <- paste("Invalid file,", value, "does not exist.")
         self$notify(cls, method, fieldName, value, level, msg, expect)
         return(FALSE)
       } else if (file.exists(value) & expect == FALSE) {
-        msg <- "Invalid file name. File already exists."
+        msg <- paste("Invalid file,", value, "already exists.")
         self$notify(cls, method, fieldName, value, level, msg, expect)
         return(FALSE)
       } else {

@@ -91,38 +91,35 @@ Document <- R6::R6Class(
 
     },
 
-    getDocument = function(verbose = FALSE) {
-
-      # Validation
-      v <- ValidateLogical$new()
-      v$validate(cls = "Document", method = "getDocument", fieldName = "verbose",
-                 level = "Warn", value = verbose,
-                 msg = "Verbose must be a logical.")
-      rm(v)
-
-      if (verbose == TRUE) {
-        # Format Meta Data for printing to console
-        d <- data.frame(name = private$..name,
-                        desc = private$..desc,
-                        path = private$..path,
-                        fileName = private$..fileName,
-                        created = private$..created,
-                        modified = private$..modified,
-                        stringsAsFactors = FALSE
+    getDocument = function(format = "object") {
+      if (format == "object") {
+        document <- self
+      } else if (format == "list") {
+        document <- list(
+          name = private$..name,
+          desc = private$..desc,
+          path = private$..path,
+          fileName = private$..fileName,
+          modified = private$..modified,
+          created = private$..created
         )
-        print.data.frame(d)
+      } else if (format == "df") {
+        document <- data.frame(name = private$..name,
+                             desc = private$..desc,
+                             path = private$.path,
+                             fileName = private$..fileName,
+                             modified = private$..modified,
+                             created = private$..created,
+                             stringsAsFactors = FALSE)
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Document", method = "getDocument",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
       }
-
-      # Format for export
-      document = list(
-        name = private$..name,
-        desc = private$..desc,
-        path = private$..path,
-        fileName = private$..fileName,
-        created = private$..created,
-        modified = private$..modified,
-        content = private$..content
-      )
       return(document)
     },
 

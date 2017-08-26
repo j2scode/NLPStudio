@@ -179,7 +179,7 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$studioDf$created) > 1)
     stopifnot((Sys.time() - studio$studioDf$modified) < 1)
 
-    stopifnot(nrow(studio$labs) == 1)
+    stopifnot(nrow(studio$labsDf) == 1)
     stopifnot(studio$labsDf$name[1] == "Development")
     stopifnot(studio$labsDf$desc[1] == "Development Lab")
     stopifnot((Sys.time() - studio$labsDf$created[1]) < 1)
@@ -291,8 +291,8 @@ testNLPStudio <- function() {
 
     stopifnot(studio$labsDf$name[2] == "Bart")
     stopifnot(studio$labsDf$desc[2] == "Simpsons Lab")
-    stopifnot((Sys.time() - studio$labsDf$created[2]) < 1)
-    stopifnot((Sys.time() - studio$labsDf$modified[2]) < 1)
+    stopifnot((Sys.time() - studio$labsDf$created[2]) < 1.5)
+    stopifnot((Sys.time() - studio$labsDf$modified[2]) < 1.5)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -368,7 +368,6 @@ testNLPStudio <- function() {
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
-  # Test 5: Test remove lab
   test15 <- function() {
     test <- "test15: Remove lab"
     cat(paste("\n",test, " Commencing\r"))
@@ -386,7 +385,7 @@ testNLPStudio <- function() {
     stopifnot(exists("Development") == TRUE)
 
     # Confirm date modified updated correctly
-    studio <- nlpStudio$getStudio()
+    studio <- nlpStudio$getStudio(format = "list")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
@@ -402,6 +401,18 @@ testNLPStudio <- function() {
 
     # Logit
     logTests(cls = cls, mthd = "removeLab", note = "Tested validation and removal of lab")
+    cat(paste("\n", test, " Completed: Success!\n"))
+  }
+
+  test16 <- function() {
+    test <- "test16: Print Studio"
+    cat(paste("\n",test, " Commencing\r"))
+
+    studio <- nlpStudio$getStudio(format = "object")
+    studio$printStudio()  # Should print studio and labs to console
+
+    # Logit
+    logTests(cls = cls, mthd = "printStudio", note = "Tested printStudio")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -423,19 +434,17 @@ test12()
 test13()
 test14()
 test15()
-
+test16()
 
 }
 
 cls <- "NLPStudio"
 labsDir <- "./Labs"
 archiveDir <- "./Archive"
-nlpStudioFile <- "./NLPStudio.Rdata"
 cacheFile <- "./.StudioCache.Rdata"
 
-base::unlink(labsDir, recursive = FALSE)
+base::unlink(labsDir, recursive = TRUE)
 base::unlink(archiveDir, recursive = TRUE)
-base::unlink(nlpStudioFile)
 base::unlink(cacheFile)
 
 devtools::load_all()

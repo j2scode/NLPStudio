@@ -15,8 +15,8 @@
 #'  \item{\code{new()}}{Creates an object of Lab Class}
 #'  \item{\code{getLab(verbose = FALSE)}}{Retrieves the meta data for the Lab, as well as a list of its document collections. If verbose is false, a data frame is returned.  If verbose is true, data frame is returned and the lab and its colllections are printed to console.}
 #'   \item{\code{archiveLab()}}{Compresses and stores the lab in the archive directory. This method is also called prior to removing a lab from the Studio. }
-#'   \item{\code{addCollection(name, desc)}}{Adds a document collection to the list of collections in the lab}
-#'   \item{\code{removeCollection(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
+#'   \item{\code{addDocument(name, desc)}}{Adds a document collection to the list of collections in the lab}
+#'   \item{\code{removeDocument(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
 #' }
 #'
 #' @section Private Fields:
@@ -32,9 +32,10 @@ Lab <- R6::R6Class(
   private = list(
     ..name = character(0),
     ..desc = character(0),
-    ..collections = list(),
+    ..documents = list(),
     ..modified = "None",
-    ..created = "None"
+    ..created = "None",
+    ..directories = list()
   ),
 
   active = list(
@@ -45,7 +46,7 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      nlpStudioCache$setCache("nlpStudio")
+      nlpStudioCache$setCache("nlpStudio", nlpStudio)
       nlpStudioCache$setCache(private$..name, self)
     }
   ),
@@ -54,10 +55,33 @@ Lab <- R6::R6Class(
 
     initialize = function(name, desc = NULL) {
 
-      # Validation
+      # Load directories
+      private$..directories <- nlpStudio$getDirectories()
+
+      # Validate Name
       v <- ValidationManager$new()
       v$validateName(cls = "NLPStudio", method = "initialize", name = name,
                      expect = FALSE)
+
+      # Confirm lab does not already exist
+      v <- ValidateExists$new()
+      v$validate(cls = "Lab", method = "initialize",
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("Cannot create lab because", name,
+                             "already exists.",
+                             "See ?Lab"),
+                 expect = FALSE)
+
+      # Confirm directory does not exist
+      v <- ValidatePath$new()
+      v$validate(cls = "Lab", method = "initialize",
+                 fieldName = "name",
+                 value = file.path(private$..directories$labs, name),
+                 level = "Error",
+                 msg = paste("Cannot create lab because", name,
+                             "directory already exists.",
+                             "See ?Lab"),
+                 expect = FALSE)
 
       # Instantiate variables
       private$..name <- name
@@ -66,11 +90,15 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
       private$..created <- Sys.time()
 
+      # Create lab directory
+      dir.create(file.path(private$..directories$labs, name))
+
       # Assign its name in the global environment
       assign(name, self, envir = .GlobalEnv)
 
       # Update Cache
       nlpStudioCache$setCache(name, self)
+      nlpStudioCache$setCache("nlpStudio", nlpStudio)
 
       invisible(self)
     },
@@ -83,7 +111,7 @@ Lab <- R6::R6Class(
         lab = list(
           name = private$..name,
           desc = private$..desc,
-          collections = self$getCollections(format = "list"),
+          collections = self$getDocuments(format = "list"),
           modified = private$..modified,
           created = private$..created
         )
@@ -94,7 +122,7 @@ Lab <- R6::R6Class(
                              modified = private$..modified,
                              created = private$..created,
                              stringsAsFactors = FALSE),
-          collectionsDf = self$getCollections(format = "df")
+          collectionsDf = self$getDocuments(format = "df")
           )
       } else {
         v <- Validate0$new()
@@ -102,7 +130,7 @@ Lab <- R6::R6Class(
                  fieldName = "format", value = format, level = "Error",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
-                             "See ?NLPStudio"),
+                             "See ?Lab"),
                  expect = NULL)
       }
 
@@ -115,31 +143,6 @@ Lab <- R6::R6Class(
 
     leaveLab = function() {
       nlpStudio$leaveLab(self)
-    },
-
-
-    getCollections = function(format = "object") {
-
-      if (format == "object") {
-        collections = lapply(private$..collections, function(c) c)
-      } else if (format == "list") {
-        collections = lapply(private$..collections, function(c) {
-          c$getDocument(format = "list")
-        })
-      } else if (format == "df") {
-        collections = rbindlist(lapply(private$..collections, function(c) {
-          c$getDocument(format = "df")
-        }))
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getCollections",
-                 fieldName = "format", value = format, level = "Error",
-                 msg = paste("Invalid format requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "See ?NLPStudio"),
-                 expect = NULL)
-      }
-      return(collections)
     },
 
     printLab = function() {
@@ -156,56 +159,108 @@ Lab <- R6::R6Class(
     },
 
     archiveLab = function() {
-      return("archived")
 
-      # TODO: Finish archive class
-      # TODO: Implement INFO logs in log directory established for the lab
+      filePath <- file.path(private$..directories$labs, private$..name)
+      if(length(list.files(path = filePath, all.files = TRUE,
+                          recursive = TRUE, include.dirs = TRUE)) > 0) {
 
-      # a <- Archive$new()
-      # object = list(
-      #   name = private$..name,
-      #   desc = paste0(private$..name, "-archived-Lab")
-      # )
-      # a$archive(object)
-      # private$..modified <- Sys.time()
-
-      # Update Cache
-      # nlpStudioCache$setCache("nlpStudio")
-      # nlpStudioCache$setCache(private$..name, self)
+        a <- Archive0$new()
+        a$archive(fileName = private$..name,
+                  filePath = file.path(private$..directories$archives,
+                                       private$..name),
+                  self)
+      }
     },
 
-    addCollection = function(collection) {
+
+    getDocuments = function(format = "object") {
+
+      if (format == "object") {
+        collections = lapply(private$..documents, function(c) c)
+      } else if (format == "list") {
+        collections = lapply(private$..documents, function(c) {
+          c$getDocument(format = "list")
+        })
+      } else if (format == "df") {
+        collections = rbindlist(lapply(private$..documents, function(c) {
+          collections <- c$getDocument(format = "list")
+          collectionsData = list(
+            name = collections$name,
+            desc = collections$desc,
+            path = collections$path,
+            created = collections$created,
+            modified = collections$modified
+          )
+        }))
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getDocuments",
+                 fieldName = "format", value = format, level = "Error",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?Lab"),
+                 expect = NULL)
+      }
+      return(collections)
+    },
+
+    addDocument = function(document) {
 
       # Validate
+      documentData <- document$getDocument(format = "list")
       v <- ValidateClass$new()
-      v$validation(cls = "Lab", level = "Error", method = "addCollection",
-                   fieldName = "collection", value = collection,
-                   msg = paste("Invalid class. Collection class expected",
-                               class(collection), "encountered."),
-                   expect = "Collection")
+      v$validate(cls = "Lab", level = "Error", method = "addDocument",
+                   fieldName = "document", value = document,
+                   msg = paste("Invalid class. DocumentCollection class expected",
+                               class(document), "encountered."),
+                   expect = "DocumentCollection")
 
       # Add collection to list of collections
-      if (length(private$..collections) == 0) {
-        private$..collections <- list(collection)
-      } else {
-        private$..collections <- list(private$..collections, list(collection))
-      }
+      private$..documents[[documentData$name]] <- document
+      private$..modified <- Sys.time()
 
       # Update Cache
-      nlpStudioCache$setCache("nlpStudio")
-      nlpStudioCache$setCache(private$..name)
+      nlpStudioCache$setCache("nlpStudio", nlpStudio)
+      nlpStudioCache$setCache(private$..name, self)
 
       invisible(self)
 
     },
 
-    removeCollection = function(name, purge = FALSE) {
+    removeDocument = function(document, purge = FALSE) {
 
-      private$..collections[[name]] <- NULL
+      # Confirm parameter is a collection
+      v <- ValidateClass$new()
+      v$validate(cls = "Lab", method = "removeDocument",
+                 fieldName = "document", value = document, level = "Error",
+                 msg = paste("Object is not a valid DocumentCollection type."),
+                 expect = "DocumentCollection")
+
+      # Archive Lab
+      self$archiveLab()
+
+      # Remove collection from lab
+      documentData <- document$getDocument(format = "list")
+      private$..documents[[documentData$name]] <- NULL
+      private$..modified <- Sys.time()
+
+      if (purge == TRUE) {
+        # Remove from global environment
+        rm(list = ls(envir = .GlobalEnv)[grep(documentData$name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+
+        # Remove from cache
+        cache <- nlpStudioCache$loadCache()
+        cache[[documentData$name]] <- NULL
+        nlpStudioCache$replaceCache(cache)
+        nlpStudioCache$saveCache()
+      }
 
       # Update Cache
-      nlpStudioCache$setCache(private$..name)
-      nlpStudioCache$setCache(private$..name)
+      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioCache$setCache("nlpStudio", nlpStudio)
+
+      invisible(self)
+
     }
   ), lock_objects = FALSE
 )
