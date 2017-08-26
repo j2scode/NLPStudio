@@ -29,8 +29,8 @@ Additionally, functionality is included to get/print and archive the lab.
  \item{\code{new()}}{Creates an object of Lab Class}
  \item{\code{getLab(verbose = FALSE)}}{Retrieves the meta data for the Lab, as well as a list of its document collections. If verbose is false, a data frame is returned.  If verbose is true, data frame is returned and the lab and its colllections are printed to console.}
   \item{\code{archiveLab()}}{Compresses and stores the lab in the archive directory. This method is also called prior to removing a lab from the Studio. }
-  \item{\code{addCollection(name, desc)}}{Adds a document collection to the list of collections in the lab}
-  \item{\code{removeCollection(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
+  \item{\code{addDocument(name, desc)}}{Adds a document collection to the list of collections in the lab}
+  \item{\code{removeDocument(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
 }
 }
 

@@ -57,17 +57,16 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, path, desc = NULL) {
 
-      # Validate
+      # Validate Name
       v <- ValidationManager$new()
       v$validateName(cls = "DocumentCollection", method = "initialize",
                      name, expect = FALSE)
-
-      if (missing(path)) {
-        v <- Validate0$new()
-        v$notify(cls = "DocumentCollection", method = "initialize", fieldName = "path",
+      # Validate path
+      v <- ValidatePath$new()
+      v$validate(cls = "DocumentCollection", method = "initialize",
+                 fieldName = "path",
                  value = path, level = "Error", msg = "Path is required.",
-                 expect = NULL)
-      }
+                 expect = FALSE)
 
       # Instantiate variables
       private$..name <- name
@@ -76,6 +75,10 @@ DocumentCollection <- R6::R6Class(
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
+      # Create Directory
+      dir.create(path)
+
+      # Assign the name to the object in the global environment and update cache
       assign(name, self, envir = .GlobalEnv)
       nlpStudioCache$setCache(key = name, value = self)
       invisible(self)
@@ -84,9 +87,9 @@ DocumentCollection <- R6::R6Class(
     getDocument = function(format = "object") {
 
       if (format == "object") {
-        collection <- self
+        document <- self
       } else if (format == "list") {
-        collection = list(
+        document = list(
           name = private$..name,
           desc = private$..desc,
           path = private$..path,
@@ -95,8 +98,8 @@ DocumentCollection <- R6::R6Class(
           created = private$..created
         )
       } else if (format == "df") {
-        collection = list(
-          collectionDf = data.frame(name = private$..name,
+        document = list(
+          documentDf = data.frame(name = private$..name,
                                     path = private$..path,
                                     desc = private$..desc,
                                     modified = private$..modified,
@@ -106,11 +109,11 @@ DocumentCollection <- R6::R6Class(
         )
       } else {
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getLab",
+        v$notify(cls = "DocumentCollection", method = "getDocument",
                  fieldName = "format", value = format, level = "Error",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
-                             "See ?NLPStudio"),
+                             "See ?DocumentCollection"),
                  expect = NULL)
       }
       return(collection)
@@ -125,16 +128,16 @@ DocumentCollection <- R6::R6Class(
           d$getDocument(format = "list")
         })
       } else if (format == "df") {
-        documents = rbind(lapply(private$..documents, function(d) {
-          d$getDocument(format = "df")
+        documents = rbindlist(lapply(private$..documents, function(d) {
+          d$getDocument(format = "list")
         }))
       } else {
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getdocuments",
+        v$notify(cls = "DocumentCollection", method = "getdocuments",
                  fieldName = "format", value = format, level = "Error",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
-                             "See ?NLPStudio"),
+                             "See ?DocumentCollection"),
                  expect = NULL)
       }
       return(documents)
@@ -168,9 +171,6 @@ DocumentCollection <- R6::R6Class(
       # Add document to list of documents for collection
       doc <- document$getDocument()
       private$..documents[[doc$name]] <- document
-
-      # Update path variable in document
-      document$updatePath(private$..name)
 
       # Update cache
       assign(private$..name, self, envir = .GlobalEnv)

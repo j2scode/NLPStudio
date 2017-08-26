@@ -118,9 +118,9 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Add documents to collection
-    brown$addCollection(news)
-    brown$addCollection(sports)
-    brown$addCollection(finance)
+    brown$addDocument(news)
+    brown$addDocument(sports)
+    brown$addDocument(finance)
 
     # Get the collection
     b <- brown$getDocument()

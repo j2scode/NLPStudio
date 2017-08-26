@@ -63,7 +63,7 @@ NLPStudio <- R6::R6Class(
           ..name = "nlpStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
-            archive = "./Archive",
+            archives = "./Archives",
             labs = "./Labs"),
           ..labs = list(),
           ..currentLab = "None",
@@ -93,7 +93,7 @@ NLPStudio <- R6::R6Class(
             on.exit(options(opt))
 
             # Create archive and lab folders
-            suppressWarnings(dir.create(private$..studioDirs$archive))
+            suppressWarnings(dir.create(private$..studioDirs$archives))
             suppressWarnings(dir.create(private$..studioDirs$labs))
 
             # Create single instance of NLPStudio object
@@ -186,7 +186,7 @@ NLPStudio <- R6::R6Class(
 
           printStudio = function() {
 
-            studio <- self$getStudio(format == "df")
+            studio <- nlpStudio$getStudio(format = "df")
 
             cat("\n\n================================================================================",
                 "\nNLPStudio: ")
@@ -249,15 +249,22 @@ NLPStudio <- R6::R6Class(
                        expect = "Lab")
             }
 
-            # Archive, and remove lab, and update modified date
+            # Archive lab
+            lab$archiveLab()
+
+            # Remove lab from nlpStudio
+            private$..labs[[labData$name]] <- NULL
+            private$..modified <- Sys.time()
+
+            # Remove from global environment
             rm(list = ls(envir = .GlobalEnv)[grep(labData$name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+
+            # Remove from cache
             cache <- nlpStudioCache$loadCache()
             cache[[labData$name]] <- NULL
             nlpStudioCache$replaceCache(cache)
             nlpStudioCache$saveCache()
             rm(cache)
-            private$..labs[[labData$name]] <- NULL
-            private$..modified <- Sys.time()
 
             # Update Cache
             nlpStudioCache$setCache("nlpStudio", self)
@@ -320,6 +327,9 @@ NLPStudio <- R6::R6Class(
 
             invisible(self)
 
+          },
+          getDirectories = function() {
+            private$..studioDirs
           }
         )
       )

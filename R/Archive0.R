@@ -36,14 +36,14 @@ Archive0 <- R6::R6Class(
   classname = "Archive0",
 
   public = list(
-    archive = function(object) {
+    archive = function(fileName, filePath, object) {
 
-      archDir <- nlpStudio$studioDirs$archive
+      dirs <- nlpStudio$getDirectories()
 
-      archiveFile <- file.path(archDir, paste0(sub('\\..*', '',object$desc),
+      archiveFile <- file.path(dirs$archive, paste0(sub('\\..*', '',fileName),
                             format(Sys.time(),'-%Y%m%d-%H%M%S'),".zip"))
 
-      files <- list.files(path = file.path(object$path), all.files = TRUE,
+      files <- list.files(path = filePath, all.files = TRUE,
                           recursive = TRUE, include.dirs = TRUE)
       zip(archiveFile, files)
     }
