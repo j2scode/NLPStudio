@@ -41,21 +41,11 @@ ReadRdata <- R6::R6Class(
   public = list(
     readData = function(document) {
 
+      document <- document$getDocument(format = "list")
       private$validate(document)
 
-      content = list(
-        metaData = list(
-          parent = document$parent,
-          name = document$name,
-          desc = document$desc,
-          path = document$path,
-          fileName = document$fileName,
-          objName = document$objName
-        ),
-        content = ""
-      )
-
-      content$content <- load(file.path(directory, fileName), envir = .GlobalEnv)
+      content <- load(file.path(document$path, document$fileName), envir = .GlobalEnv)
+      content <- get(content, envir = .GlobalEnv)
       return(content)
     }
   )

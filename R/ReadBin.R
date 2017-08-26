@@ -23,10 +23,23 @@
 ReadBin <- R6::R6Class(
   classname = "ReadBin",
   inherit = Read0,
+  private = list(
+    validate = function(docData) {
+      filePath <- file.path(docData$path, docData$fileName)
+      v <- ValidatePath$new()
+      v$validate(cls = "ReadBin", method = "readData",
+                 fieldName = "file.path(document$path, document$fileName)",
+                 value = filePath, level = "Error",
+                 msg = "Invalid file path.", expect = TRUE)
+      rm(v)
+    }
+  ),
   public = list(
     readData = function(document) {
 
-      docData <- document$getDocument()
+      document <- document$getDocument(format = "list")
+      private$validate(document)
+
       filePath <- file.path(docData$path, docData$fileName)
 
       content <- readBin(

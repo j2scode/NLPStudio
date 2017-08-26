@@ -25,8 +25,8 @@ ReadText <- R6::R6Class(
   inherit = Read0,
 
   private = list(
-    validate = function(document) {
-      filePath <- file.path(document$path, document$fileName)
+    validate = function(docData) {
+      filePath <- file.path(docData$path, docData$fileName)
       v <- ValidatePath$new()
       v$validate(cls = "ReadText", method = "readData",
                  fieldName = "file.path(document$path, document$fileName)",
@@ -38,23 +38,12 @@ ReadText <- R6::R6Class(
   public = list(
     readData = function(document) {
 
+      document <- document$getDocument(format = "list")
       private$validate(document)
 
-      content = list(
-        metaData = list(
-          parent = document$parent,
-          name = document$name,
-          desc = document$desc,
-          path = document$path,
-          fileName = document$fileName,
-          objName = document$objName
-        ),
-        content = ""
-      )
-
-      con <- file(file.path(document$path, document$fileName))
+      con <- file(file.path(docData$path, docData$fileName))
       on.exit(close(con))
-      content$content <- readLines(con)
+      content <- readLines(con)
 
       return(content)
     }

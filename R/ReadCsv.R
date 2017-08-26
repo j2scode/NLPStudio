@@ -41,6 +41,7 @@ ReadCsv <- R6::R6Class(
   public = list(
     readData = function(document, header = TRUE) {
 
+      document <- document$getDocument(format = "list")
       private$validate(document)
 
       con <- file(file.path(document$path, document$fileName))

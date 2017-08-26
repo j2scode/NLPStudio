@@ -72,8 +72,8 @@ Document0 <- R6::R6Class(
     ..created = character(0),
     ..modified = character(0),
 
-    ..reader = character(0),
-    ..writer = character(0)
+    ..reader = ReadText$new(),
+    ..writer = WriteText$new()
   ),
 
   active = list(

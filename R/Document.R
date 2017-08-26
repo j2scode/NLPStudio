@@ -28,6 +28,11 @@
 #'  \item{setWriter}{Method for setting the current Write strategy for the object.}
 #' }
 #'
+#' @section Composite Methods
+#' These methods support the integrity of the composite document collection
+#' \describe{
+#'  \item{addPath}{Method for adding the path variable to the object.}
+#' }
 #' @examples
 #' \dontrun{
 #' Document$new(name = "news", desc = "News register of Brown Corpus" fileName = "news.txt")
@@ -51,6 +56,22 @@ Document <- R6::R6Class(
     ..content = ""
   ),
 
+  active = list(
+    path = function(value) {
+      if (missing(value)) {
+        private$..path
+      } else {
+      v <- ValidatePath$new()
+      v$validate(cls = "Document", method = "path",
+                 fieldName = "path", value = path, level = "Error",
+                 msg = "Invalid path See ?Document",
+                 expect = TRUE)
+      private$..path <- path
+      private$..modified <- Sys.time()
+      }
+    }
+  ),
+
   public = list(
 
     #=========================================================================#
@@ -68,12 +89,11 @@ Document <- R6::R6Class(
                  value = fileName, level = "Error", msg = "File name is required.",
                  expect = NULL)
       }
-
-      if (missing(path)) {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "initialize", fieldName = "path",
-                 value = path, level = "Error", msg = "Path is required.",
-                 expect = NULL)
+      if (!missing(path)) {
+        v <- ValidatePath$new()
+        v$validate(cls = "Document", method = "initialize", fieldName = "path",
+                   value = path, level = "Error", msg = "",
+                   expect = FALSE)
       }
       rm(v)
 
@@ -130,27 +150,8 @@ Document <- R6::R6Class(
       invisible(self)
     },
 
-    searchDocuments = function(name) {
-      invisible(self)
-    },
-
     removeDocument = function(name) {
       invisible(self)
-    },
-
-    listDocuments = function(verbose = TRUE) {
-
-      d <- data.table(name = private$..name,
-                      desc = private$..desc,
-                      fileName = private$..fileName,
-                      path = private$..path,
-                      created = private$..created,
-                      modified = private$..modified)
-
-      if (verbose == TRUE) {
-        print.data.frame(d)
-      }
-      return(d)
     },
 
     #-------------------------------------------------------------------------#
@@ -175,15 +176,15 @@ Document <- R6::R6Class(
                              "See ?Document for assistance."))
       rm(v)
 
-      r <- private$..reader
-      private$..content <- r$readData(self)
+      self$reader <- reader
+      private$..content <- reader$readData(self)
       return(private$..content)
     },
 
-    writeDocument = function(content) {
+    writeDocument = function(writer, content) {
       v <- ValidateNotEmpty$new()
       v$validate(cls = "Document", method = "writeDocument", fieldName = "writer",
-                 level = "Error", value = private$..writer,
+                 level = "Error", value = writer,
                  msg = paste("Unable to conduct write. Writer has not been set.",
                              "See ?Document0 for assistance."))
 
@@ -193,7 +194,7 @@ Document <- R6::R6Class(
                              "See ?Document for assistance."))
 
       v$validate(cls = "Document", method = "writeDocument", fieldName = "fileName",
-                 level = "Error", value = self$fileName,
+                 level = "Error", value = private$fileName,
                  msg = paste("Unable to conduct write. File name is empty.",
                              "See ?Document for assistance."))
 
@@ -202,8 +203,9 @@ Document <- R6::R6Class(
                  msg = paste("Unable to conduct write. Content is empty.",
                              "See ?Document for assistance."))
       rm(v)
-      w <- private$..writer
-      w$writeData(self, content)
+
+      self$writer <- writer
+      writer$writeDocument(self, content)
     }
   )
 )
