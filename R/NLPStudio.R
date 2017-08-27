@@ -110,11 +110,11 @@ NLPStudio <- R6::R6Class(
             invisible(self)
           },
 
-          getStudio = function(format = "object") {
+          getStudio = function(type = "list") {
 
             if ("Lab" %in% class(private$..currentLab)) {
               lab <- private$..currentLab
-              lab <- lab$getLab(format = "list")
+              lab <- lab$getLab(type = "list")
               labName <- lab$name
             } else {
               labName <- "None"
@@ -139,7 +139,7 @@ NLPStudio <- R6::R6Class(
                                       created = private$..created,
                                       modified = private$..modified,
                                       stringsAsFactors = FALSE),
-                labsDf = self$getLabs(format = "df")
+                labsDf = self$getLabs(type = "df")
               )
             } else {
               v <- Validate0$new()
@@ -153,17 +153,17 @@ NLPStudio <- R6::R6Class(
             return(studio)
           },
 
-          getLabs = function(format = "list") {
+          getLabs = function(type = "list") {
 
             if (format == "object") {
               labs = lapply(private$..labs, function(l) l)
             } else if (format == "list") {
               labs = lapply(private$..labs, function(l) {
-                l$getLab(format = "list")
+                l$getLab(type = "list")
               })
             } else if (format == "df") {
               labs = rbindlist(lapply(private$..labs, function(l) {
-                lab <- l$getLab(format = "list")
+                lab <- l$getLab(type = "list")
                 labData = list(
                   name = lab$name,
                   desc = lab$desc,
@@ -186,7 +186,7 @@ NLPStudio <- R6::R6Class(
 
           printStudio = function() {
 
-            studio <- nlpStudio$getStudio(format = "df")
+            studio <- nlpStudio$getStudio(type = "df")
 
             cat("\n\n================================================================================",
                 "\nNLPStudio: ")
@@ -215,7 +215,7 @@ NLPStudio <- R6::R6Class(
                        expect = TRUE)
 
             # Add lab to lab list
-            labData <- lab$getLab(format = "list")
+            labData <- lab$getLab(type = "list")
             private$..labs[[labData$name]] <- lab
             private$..modified <- Sys.time()
 
@@ -238,7 +238,7 @@ NLPStudio <- R6::R6Class(
                        msg = paste("Object is not a valid 'Lab' type."),
                        expect = "Lab")
 
-            labData <- lab$getLab(format = "list")
+            labData <- lab$getLab(type = "list")
 
             # Confirm lab is not current
             if (isTRUE(all.equal(lab, private$..currentLab))) {
@@ -275,7 +275,7 @@ NLPStudio <- R6::R6Class(
 
           enterLab = function(lab) {
 
-            labData <- lab$getLab(format = "list")
+            labData <- lab$getLab(type = "list")
 
             if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
@@ -307,8 +307,8 @@ NLPStudio <- R6::R6Class(
 
           leaveLab = function(lab) {
 
-            labData <- lab$getLab(format = "list")
-            currentLab <- private$..currentLab$getLab(format = "list")
+            labData <- lab$getLab(type = "list")
+            currentLab <- private$..currentLab$getLab(type = "list")
 
             if (!isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()

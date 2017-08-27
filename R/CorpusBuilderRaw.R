@@ -7,7 +7,7 @@
 #'
 #' \strong{CorpusBuilder Class Overview:}
 #'
-#' The CorpusBuilder family of classes are an implementation of the builder
+#' The CorpusBuilder family of classes is an implementation of the builder
 #' pattern documented in the book "Design Patterns: Elements of Reusable
 #' Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 #' and John Vlissides (hence Gang of Four). This pattern allows for different
@@ -180,8 +180,8 @@ CorpusBuilderRaw <- R6::R6Class(
     initialize = function(name) {
 
       # Validate Name
-      v <- ValidationManager$new()
-      v$validateName(cls = "CorpusBuilderRaw", method = "initialize",
+      v <- ValidateName$new()
+      v$validate(cls = "CorpusBuilderRaw", method = "initialize",
                      name = name, expect = FALSE)
 
       # Format parameters
@@ -207,8 +207,8 @@ CorpusBuilderRaw <- R6::R6Class(
     buildCollection = function(corpusName, corpusDesc = NULL) {
 
       # Validation
-      v <- ValidationManager$new()
-      v$validateName(cls = "CorpusBuilderRaw", method = "buildCollection",
+      v <- ValidateName$new()
+      v$validate(cls = "CorpusBuilderRaw", method = "buildCollection",
                      name = corpusName, expect = FALSE)
 
       # Format parameters
@@ -232,9 +232,9 @@ CorpusBuilderRaw <- R6::R6Class(
     buildDocument = function(name, fileName, desc  = NULL) {
 
       # Validate
-      v <- ValidationManager$new()
+      v <- ValidateName$new()
       for (d in 1:length(name)) {
-        v$validateName(cls = "CorpusBuilderRaw", method = "buildDocument",
+        v$validate(cls = "CorpusBuilderRaw", method = "buildDocument",
                        name = name, expect = FALSE)
       }
 

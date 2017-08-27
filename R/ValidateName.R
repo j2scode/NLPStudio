@@ -1,17 +1,16 @@
-## ---- ValidationManager
+## ---- ValidateName
 #==============================================================================#
-#                                 ValidationManager                            #
+#                                 ValidateName                                 #
 #==============================================================================#
-#' ValidationManager
+#' ValidateName
 #'
 #' @description
-#' \code{ValidationManager} The class centralizes common and frequently
-#' performed validation which typically involves more than one check.
+#' \code{ValidateName} This class validates names of objects
 #'
 #' @section Public Methods:
 #' \describe{
-#'  \item{\code{new()}}{Creates an object of ValidationManager class}
-#'  \item{\code{validateName(cls, method, name, expect)}}{Validates the name variable}
+#'  \item{\code{new()}}{Creates an object of ValidateName class}
+#'  \item{\code{validate(cls, method, name, expect)}}{Validates the name variable}
 #' }
 #'
 #' @section Parameters:
@@ -25,12 +24,12 @@
 #'
 #' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
-ValidationManager <- R6::R6Class(
-  "ValidationManager",
-
+ValidateName <- R6::R6Class(
+  "ValidateName",
+  inherit = Validation0,
   public = list(
 
-    validateName = function(cls, method, name, expect = FALSE) {
+    validate = function(cls, method, name, expect = FALSE) {
 
       # Validate name is not missing
       if (missing(name)) {

@@ -23,7 +23,7 @@ testNLPStudio <- function() {
     #studio <<- nlpStudio$getStudio(format = "xxx") # Should fail, invalid format type, Success
 
     # Confirm modified date updated
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$created) < 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
@@ -41,7 +41,7 @@ testNLPStudio <- function() {
     Sys.sleep(2)
 
     # Test getStudio object format
-    studio <<- nlpStudio$getStudio(format = "object")
+    studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
     # Check cache
@@ -58,7 +58,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getStudio, list format
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(studio$name == "nlpStudio")
     stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(studio$current == "None")
@@ -80,7 +80,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getStudio, data frame
-    studio <<- nlpStudio$getStudio(format = "df")
+    studio <<- nlpStudio$getStudio(type = "df")
     stopifnot(nrow(studio$studioDf) == 1)
     stopifnot(studio$studioDf$name[1] == "nlpStudio")
     stopifnot(studio$studioDf$desc[1] == "NLPStudio: Natural Language Processing Studio")
@@ -106,7 +106,7 @@ testNLPStudio <- function() {
     nlpStudio$addLab(Development, enter = FALSE)
 
     # Confirm modified date updated
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
@@ -127,7 +127,7 @@ testNLPStudio <- function() {
     test <- "test5: getStudio('object') with Lab"
     cat(paste("\n",test, " Commencing\r"))
 
-    studio <<- nlpStudio$getStudio(format = "object")
+    studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
     # Check cache
@@ -144,7 +144,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab list format
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(studio$name == "nlpStudio")
     stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(studio$current == "None")
@@ -172,7 +172,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab df format
-    studio <<- nlpStudio$getStudio(format = "df")
+    studio <<- nlpStudio$getStudio(type = "df")
     stopifnot(studio$studioDf$name == "nlpStudio")
     stopifnot(studio$studioDf$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(studio$studioDf$current == "None")
@@ -203,7 +203,7 @@ testNLPStudio <- function() {
     nlpStudio$addLab(Bart, enter = TRUE)
 
     # Confirm modified date updated
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
@@ -224,7 +224,7 @@ testNLPStudio <- function() {
     test <- "test9: getLab('object') with two labs, one current"
     cat(paste("\n",test, " Commencing\r"))
 
-    studio <<- nlpStudio$getStudio(format = "object")
+    studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
     # Check cache
@@ -242,7 +242,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab list format
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(studio$name == "nlpStudio")
     stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(isTRUE(all.equal(studio$currentLab, "Bart")))
@@ -276,7 +276,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab df format
-    studio <<- nlpStudio$getStudio(format = "df")
+    studio <<- nlpStudio$getStudio(type = "df")
     stopifnot(studio$studioDf$name == "nlpStudio")
     stopifnot(studio$studioDf$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(isTRUE(all.equal(studio$studioDf$currentLab, "Bart")))
@@ -313,7 +313,7 @@ testNLPStudio <- function() {
     Development$enterLab() # Should issue informational message about switch
 
     # Confirm modified date updated
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
@@ -332,7 +332,7 @@ testNLPStudio <- function() {
     test <- "test13: Confirm current lab changed"
     cat(paste("\n",test, " Commencing\r"))
 
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(isTRUE(all.equal(studio$currentLab, "Development")))
 
     # Check cache
@@ -350,11 +350,11 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     Bart$leaveLab() # Should warning, attempt to leave a non-current lab
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(isTRUE(all.equal(studio$currentLab, "Development")))
 
     Development$leaveLab()
-    studio <<- nlpStudio$getStudio(format = "list")
+    studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(isTRUE(all.equal(studio$currentLab, "None")))
 
     # Check cache
@@ -385,12 +385,12 @@ testNLPStudio <- function() {
     stopifnot(exists("Development") == TRUE)
 
     # Confirm date modified updated correctly
-    studio <- nlpStudio$getStudio(format = "list")
+    studio <- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
     # # Confirm removed from list
-    labs <<- nlpStudio$getLabs(format = "list")
+    labs <<- nlpStudio$getLabs(type = "list")
     for (l in 1:length(labs)) {
       stopifnot(!isTRUE(all.equal(labs[[l]]$name, "Bart")))
     }
@@ -408,7 +408,7 @@ testNLPStudio <- function() {
     test <- "test16: Print Studio"
     cat(paste("\n",test, " Commencing\r"))
 
-    studio <- nlpStudio$getStudio(format = "object")
+    studio <- nlpStudio$getStudio(type = "object")
     studio$printStudio()  # Should print studio and labs to console
 
     # Logit

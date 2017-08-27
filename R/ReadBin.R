@@ -14,8 +14,10 @@
 #'
 #' @section Methods:
 #' \describe{
-#'  \item{\code{readData(directory, fileName)}}{Reads data from the designated  directory and file name}
+#'  \item{\code{readData(path)}}{Reads data from the location designated in the path parameter}
 #' }
+#'
+#' @param path Character string containing the path to the document to be read.
 #'
 #' @author John James, \email{j2sdatalab@@gmail.com}
 #' @family Document i/o classes
@@ -23,29 +25,26 @@
 ReadBin <- R6::R6Class(
   classname = "ReadBin",
   inherit = Read0,
-  private = list(
-    validate = function(docData) {
-      filePath <- file.path(docData$path, docData$fileName)
-      v <- ValidatePath$new()
-      v$validate(cls = "ReadBin", method = "readData",
-                 fieldName = "file.path(document$path, document$fileName)",
-                 value = filePath, level = "Error",
-                 msg = "Invalid file path.", expect = TRUE)
-      rm(v)
-    }
-  ),
   public = list(
-    readData = function(document) {
+    readData = function(path) {
 
-      document <- document$getDocument(format = "list")
-      private$validate(document)
+      # Validate parameters
+      if (missing(path)) {
+        v <- Validate0$new()
+        v$notify(cls = "ReadBin", method = "readData", fieldName = "path",
+        level = "Error", value = path,
+        msg = paste("Unable to read document. Path is missing without a default",
+                    "See ?ReadBin for assistance."),
+        expect = TRUE)
+      }
+      v <- ValidatePath$new()
+      v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path", path, "is invalid.",
+                             "See ?ReadBin for assistance."),
+                 expect = TRUE)
 
-      filePath <- file.path(docData$path, docData$fileName)
-
-      content <- readBin(
-        file.path(docData$path, docData$fileName),raw(),
-        file.info(file.path(docData$path, docData$fileName))$size
-      )
+      content <- readBin(path, raw(), file.info(path)$size)
       return(content)
     }
   )

@@ -10,13 +10,13 @@
 #' This class is an abstract class defining the methods to be implemented by
 #' the concrete strategy classes: ReadText, ReadBin, ReadCsv, and ReadRdata.
 #'
-#' @section Parameters:
-#' @param document An object of class Document
+#' @param path Character string indicating the path to the document to be read
+#' @param header Logical indicating whether the csv file contains headers.  Used for the ReadCsv class.
 #'
 #' @section Methods:
 #' \describe{
 #'  \item{\code{new()}}{Returns an object of the selected concrete read strategy class. This method is overwritten by the concrete strategy classes}
-#'  \item{\code{readData(document)}}{Returns a list containing the meta data and content}
+#'  \item{\code{readData(path)}}{Returns the content of the file with its location designated in the path parameter.}
 #' }
 #'
 #' @docType class
@@ -24,10 +24,7 @@
 #' @export
 Read0 <- R6::R6Class(
   classname = "Read0",
-  private = list(
-    validate = function(document) stop("Method not available for abstract classes.")
-  ),
   public = list(
-    readData = function() stop("Method not available for abstract classes.")
+    readData = function(path) stop("Method not available for abstract classes.")
   )
 )
