@@ -1,8 +1,8 @@
-## ---- Archive0
+## ---- Archive
 #==============================================================================#
-#                                 Archive0                                     #
+#                                 Archive                                     #
 #==============================================================================#
-#' Archive0
+#' Archive
 #'
 #' \code{Archive} Abstract class for archiving objects in the NLPStudio
 #'
@@ -18,7 +18,7 @@
 #'
 #' @section Method:
 #' \describe{
-#'  \item{\code{new()}}{Creates an object of class Archive0}
+#'  \item{\code{new()}}{Creates an object of class Archive}
 #'  \item{\code{archive(object)}}{Archives the object in the NLPStudio archive subdirectory }
 #' }
 #'
@@ -32,18 +32,23 @@
 #'
 #' @author John James, \email{j2sdatalab@@gmail.com}
 #' @export
-Archive0 <- R6::R6Class(
-  classname = "Archive0",
+Archive <- R6::R6Class(
+  classname = "Archive",
 
   public = list(
-    archive = function(fileName, filePath, object) {
+    archive = function(object) {
+
+      c <- class(brown)[1]
+      d <- getDocument(format = "list")
 
       dirs <- nlpStudio$getDirectories()
 
-      archiveFile <- file.path(dirs$archive, paste0(sub('\\..*', '',fileName),
-                            format(Sys.time(),'-%Y%m%d-%H%M%S'),".zip"))
+      archiveFile <- file.path(dirs$archives,
+                               paste0(sub('\\..*', '',c), "-object-",
+                                      "-archive-", d$name,
+                            format(Sys.time(),'-%Y%m%d-%H%M%S')))
 
-      files <- list.files(path = filePath, all.files = TRUE,
+      files <- list.files(path = d$path, all.files = TRUE, full.names = TRUE,
                           recursive = TRUE, include.dirs = TRUE)
       zip(archiveFile, files)
     }

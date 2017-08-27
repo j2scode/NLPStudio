@@ -20,6 +20,8 @@
 #'  \item{\code{readData(directory, fileName)}}{Reads Rdata file from the designated  directory and file name and assigns the object name in the global environment }
 #' }
 #'
+#'@param path Character string containing the path to the document to be read.
+#'
 #' @author John James, \email{j2sdatalab@@gmail.com}
 #' @family Document i/o classes
 #' @export
@@ -27,24 +29,27 @@ ReadRdata <- R6::R6Class(
   classname = "ReadRdata",
   inherit = Read0,
 
-  private = list(
-    validate = function(document) {
-      filePath <- file.path(document$path, document$fileName)
-      v <- ValidatePath$new()
-      v$validate(cls = "ReadRdata", method = "readData",
-                 fieldName = "file.path(document$path, document$fileName)",
-                 value = filePath, level = "Error",
-                 msg = "Invalid file path.", expect = TRUE)
-      rm(v)
-    }
-  ),
   public = list(
-    readData = function(document) {
+    readData = function(path) {
 
-      document <- document$getDocument(format = "list")
-      private$validate(document)
+      # Validate parameters
+      if (missing(path)) {
+        v <- Validate0$new()
+        v$notify(cls = "ReadRdata", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path is missing without a default",
+                             "See ?ReadRdata for assistance."),
+                 expect = TRUE)
+      }
+      v <- ValidatePath$new()
+      v$validate(cls = "ReadRdata", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path", path, "is invalid.",
+                             "See ?ReadRdata for assistance."),
+                 expect = TRUE)
 
-      content <- load(file.path(document$path, document$fileName), envir = .GlobalEnv)
+
+      content <- load(path, envir = .GlobalEnv)
       content <- get(content, envir = .GlobalEnv)
       return(content)
     }

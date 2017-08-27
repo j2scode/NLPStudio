@@ -103,7 +103,7 @@ Lab <- R6::R6Class(
       invisible(self)
     },
 
-    getLab = function(format = "object") {
+    getLab = function(type = "list") {
 
       if (format == "object") {
         lab <- self
@@ -111,7 +111,7 @@ Lab <- R6::R6Class(
         lab = list(
           name = private$..name,
           desc = private$..desc,
-          collections = self$getDocuments(format = "list"),
+          collections = self$getDocuments(type = "list"),
           modified = private$..modified,
           created = private$..created
         )
@@ -122,7 +122,7 @@ Lab <- R6::R6Class(
                              modified = private$..modified,
                              created = private$..created,
                              stringsAsFactors = FALSE),
-          collectionsDf = self$getDocuments(format = "df")
+          collectionsDf = self$getDocuments(type = "df")
           )
       } else {
         v <- Validate0$new()
@@ -147,7 +147,7 @@ Lab <- R6::R6Class(
 
     printLab = function() {
 
-      lab <- self$getLab(format = "df")
+      lab <- self$getLab(type = "df")
 
       cat("\n\n================================================================================",
           "\nLab:")
@@ -173,24 +173,17 @@ Lab <- R6::R6Class(
     },
 
 
-    getDocuments = function(format = "object") {
+    getDocuments = function(type = "list") {
 
       if (format == "object") {
         collections = lapply(private$..documents, function(c) c)
       } else if (format == "list") {
         collections = lapply(private$..documents, function(c) {
-          c$getDocument(format = "list")
+          c$getDocument(type = "list")
         })
       } else if (format == "df") {
         collections = rbindlist(lapply(private$..documents, function(c) {
-          collections <- c$getDocument(format = "list")
-          collectionsData = list(
-            name = collections$name,
-            desc = collections$desc,
-            path = collections$path,
-            created = collections$created,
-            modified = collections$modified
-          )
+          c$getDocument(type = "list")
         }))
       } else {
         v <- Validate0$new()
@@ -206,8 +199,7 @@ Lab <- R6::R6Class(
 
     addDocument = function(document) {
 
-      # Validate
-      documentData <- document$getDocument(format = "list")
+      # Validater
       v <- ValidateClass$new()
       v$validate(cls = "Lab", level = "Error", method = "addDocument",
                    fieldName = "document", value = document,
@@ -216,6 +208,8 @@ Lab <- R6::R6Class(
                    expect = "DocumentCollection")
 
       # Add collection to list of collections
+      documentData <- document$getDocument(type = "list")
+      document$addParent(self)
       private$..documents[[documentData$name]] <- document
       private$..modified <- Sys.time()
 
@@ -227,32 +221,63 @@ Lab <- R6::R6Class(
 
     },
 
-    removeDocument = function(document, purge = FALSE) {
+    removeDocument = function(name, purge = FALSE) {
+
+      # Get document
+      d <- get(name, envir = .GlobalEnv)
 
       # Confirm parameter is a collection
+      classes <- c("DocumentCollection")
       v <- ValidateClass$new()
       v$validate(cls = "Lab", method = "removeDocument",
-                 fieldName = "document", value = document, level = "Error",
-                 msg = paste("Object is not a valid DocumentCollection type."),
-                 expect = "DocumentCollection")
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("The object named", name,
+                             "is not a valid DocumentCollection",
+                             "object.",
+                             "See ?DocumentCollection"),
+                 expect = classes)
 
-      # Archive Lab
-      self$archiveLab()
 
-      # Remove collection from lab
-      documentData <- document$getDocument(format = "list")
-      private$..documents[[documentData$name]] <- NULL
+      # Confirm document is not self
+      if (name == private$..name) {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "removeDocument",
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("The object named", name,
+                             "cannot remove itself. Remove operations must",
+                             "be performed by the parent object.",
+                             "Use the nlpStudio object to remove Labs.",
+                             "See ?NLPStudio"),
+                 expect = NULL)
+      }
+
+      # Archive
+      a <- Archive$new()
+      a$archive(self)
+      a$archive(d)
+
+      # Remove collection from lab and update cache
+      private$..documents[[name]] <- NULL
       private$..modified <- Sys.time()
+      nlpStudioCache$setCache(private$..name, self)
 
       if (purge == TRUE) {
+
+        # Get document information
+        d <- d$getDocument(format = "list")
+
+        # Remove from disc
+        file.remove(d$path)
+
         # Remove from global environment
-        rm(list = ls(envir = .GlobalEnv)[grep(documentData$name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+        rm(list = ls(envir = .GlobalEnv)[grep(name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
 
         # Remove from cache
         cache <- nlpStudioCache$loadCache()
-        cache[[documentData$name]] <- NULL
+        cache[[name]] <- NULL
         nlpStudioCache$replaceCache(cache)
         nlpStudioCache$saveCache()
+
       }
 
       # Update Cache

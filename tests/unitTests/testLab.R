@@ -32,7 +32,7 @@ testLab <- function() {
     stopifnot(dir.exists("./Labs/blue"))
 
     # Confirm modified date updated
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$created) < 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 
@@ -50,7 +50,7 @@ testLab <- function() {
     Sys.sleep(2)
 
     # Test getLab object format
-    lab <<- blue$getLab(format = "object")
+    lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
 
     # Check cache
@@ -67,7 +67,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab, list format
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot(lab$name == "blue")
     stopifnot(lab$desc == "Blue Lab")
     stopifnot(length(lab$collections) == 0)
@@ -88,7 +88,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab, data frame
-    lab <<- blue$getLab(format = "df")
+    lab <<- blue$getLab(type = "df")
     stopifnot(nrow(lab$labDf) == 1)
     stopifnot(lab$labDf$name[1] == "blue")
     stopifnot(lab$labDf$desc[1] == "Blue Lab")
@@ -110,7 +110,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Get lab name, which is also the path for the collection
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     path <- lab$name
 
     # Create and add collection
@@ -120,7 +120,7 @@ testLab <- function() {
     blue$addDocument(brown)
 
     # Confirm modified date updated
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 
@@ -141,7 +141,7 @@ testLab <- function() {
     test <- "test5: getLab('object') with Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    lab <<- blue$getLab(format = "object")
+    lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
 
     # Check cache
@@ -158,7 +158,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab list format
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot(lab$name == "blue")
     stopifnot(lab$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$created) > 1)
@@ -185,7 +185,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab df format
-    lab <<- blue$getLab(format = "df")
+    lab <<- blue$getLab(type = "df")
     stopifnot(lab$labDf$name == "blue")
     stopifnot(lab$labDf$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$labDf$created) > 1)
@@ -212,14 +212,14 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Get lab name, which is also the path for the collection
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     path <- lab$name
 
     DocumentCollection$new(name = "oxford", path = path, desc = "Oxford Corpus")
     blue$addDocument(oxford)
 
     # Confirm modified date updated
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 
@@ -240,7 +240,7 @@ testLab <- function() {
     test <- "test9: getLab('object') with two collections"
     cat(paste("\n",test, " Commencing\r"))
 
-    lab <<- blue$getLab(format = "object")
+    lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
 
     # Check cache
@@ -258,7 +258,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab list format
-    lab <<- blue$getLab(format = "list")
+    lab <<- blue$getLab(type = "list")
     stopifnot(lab$name == "blue")
     stopifnot(lab$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$created) > 1)
@@ -291,7 +291,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab df format
-    lab <<- blue$getLab(format = "df")
+    lab <<- blue$getLab(type = "df")
     stopifnot(lab$labDf$name == "blue")
     stopifnot(lab$labDf$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$labDf$created) > 1)
@@ -328,7 +328,7 @@ testLab <- function() {
 
     # Successfuly remove oxford from collection list
     blue$removeDocument(oxford)
-    collections <<- blue$getDocuments(format = "list")
+    collections <<- blue$getDocuments(type = "list")
     for (c in 1:length(collections)) {
       stopifnot(!isTRUE(all.equal(collections[[c]]$name, "oxford")))
     }
@@ -356,11 +356,11 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Successfuly remove purge document from document list
-    lab <- blue$getLab(format = "list")
+    lab <- blue$getLab(type = "list")
     path <- lab$name
     DocumentCollection$new(name = "penn", path = path, desc = "Penn Corpus")
     blue$removeDocument(penn, purge = TRUE)
-    collections <<- blue$getDocuments(format = "list")
+    collections <<- blue$getDocuments(type = "list")
     if (length(collections) > 0) {
       for (c in 1:length(collections)) {
         stopifnot(!isTRUE(all.equal(collections[[c]]$name, "penn")))
@@ -371,7 +371,7 @@ testLab <- function() {
     stopifnot(!exists('penn'))
 
     # Confirm date modified updated correctly
-    lab <- blue$getLab(format = "list")
+    lab <- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 

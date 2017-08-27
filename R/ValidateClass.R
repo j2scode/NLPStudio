@@ -27,7 +27,7 @@ ValidateClass <- R6::R6Class(
     validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
       if (exists('value') & length(value) != 0) {
         classes <- class(value)
-        if (expect %in% classes) {
+        if (length(intersect(expect, classes)) > 0) {
           return(TRUE)
         } else {
           self$notify(cls, method, fieldName, value, level, msg, expect)

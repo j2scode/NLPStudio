@@ -79,7 +79,7 @@ Validate0 <- R6::R6Class(
       }
     },
 
-    validateName = function(cls, method, name, expect = FALSE) {
+    validate = function(cls, method, name, expect = FALSE) {
 
       # Validate name is not missing
       if (missing(name)) {

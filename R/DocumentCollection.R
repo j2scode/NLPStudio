@@ -1,44 +1,103 @@
-## ---- DocumentCollection
 #==============================================================================#
-#                            DocumentCollection                                #
+#                           DocumentCollection                                 #
 #==============================================================================#
 #' DocumentCollection
 #'
-#' \code{DocumentCollection} Composite class for creating and interacting with documents
+#' \code{DocumentCollection} Class for managing composite document collections
+#' in the NLPStudio
 #'
-#' This compsite class provides data and methods for creating, interacting with,
-#' and transforming documents and document collections. The methods fall
-#' into three categories: (1), core methods for instantiating, printing,
-#' reading and writing document collections. (2) methods to manage child
-#' objects (documents) and (3) methods to set sourcing, reading and
-#' writing behaviors. Note that document collections may include other
-#' collections.
+#' \strong{Document0 Class Overview:}
 #'
-#' @section Core Methods:
+#' The Document0 family of classes is an implementation of the composite
+#' pattern documented in the book "Design Patterns: Elements of Reusable
+#' Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
+#' and John Vlissides (hence Gang of Four). This pattern allows composite
+#' and individual objects to be treated uniformly.
+#'
+#' The following sections include:
 #' \describe{
-#'  \item{\code{initialize()}}{Method for instantiating a document collection.}
-#'  \item{\code{getDocument()}}{Method for retrieving and printing collection meta data.}
-#'  \item{\code{readDocument()}}{Method for reading the document collection, using the read behavior strategy set below.}
-#'  \item{\code{writeDocument()}}{Method for writing the document collection, using the write behavior strategy set below.}
+#'  \item Class Participants: Classes the comprise this composite pattern.
+#'  \item Class Collaborators: Classes which interact with the Document0 class.
+#'  \item Core Methods: Methods implemented by both individual and document
+#'  collections.
+#'  \item Composite Methods: Methods for managing child parent relationships.
+#'  \item Input / Output Methods: Methods for reading and writing documents.
 #' }
 #'
-#' @section Composite Methods:
-#' The composite methods control the document tree structure and include:
+#'
+#' @section Document0 Class Participants:
+#' The participants of the Document0 class are:
 #' \describe{
-#'  \item{\code{addDocument(document)}}{Method for adding a document to a collection.}
-#'  \item{\code{searchDocuments(name)}}{Method for searching documents or collections within collections.}
-#'  \item{\code{removeDocument(name)}}{Method for removing a document or collection from a collection.}
-#'  \item{\code{listDocuments()}}{Method for obtaining and printing a list of documents in a collection.}
+#'  \item Document0: This component class specifies an abstract interface
+#'  for all individual and composite document classes.
+#'  \item Document: This "leaf" class specifies the  interface forindividual
+#'  document objects.
+#'  \item DocumentCollection: The composite class specifies the interface
+#'  for the composite document objects.
+#'  }
+#'
+#' @section Document0 Class Collaborators:
+#' The collaborators of the Document0 class are:
+#' \describe{
+#'  \item Lab: This class instantiates labs within NLPStudio which have the
+#'  responsibility of managing document objects.
+#'  \item CorpusBuilder0: A family of classes of the builder pattern,
+#'  responsibile for building varying representations of document collections.
+#'  }
+#'
+#' @section DocumentCollection Core Methods:
+#' The core methods are shared by both primative and composite objects and are
+#' as follows:
+#' \describe{
+#'  \item{\code{new(name, path, fileName, desc)}}{Base method for instantiating
+#'  an object of the Document and  DocumentCollection classes. File name is
+#'  only only required of objects of the Document class.
+#'  Specific behaviors implemented in the Collection subclasses }
+#'  \item{\code{getDocument()}}{Base method for retrieving the meta data for
+#'  a document. Objects of the DocumentCollection class also return a
+#'  list of contained objects of the Document class. Specific behaviors
+#'  implemented in the Document and Collection subclasses }
+#'  \item{\code{printDocument()}}{Base method for printing the meta data for a
+#'  document to console. Objects of the DocumentCollection class also
+#'  print a list of contained objects of the Document class. Specific behaviors
+#'  implemented in the Document and Collection subclasses }
 #' }
 #'
-#' @section Behavior Strategy Methods:
-#' These methods enable clients to define behaviors for Register and Korpus class object at runtime.
+#' @section DocumentCollection Composite Methods:
+#' The composite methods are used to manage parent / child relationshipos among
+#' the documents, and are:
 #' \describe{
-#'  \item{getReader}{Method for getting the current Read strategy for the object.}
-#'  \item{setReader}{Method for setting the current Read strategy for the object.}
-#'  \item{getWriter}{Method for getting the current Write strategy for the object.}
-#'  \item{setWriter}{Method for setting the current Write strategy for the object.}
+#'  \item{\code{addDocument(document)}}{Base method for adding documents to a
+#'  collection. Specific behaviors implemented in the Collection composite class}
+#'  \item{\code{removeDocument(document)}}{Base method for removing documents from
+#'  a collection. Specific behaviors implemented in the Collection composite class}
+#'  \item{\code{addPath(path)}}{Base method for adding a path to a document.
+#'  Specific behaviors implemented in the Collection composite class}
 #' }
+#'
+#'
+#' @section DocumentCollection Input/Output Methods:
+#' Methods for reading and writing individual and composite document objects.
+#' \describe{
+#'  \item{readDocument(what, how)}{Method for reading a document.}
+#'  \item{writeDocument(what, how)}{Method for writing a document.}
+#' }
+#'
+#'
+#' @param content A character vector or list containing text content for objects. Used in the I/O methods.
+#' @param desc Character string containing the description of the document.
+#' @param document An object of the Document class.  Used in DocumentClass composite methods
+#' @param fileName Character string cointaining the file name for a document.  Only required for objects of Document class.
+#' @param format  A character string indicating the document format to be read or written.  Valid values are c("bin", "text", "csv", "rdata"). Defaults to "text"
+#' @param name Character string indicating the name of the document (required)
+#' @param parent The parent object for an object of the DocumentCollection class. Parents may be objects of the DocumentCollection or Lab classes.
+#' @param path Character string containing the relative directory path to the document.
+#' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
+#' @param type = Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list"
+#'
+#' @field created A date time variable indicating the date / time the object was created.
+#' @field documents A list of objects of the Document class, maintained within the DocumentCollection class.
+#' @field modified A date time variable indicating the date / time the object was modified.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -47,26 +106,24 @@
 DocumentCollection <- R6::R6Class(
   classname = "DocumentCollection",
   inherit = Document0,
-  private = list(
-    ..url = character(0)
-  ),
 
   public = list(
     #-------------------------------------------------------------------------#
     #                            Core Methods                                 #
     #-------------------------------------------------------------------------#
-    initialize = function(name, path, desc = NULL) {
+    initialize = function(name, parent, desc = NULL) {
 
       # Validate Name
-      v <- ValidationManager$new()
-      v$validateName(cls = "DocumentCollection", method = "initialize",
-                     name, expect = FALSE)
-      # Validate path
-      v <- ValidatePath$new()
+      v <- ValidateName$new()
       v$validate(cls = "DocumentCollection", method = "initialize",
-                 fieldName = "path",
-                 value = path, level = "Error", msg = "Path is required.",
-                 expect = FALSE)
+                 name, expect = FALSE)
+      # Validate parent
+      v <- ValidateClass$new()
+      v$validate(cls = "DocumentCollection", method = "initialize",
+                 fieldName = "parent",
+                 value = parent, level = "Error",
+                 msg = "Path is required.",
+                 expect = private$..parentTypes)
 
       # Instantiate variables
       private$..name <- name
@@ -84,76 +141,55 @@ DocumentCollection <- R6::R6Class(
       invisible(self)
     },
 
-    getDocument = function(format = "object") {
+    getDocument = function(type = "list") {
 
       if (format == "object") {
         document <- self
       } else if (format == "list") {
         document = list(
           name = private$..name,
-          desc = private$..desc,
+          parent = private$..parentName,
           path = private$..path,
-          documents = self$getDocuments(format = "list"),
+          desc = private$..desc,
           modified = private$..modified,
           created = private$..created
         )
       } else if (format == "df") {
         document = list(
           documentDf = data.frame(name = private$..name,
-                                    path = private$..path,
-                                    desc = private$..desc,
-                                    modified = private$..modified,
-                                    created = private$..created,
-                                    stringsAsFactors = FALSE),
-          documentsDf = self$getDocuments(format = "df")
+                                  parent = private$..parentName,
+                                  path = private$..path,
+                                  fileName = private$..fileName,
+                                  desc = private$..desc,
+                                  modified = private$..modified,
+                                  created = private$..created,
+                                  stringsAsFactors = FALSE),
+          documentsDf = self$getDocuments(type = "df")
         )
       } else {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "getDocument",
-                 fieldName = "format", value = format, level = "Error",
-                 msg = paste("Invalid format requested.",
+                 fieldName = "type", value = type, level = "Error",
+                 msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
                              "See ?DocumentCollection"),
                  expect = NULL)
       }
-      return(collection)
+      return(document)
     },
 
-    getDocuments = function(format = "object") {
-
-      if (format == "object") {
-        documents = lapply(private$..documents, function(d) d)
-      } else if (format == "list") {
-        documents = lapply(private$..documents, function(d) {
-          d$getDocument(format = "list")
-        })
-      } else if (format == "df") {
-        documents = rbindlist(lapply(private$..documents, function(d) {
-          d$getDocument(format = "list")
-        }))
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "DocumentCollection", method = "getdocuments",
-                 fieldName = "format", value = format, level = "Error",
-                 msg = paste("Invalid format requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "See ?DocumentCollection"),
-                 expect = NULL)
-      }
-      return(documents)
-    },
 
     printDocument = function() {
 
-      document <- self$getDocument(format = "df")
+      d <- self$getDocument(type = "df")
 
-        cat("\n\n#===============================================================================#")
-        cat("\n                            DOCUMENT COLLECTION                                 \n")
-        print.data.frame(document$collectionDf)
-        cat("\n#-------------------------------------------------------------------------------#")
-        cat("\n                              DOCUMENTS                                        \n")
-        print.data.frame(document$documentsDf)
-        cat("\n#===============================================================================#\n\n")
+      cat("\n\n#===============================================================================#")
+      cat("\n                            DOCUMENT COLLECTION                                 \n")
+      print.data.frame(d$documentDf)
+      cat("\n#-------------------------------------------------------------------------------#")
+      cat("\n                              DOCUMENTS                                        \n")
+      print.data.frame(d$documentsDf)
+      cat("\n#===============================================================================#\n\n")
     },
 
     #-------------------------------------------------------------------------#
@@ -169,19 +205,119 @@ DocumentCollection <- R6::R6Class(
                  expect = "Document")
 
       # Add document to list of documents for collection
-      doc <- document$getDocument()
+      doc <- document$getDocument(type = "list")
       private$..documents[[doc$name]] <- document
+
+      # Update the parent of the document object
+      document$addParent(self)
 
       # Update cache
       assign(private$..name, self, envir = .GlobalEnv)
       nlpStudioCache$setCache(key = private$..name, value = self)
     },
 
-    removeDocument = function(name) {
+    getDocuments = function(type = "list") {
 
-      # TODO: Implement archive for environment
+      if (type == "object") {
+        documents = lapply(private$..documents, function(d) d)
+      } else if (type == "list") {
+        documents = lapply(private$..documents, function(d) {
+          d$getDocument(type = "list")
+        })
+      } else if (type == "df") {
+        documents = rbindlist(lapply(private$..documents, function(d) {
+          d$getDocument(type = "list")
+        }))
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "getdocuments",
+                 fieldName = "type", value = type, level = "Error",
+                 msg = paste("Invalid type requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "See ?DocumentCollection"),
+                 expect = NULL)
+      }
+      return(documents)
+    },
+
+    removeDocument = function(name, purge = FALSE) {
+
+      # Get document
+      d <- get(name, envir = .GlobalEnv)
+
+      # Confirm the document is a document or collection
+      classes <- c("Document", "DocumentCollection")
+      v <- ValidateClass$new()
+      v$validate(cls = "DocumentCollection", method = "removeDocument",
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("The object named", name,
+                             "is not a valid Document or DocumentCollection",
+                             "object.",
+                             "See ?DocumentCollection"),
+                 expect = classes)
+
+      # Confirm document is not self
+      if (name == private$..name) {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "removeDocument",
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("The object named", name,
+                             "cannot remove itself. Remove operations must",
+                             "be performed by the parent object.",
+                             "See ?DocumentCollection"),
+                 expect = NULL)
+      }
+
+      # Archive
+      a <- Archive$new()
+      a$archive(self)
+      a$archive(d)
+
+      # Remove document from collection
       private$..documents[[name]] <- NULL
-      rm(name, envir = .GlobalEnv)
+      private$..modified <- Sys.time()
+      nlpStudioCache$setCache(private$..name, self)
+
+      # Remove from  memory and disc if purge == TRUE
+      if (purge == TRUE) {
+
+        # Get document information
+        d <- d$getDocument(format = "list")
+
+        # Remove from disc
+        file.remove(d$path)
+
+        # Remove from global environment
+        rm(list = ls(envir = .GlobalEnv)[grep(name,ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+
+        # Remove from cache
+        cache <- nlpStudioCache$loadCache()
+        cache[[name]] <- NULL
+        nlpStudioCache$replaceCache(cache)
+        nlpStudioCache$saveCache()
+
+      }
+    },
+
+    addParent = function(parent) {
+
+      if (class(parent) %in% c("DocumentCollection", "Lab")) {
+        private$..parent <- parent
+      } else {
+        v <- ValidateClass$new()
+        v$notify(cls = "Document", method = "addParent", fieldName = "parent",
+                   level = "Error", value = parent,
+                   msg = paste("Unable to add parent object. Objects of the",
+                               "DocumentCollection class may only
+                               have DocumentCollection or Lab",
+                               "objects as parents"),
+                   expect = "DocumentCollection")
+      }
+
+      p <- private$..getParent(parent)
+      private$..parent <- parent
+      private$..parentName <- p$name
+      private$..path <- file.path(p$path, name)
     },
 
     #-------------------------------------------------------------------------#

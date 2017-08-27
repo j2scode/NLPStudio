@@ -36,9 +36,9 @@ testDocument <- function() {
                  path = "./Labs/blue/oxford", desc = "Finance Reports") # Validates path
 
     # Validate Instantiation
-    n <- news$getDocument(format = "list")
-    s <- sports$getDocument(format = "list")
-    f <- finance$getDocument(format = "list")
+    n <- news$getDocument(type = "list")
+    s <- sports$getDocument(type = "list")
+    f <- finance$getDocument(type = "list")
 
     stopifnot(n$name == "news")
     stopifnot(n$desc == "News of the World")
@@ -81,18 +81,18 @@ testDocument <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test object
-    n <- news$getDocument(format = "object")
-    s <- sports$getDocument(format = "object")
-    f <- finance$getDocument(format = "object")
+    n <- news$getDocument(type = "object")
+    s <- sports$getDocument(type = "object")
+    f <- finance$getDocument(type = "object")
 
     stopifnot(isTRUE(all.equal(news, n)))
     stopifnot(isTRUE(all.equal(sports, s)))
     stopifnot(isTRUE(all.equal(finance, f)))
 
     # Test Data frame
-    n <- news$getDocument(format = "df")
-    s <- sports$getDocument(format = "df")
-    f <- finance$getDocument(format = "df")
+    n <- news$getDocument(type = "df")
+    s <- sports$getDocument(type = "df")
+    f <- finance$getDocument(type = "df")
 
     stopifnot(n$name[1] == "news")
     stopifnot(n$desc[1] == "News of the World")
@@ -132,7 +132,7 @@ testDocument <- function() {
     news$path <- "./Labs/blue/oxford" # Update missing
 
     # Get document
-    n <- news$getDocument(format = "list")
+    n <- news$getDocument(type = "list")
 
     # Verify
     stopifnot(n$path == "./Labs/blue/oxford")
