@@ -40,12 +40,29 @@ WriteCsv <- R6::R6Class(
                              "See ?WriteCsv for assistance."),
                  expect = TRUE)
       }
+
+      v <- ValidateClass$new()
+      v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to write document. Path is not a character string.",
+                             "See ?WriteCsv for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteCsv for assistance."),
                  expect = TRUE)
+
+      if (missing(content)) {
+        v <- Validate0$new()
+        v$notify(cls = "WriteCsv", method = "writeData",
+                   fieldName = "content", value = "", level = "Error",
+                   msg = paste("Unable to write content. Content is missing with no default",
+                               "See ?WriteCsv for assistance."),
+                   expect = TRUE)
+      }
 
       v <- ValidateNotEmpty$new()
       v$validate(cls = "WriteCsv", method = "writeData",
@@ -54,7 +71,7 @@ WriteCsv <- R6::R6Class(
                              "See ?WriteCsv for assistance."),
                  expect = TRUE)
 
-      writeCsv(content, file = path)
+      write.csv(content, file = path, row.names = FALSE)
     }
   )
 )

@@ -39,6 +39,14 @@ ReadCsv <- R6::R6Class(
                              "See ?ReadCsv for assistance."),
                  expect = TRUE)
       }
+
+      v <- ValidateClass$new()
+      v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path is not a character string.",
+                             "See ?ReadCsv for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
@@ -46,9 +54,7 @@ ReadCsv <- R6::R6Class(
                              "See ?ReadCsv for assistance."),
                  expect = TRUE)
 
-      con <- file(path)
-      on.exit(close(con))
-      content <- read.csv(con, header = header, stringsAsFactors = FALSE,
+      content <- read.csv(path, header = header, stringsAsFactors = FALSE,
                                   sep = ",", quote = "\"'")
       return(content)
     }

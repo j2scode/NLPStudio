@@ -8,6 +8,9 @@
 \usage{
 ReadText
 }
+\arguments{
+\item{path}{Character string with location of the file to be read.}
+}
 \description{
 \code{ReadText} Class contains the data and methods for reading text
 }
@@ -24,7 +27,10 @@ and methods for reading text.
 
 \seealso{
 Other Document i/o classes: \code{\link{ReadBin}},
-  \code{\link{ReadCsv}}, \code{\link{ReadRdata}}
+  \code{\link{ReadCsv}}, \code{\link{ReadRdata}},
+  \code{\link{Write0}}, \code{\link{WriteBin}},
+  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
+  \code{\link{WriteText}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

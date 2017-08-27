@@ -37,6 +37,14 @@ ReadBin <- R6::R6Class(
                     "See ?ReadBin for assistance."),
         expect = TRUE)
       }
+
+      v <- ValidateClass$new()
+      v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path is not a character string.",
+                             "See ?ReadBin for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
                  level = "Error", value = path,

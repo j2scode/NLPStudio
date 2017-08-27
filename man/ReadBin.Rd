@@ -8,6 +8,9 @@
 \usage{
 ReadBin
 }
+\arguments{
+\item{path}{Character string containing the path to the document to be read.}
+}
 \description{
 \code{ReadBin} Class contains the data and methods for reading files in binary format.
 }
@@ -18,13 +21,16 @@ and methods for reading files in binary format.
 \section{Methods}{
 
 \describe{
- \item{\code{readData(directory, fileName)}}{Reads data from the designated  directory and file name}
+ \item{\code{readData(path)}}{Reads data from the location designated in the path parameter}
 }
 }
 
 \seealso{
 Other Document i/o classes: \code{\link{ReadCsv}},
-  \code{\link{ReadRdata}}, \code{\link{ReadText}}
+  \code{\link{ReadRdata}}, \code{\link{ReadText}},
+  \code{\link{Write0}}, \code{\link{WriteBin}},
+  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
+  \code{\link{WriteText}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

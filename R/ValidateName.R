@@ -26,41 +26,41 @@
 #' @export
 ValidateName <- R6::R6Class(
   "ValidateName",
-  inherit = Validation0,
+  inherit = Validate0,
   public = list(
 
-    validate = function(cls, method, name, expect = FALSE) {
+    validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
 
       # Validate name is not missing
-      if (missing(name)) {
+      if (missing(value)) {
         v <- Validate0$new()
         v$notify(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = NULL,
+                 level = "Error", value = "",
                  msg = "Name is required", expect = NULL)
       }
 
       # Validation: Name is not empty
       v <- ValidateNotEmpty$new()
       v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = name,
+                 level = "Error", value = value,
                  msg = "Name must not be empty", expect = TRUE)
 
       # Validation: name is character class
       v <- ValidateClass$new()
       v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = class(name),
+                 level = "Error", value = class(value),
                  msg = "Name isn't a character class", expect = "character")
 
       # Validation: Name's existence is what is expected
       v <- ValidateExists$new()
       v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = name,
+                 level = "Error", value = value,
                  msg = "Name already exists", expect = expect)
 
       # Validation: No spaces
       v <- ValidateNoSpaces$new()
       v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = name,
+                 level = "Error", value = value,
                  msg = "Name must have no spaces", expect = TRUE)
 
       rm(v)

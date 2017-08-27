@@ -8,6 +8,9 @@
 \usage{
 ReadRdata
 }
+\arguments{
+\item{path}{Character string containing the path to the document to be read.}
+}
 \description{
 \code{ReadRdata} Class contains the data and methods for reading Rdata files
 }
@@ -34,7 +37,10 @@ and methods for reading Rdata data from files
 
 \seealso{
 Other Document i/o classes: \code{\link{ReadBin}},
-  \code{\link{ReadCsv}}, \code{\link{ReadText}}
+  \code{\link{ReadCsv}}, \code{\link{ReadText}},
+  \code{\link{Write0}}, \code{\link{WriteBin}},
+  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
+  \code{\link{WriteText}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

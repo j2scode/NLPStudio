@@ -42,7 +42,7 @@ content and  meta data. The content will also be stored on disk.
 \details{
 \strong{CorpusBuilder Class Overview:}
 
-The CorpusBuilder family of classes are an implementation of the builder
+The CorpusBuilder family of classes is an implementation of the builder
 pattern documented in the book "Design Patterns: Elements of Reusable
 Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 and John Vlissides (hence Gang of Four). This pattern allows for different

@@ -2,33 +2,11 @@ testRead <- function() {
 
   init <- function() {
 
-    if (exists("news", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("news", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("contractions", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("contractions", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("quadgrams", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("quadgrams", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("binContent", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("binContent", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("textContent", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("textContent", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("csvContent", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("csvContent", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("rdataContent", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("rdataContent", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
+    binPath <<- "./Labs/blue/oxford/raw/en_US.news.txt"
+    textPath <<- "./Labs/blue/oxford/raw/en_US.news.txt"
+    csvPath <<- "./Labs/blue/oxford/raw/contractions.csv"
+    rdataPath <<- "./Labs/blue/oxford/raw/quadgrams.Rdata"
 
-    Document$new(name = "news", fileName = "en_US.news.txt", path = "./Labs/blue/oxford/raw", desc = "News of the World")
-    Document$new(name = "contractions", fileName = "contractions.csv", path = "./Labs/blue/oxford/raw", desc = "Contractions data")
-    Document$new(name = "quadgrams", fileName = "quadgrams.Rdata", path = "./Labs/blue/oxford/raw", desc = "Quadgrams data")
-
-    # Clean up
     # Source cache and log
     source("./tests/checkCache.r")
     source("./tests/logTests.r")
@@ -41,12 +19,12 @@ testRead <- function() {
     mthd = "readData"
 
     # Validation
-    news$reader <- ""
     r <- ReadBin$new()
-    binContent <<- r$readData(nlpStudioCache)
+    # binContent <<- r$readData() # should fail, path is missing: success
+    # binContent <<- r$readData(blue) # should fail, path is invalid: success
 
     # Successful read
-    binContent <<- r$readData(news)
+    binContent <<- r$readData(binPath)
     stopifnot(object.size(binContent) > 100000)
 
     # Logit
@@ -63,10 +41,11 @@ testRead <- function() {
 
     # Validation
     r <- ReadText$new()
-    textContent <<- r$readData(nlpStudioCache)
+    # textContent <<- r$readData() # should fail, path is missing
+    # textContent <<- r$readData(blue) # should fail, path is invalid
 
     # Successful read
-    textContent <<- r$readData(news)
+    textContent <<- r$readData(textPath)
     stopifnot(object.size(textContent) > 100000)
 
     # Logit
@@ -83,11 +62,12 @@ testRead <- function() {
 
     # Validation
     r <- ReadCsv$new()
-    csv <- r$readData(nlpStudioCache)
+    # csvContent <<- r$readData() # should fail, path is missing
+    # csvContent <<- r$readData(blue) # should fail, path is invalid
 
     # Successful read
-    csv <- r$readData(contractions)
-    stopifnot(object.size(csv) > 200)
+    csvContent <<- r$readData(csvPath)
+    stopifnot(object.size(csvContent) > 200)
 
     # Logit
     logTests(cls = cls, mthd = mthd, note = "ReadCsv tested with appropriate validation")
@@ -102,12 +82,13 @@ testRead <- function() {
     mthd = "readData"
 
     # Validation
-    r <- ReadCsv$new()
-    content <- r$readData(nlpStudioCache)
+    r <- ReadRdata$new()
+    #rdataContent <<- r$readData() # should fail, path is missing
+    #rdataContent <<- r$readData(blue) # should fail, path is invalid
 
     # Successful read
-    content <- r$readData(quadgrams)
-    stopifnot(object.size(content) > 200)
+    rdataContent <<- r$readData(rdataPath)
+    stopifnot(object.size(rdataContent) > 1000)
 
     # Logit
     logTests(cls = cls, mthd = mthd, note = "ReadRdata tested with appropriate validation")

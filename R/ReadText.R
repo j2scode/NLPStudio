@@ -38,6 +38,14 @@ ReadText <- R6::R6Class(
                              "See ?ReadText for assistance."),
                  expect = TRUE)
       }
+
+      v <- ValidateClass$new()
+      v$validate(cls = "ReadText", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path is not a character string.",
+                             "See ?ReadText for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "ReadText", method = "readData", fieldName = "path",
                  level = "Error", value = path,

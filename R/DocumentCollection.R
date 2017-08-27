@@ -15,7 +15,7 @@
 #' and individual objects to be treated uniformly.
 #'
 #' The following sections include:
-#' \describe{
+#' \itemize{
 #'  \item Class Participants: Classes the comprise this composite pattern.
 #'  \item Class Collaborators: Classes which interact with the Document0 class.
 #'  \item Core Methods: Methods implemented by both individual and document
@@ -27,7 +27,7 @@
 #'
 #' @section Document0 Class Participants:
 #' The participants of the Document0 class are:
-#' \describe{
+#' \itemize{
 #'  \item Document0: This component class specifies an abstract interface
 #'  for all individual and composite document classes.
 #'  \item Document: This "leaf" class specifies the  interface forindividual
@@ -38,7 +38,7 @@
 #'
 #' @section Document0 Class Collaborators:
 #' The collaborators of the Document0 class are:
-#' \describe{
+#' \itemize{
 #'  \item Lab: This class instantiates labs within NLPStudio which have the
 #'  responsibility of managing document objects.
 #'  \item CorpusBuilder0: A family of classes of the builder pattern,
@@ -48,7 +48,7 @@
 #' @section DocumentCollection Core Methods:
 #' The core methods are shared by both primative and composite objects and are
 #' as follows:
-#' \describe{
+#' \itemize{
 #'  \item{\code{new(name, path, fileName, desc)}}{Base method for instantiating
 #'  an object of the Document and  DocumentCollection classes. File name is
 #'  only only required of objects of the Document class.
@@ -66,7 +66,7 @@
 #' @section DocumentCollection Composite Methods:
 #' The composite methods are used to manage parent / child relationshipos among
 #' the documents, and are:
-#' \describe{
+#' \itemize{
 #'  \item{\code{addDocument(document)}}{Base method for adding documents to a
 #'  collection. Specific behaviors implemented in the Collection composite class}
 #'  \item{\code{removeDocument(document)}}{Base method for removing documents from
@@ -78,7 +78,7 @@
 #'
 #' @section DocumentCollection Input/Output Methods:
 #' Methods for reading and writing individual and composite document objects.
-#' \describe{
+#' \itemize{
 #'  \item{readDocument(what, how)}{Method for reading a document.}
 #'  \item{writeDocument(what, how)}{Method for writing a document.}
 #' }

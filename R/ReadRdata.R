@@ -41,6 +41,14 @@ ReadRdata <- R6::R6Class(
                              "See ?ReadRdata for assistance."),
                  expect = TRUE)
       }
+
+      v <- ValidateClass$new()
+      v$validate(cls = "ReadRdata", method = "readData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to read document. Path is not a character string.",
+                             "See ?ReadRdata for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "ReadRdata", method = "readData", fieldName = "path",
                  level = "Error", value = path,
@@ -48,10 +56,9 @@ ReadRdata <- R6::R6Class(
                              "See ?ReadRdata for assistance."),
                  expect = TRUE)
 
-
-      content <- load(path, envir = .GlobalEnv)
-      content <- get(content, envir = .GlobalEnv)
-      return(content)
+      env <- new.env()
+      object <- load(path, envir = env)
+      return(env[[object]])
     }
   )
 )

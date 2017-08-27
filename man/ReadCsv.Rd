@@ -9,9 +9,9 @@
 ReadCsv
 }
 \arguments{
-\item{document}{An objectd of the Document class}
+\item{path}{A character string indicating the location for the file to be read.}
 
-\item{header}{A logical indicating whether the csv file contains headers}
+\item{header}{A logical indicating whether the csv file contains headers. Defaults to TRUE}
 }
 \description{
 \code{ReadCsv} Class contains the data and methods for reading csv files
@@ -29,7 +29,10 @@ and methods for reading csv files
 
 \seealso{
 Other Document i/o classes: \code{\link{ReadBin}},
-  \code{\link{ReadRdata}}, \code{\link{ReadText}}
+  \code{\link{ReadRdata}}, \code{\link{ReadText}},
+  \code{\link{Write0}}, \code{\link{WriteBin}},
+  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
+  \code{\link{WriteText}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

@@ -15,7 +15,7 @@
 #' and individual objects to be treated uniformly.
 #'
 #' The following sections include:
-#' \describe{
+#' \itemize{
 #'  \item Class Participants: Classes the comprise this composite pattern.
 #'  \item Class Collaborators: Classes which interact with the Document0 class.
 #'  \item Core Methods: Methods implemented by both individual and document
@@ -27,7 +27,7 @@
 #'
 #' @section Document0 Class Participants:
 #' The participants of the Document0 class are:
-#' \describe{
+#' \itemize{
 #'  \item Document0: This component class specifies an abstract interface
 #'  for all individual and composite document classes.
 #'  \item Document: This "leaf" class specifies the  interface forindividual
@@ -38,7 +38,7 @@
 #'
 #' @section Document0 Class Collaborators:
 #' The collaborators of the Document0 class are:
-#' \describe{
+#' \itemize{
 #'  \item Lab: This class instantiates labs within NLPStudio which have the
 #'  responsibility of managing document objects.
 #'  \item CorpusBuilder0: A family of classes of the builder pattern,
@@ -47,7 +47,7 @@
 #'
 #' @section Document Core Methods:
 #' The core methods for the Document class are as follows:
-#' \describe{
+#' \itemize{
 #'  \item{\code{new(name, path, fileName, desc)}}{Method for instantiating
 #'  an object of the Document class.}
 #'  \item{\code{getDocument()}}{Method for retrieving the meta data for
@@ -58,7 +58,7 @@
 #'
 #' @section Composite Methods:
 #' The composite methods implemented for this class:
-#' \describe{
+#' \itemize{
 #'  \item{\code{addDocument(document)}}{Returns the current object.}
 #'  \item{\code{getDocuments()}}{Returns the current object.}
 #'  \item{\code{removeDocument(document)}}{Not implemented for this class.}
@@ -68,7 +68,7 @@
 #'
 #' @section Input/Output Methods:
 #' Methods for reading and writing individual document objects.
-#' \describe{
+#' \itemize{
 #'  \item{readDocument(what, how)}{Method for reading a document.}
 #'  \item{writeDocument(what, how)}{Method for writing a document.}
 #' }

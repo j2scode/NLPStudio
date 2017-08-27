@@ -33,9 +33,9 @@ This abstract class is not implemented.
 classes
 }
 \details{
-\strong{CorpusBuilder Class Overview:}
+\strong{CorpusBuilder0 Class Overview:}
 
-The CorpusBuilder family of classes are an implementation of the builder
+The CorpusBuilder0 family of classes is an implementation of the builder
 pattern documented in the book "Design Patterns: Elements of Reusable
 Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 and John Vlissides (hence Gang of Four). This pattern allows for different

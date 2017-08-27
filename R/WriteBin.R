@@ -40,12 +40,28 @@ WriteBin <- R6::R6Class(
                              "See ?WriteBin for assistance."),
                  expect = TRUE)
       }
+      v <- ValidateClass$new()
+      v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
+                 level = "Error", value = path,
+                 msg = paste("Unable to write document. Path is not a character string.",
+                             "See ?WriteBin for assistance."),
+                 expect = "character")
+
       v <- ValidatePath$new()
       v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteBin for assistance."),
                  expect = TRUE)
+
+      if (missing(content)) {
+        v <- Validate0$new()
+        v$notify(cls = "WriteBin", method = "writeData",
+                   fieldName = "content", value = "", level = "Error",
+                   msg = paste("Unable to write content. Content is missing with no default",
+                               "See ?WriteBin for assistance."),
+                   expect = TRUE)
+      }
 
       v <- ValidateNotEmpty$new()
       v$validate(cls = "WriteBin", method = "writeData",
