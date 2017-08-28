@@ -163,17 +163,20 @@ Document <- R6::R6Class(
         document <- self
       } else if (format == "list") {
         document <- list(
-          name = private$..name,
-          parent = private$..parentName,
-          path = private$..path,
-          fileName = private$..fileName,
-          desc = private$..desc,
-          modified = private$..modified,
-          created = private$..created
+          metaData = list(
+            name = private$..name,
+            parent = private$..parentName,
+            path = private$..path,
+            fileName = private$..fileName,
+            desc = private$..desc,
+            modified = private$..modified,
+            created = private$..created
+          ),
+          documents = list()
         )
       } else if (format == "df") {
         document = list(
-          documentDf <- data.frame(name = private$..name,
+          metaData <- data.frame(name = private$..name,
                                    parent = private$..parentName,
                                    path = private$..path,
                                    fileName = private$..fileName,
@@ -181,7 +184,7 @@ Document <- R6::R6Class(
                                    modified = private$..modified,
                                    created = private$..created,
                                    stringsAsFactors = FALSE),
-          documentsDf = data.frame(0)
+          documents = data.frame(0)
         )
       } else {
         v <- Validate0$new()
@@ -221,23 +224,14 @@ Document <- R6::R6Class(
     },
 
     getDocuments = function(type = "list") {
-      if (type == "object") {
-        documents = self
-      } else if (type == "list") {
-        documents = self$getDocument(type = "list")
-      } else if (type == "df") {
-        documents = self$getDocument(type = "df")
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "getdocuments",
-                 fieldName = "format", value = format, level = "Error",
-                 msg = paste("Invalid type requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "See ?DocumentCollection"),
-                 expect = NULL)
-        stop()
-      }
-      return(documents)
+      v <- Validate0$new()
+      v$notify(cls = "Document", method = "getDocuments", fieldName = "",
+               level = "Warn", value = "",
+               msg = paste("The getDocuments method is not implemented",
+                           "for the Document class.",
+                           "See ?Document, and ?DocumentCollection",
+                           "for further assistance."),
+               expect = NULL)
     },
 
     removeDocument = function(name, purge = FALSE) {
@@ -262,25 +256,39 @@ Document <- R6::R6Class(
 
     addParent = function(parent) {
 
-      v <- ValidateClass$new()
-      if (v$validate(cls = "Document", method = "addParent", fieldName = "parent",
-                 level = "Error", value = parent,
+      if (class(parent) %in% c("DocumentCollection")) {
+        # Add parent
+        private$..parent <- parent
+
+        # Add parent name
+        p <- getParent(format = "list")
+        private$..parentName <- p$metaData$name
+
+        # Update path
+        private$..path <- file.path(p$metaData$path, private$..name)
+
+        # Update cache
+        nlpStudioCache$setCache(private$..name, self)
+
+      } else {
+        v <- ValidateClass$new()
+        v$notify(cls = "Document", method = "addParent",
+                 fieldName = "parent", level = "Error", value = parent,
                  msg = paste("Unable to add parent object. Objects of the",
-                             "Document class may only have DocumentCollection",
+                             "Document class may only",
+                             "have DocumentCollection",
                              "objects as parents"),
-                 expect = "DocumentCollection") == FALSE) {
+                 expect = "DocumentCollection")
         stop()
       }
-      p <- private$getParent(parent)
-      private$..parent <- parent
-      private$..parentName <- p$name
-      private$..path <- file.path(p$path, name)
     },
 
     getParent = function() {
-      return(private$..parent)
-    },
 
+      p <- private$..parent$getDocument(format = "list")
+
+      return(p)
+    },
     #-------------------------------------------------------------------------#
     #                                  I/O                                    #
     #-------------------------------------------------------------------------#

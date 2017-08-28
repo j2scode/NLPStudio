@@ -151,7 +151,7 @@ DocumentCollection <- R6::R6Class(
         document <- self
       } else if (type == "list") {
         document = list(
-          documentList = list(
+          metaData = list(
             name = private$..name,
             parent = private$..parentName,
             path = private$..path,
@@ -159,13 +159,11 @@ DocumentCollection <- R6::R6Class(
             modified = private$..modified,
             created = private$..created
           ),
-          documentsList = list(
-            self$getDocuments(type = "list")
-          )
+          documents = self$getDocuments(type = "list")
         )
       } else if (type == "df") {
         document = list(
-          documentDf = data.frame(name = private$..name,
+          metaData = data.frame(name = private$..name,
                                   parent = private$..parentName,
                                   path = private$..path,
                                   fileName = private$..fileName,
@@ -173,7 +171,7 @@ DocumentCollection <- R6::R6Class(
                                   modified = private$..modified,
                                   created = private$..created,
                                   stringsAsFactors = FALSE),
-          documentsDf = self$getDocuments(type = "df")
+          documents = self$getDocuments(type = "df")
         )
       } else {
         v <- Validate0$new()
@@ -217,14 +215,13 @@ DocumentCollection <- R6::R6Class(
       }
 
       # Add document to list of documents for collection
-      doc <- document$getDocument(type = "list")
-      private$..documents[[doc$name]] <- document
+      d <- document$getDocument(type = "list")
+      private$..documents[[d$name]] <- document
 
       # Update the parent of the document object
       document$addParent(self)
 
       # Update cache
-      assign(private$..name, self, envir = .GlobalEnv)
       nlpStudioCache$setCache(key = private$..name, value = self)
     },
 
@@ -234,11 +231,13 @@ DocumentCollection <- R6::R6Class(
         documents = lapply(private$..documents, function(d) d)
       } else if (type == "list") {
         documents = lapply(private$..documents, function(d) {
-          d$getDocument(type = "list")
+          document <- d$getDocument(type = "list")
+          document$metaData
         })
       } else if (type == "df") {
         documents = rbindlist(lapply(private$..documents, function(d) {
-          d$getDocument(type = "list")
+          document <- d$getDocument(type = "list")
+          document$metaData
         }))
       } else {
         v <- Validate0$new()
@@ -339,27 +338,38 @@ DocumentCollection <- R6::R6Class(
     addParent = function(parent) {
 
       if (class(parent) %in% c("DocumentCollection", "Lab")) {
+        # Add parent
         private$..parent <- parent
+
+        # Add parent name
+        p <- getParent(format = "list")
+        private$..parentName <- p$metaData$name
+
+        # Update path
+        private$..path <- file.path(p$metaData$path, private$..name)
+
+        # Update cache
+        nlpStudioCache$setCache(private$..name, self)
+
       } else {
         v <- ValidateClass$new()
-        v$notify(cls = "Document", method = "addParent", fieldName = "parent",
-                   level = "Error", value = parent,
-                   msg = paste("Unable to add parent object. Objects of the",
-                               "DocumentCollection class may only
-                               have DocumentCollection or Lab",
-                               "objects as parents"),
-                   expect = "DocumentCollection")
+        v$notify(cls = "DocumentCollection", method = "addParent",
+                 fieldName = "parent", level = "Error", value = parent,
+                 msg = paste("Unable to add parent object. Objects of the",
+                             "DocumentCollection class may only",
+                             "have DocumentCollection or Lab",
+                             "objects as parents"),
+                 expect = "DocumentCollection")
         stop()
       }
-
-      p <- private$..getParent(parent)
-      private$..parent <- parent
-      private$..parentName <- p$name
-      private$..path <- file.path(p$path, name)
     },
 
     getParent = function() {
-      return(private$..parent)
+
+      if ("Lab" %in% class(private$..parent)) p <- private$..parent$getLab(format = "list")
+      else p <- private$..parent$getDocument(format = "list")
+
+      return(p)
     },
 
     #-------------------------------------------------------------------------#

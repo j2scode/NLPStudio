@@ -63,8 +63,11 @@ NLPStudio <- R6::R6Class(
           ..name = "nlpStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
-            archives = "./Archives",
-            labs = "./Labs"),
+            studio = "./NLPStudio",
+            archives = "./NLPStudio/Archives",
+            labs = "./NLPStudio/Labs",
+            log = "./NLPStudio/Log"
+            ),
           ..labs = list(),
           ..currentLab = "None",
           ..created = "None",
@@ -82,9 +85,10 @@ NLPStudio <- R6::R6Class(
             opt <- options(show.error.messages=FALSE, warn = -1)
             on.exit(options(opt))
 
-            # Create archive and lab folders
-            suppressWarnings(dir.create(private$..studioDirs$archives))
-            suppressWarnings(dir.create(private$..studioDirs$labs))
+            # Create NLPStudio folders
+            lapply(private$..studioDirs, function(d) {
+              suppressWarnings(dir.create(d))
+            })
 
             # Create single instance of NLPStudio object
             private$..name <- name
@@ -92,6 +96,26 @@ NLPStudio <- R6::R6Class(
             private$..currentLab <- "None"
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
+
+            # Instantiate archive object
+            nlpArchives <<- Archive$new()$getInstance()
+
+            # Initialize Logger
+            if (!dir.exists(private$..studioDirs$log)) {
+              dir.create(private$..studioDirs$log)
+              futile.logger::flog.threshold(INFO)
+              futile.logger::flog.logger("green", INFO, appender=appender.tee('./log/green.log'))
+              futile.logger::flog.logger("green", Info, appender=appender.tee('./log/green.log'))
+              futile.logger::flog.logger("green", info, appender=appender.tee('./log/green.log'))
+              futile.logger::flog.logger("yellow", WARN, appender=appender.tee('./log/yellow.log'))
+              futile.logger::flog.logger("yellow", Warn, appender=appender.tee('./log/yellow.log'))
+              futile.logger::flog.logger("yellow", warn, appender=appender.tee('./log/yellow.log'))
+              futile.logger::flog.logger("red", ERROR, appender=appender.tee('./log/red.log'))
+              futile.logger::flog.logger("red", Error, appender=appender.tee('./log/red.log'))
+              futile.logger::flog.logger("red", error, appender=appender.tee('./log/red.log'))
+
+              futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
+            }
 
             invisible(self)
           },
@@ -105,7 +129,7 @@ NLPStudio <- R6::R6Class(
             if ("Lab" %in% class(private$..currentLab)) {
               lab <- private$..currentLab
               lab <- lab$getLab(type = "list")
-              labName <- lab$name
+              labName <- lab$metaData$name
             } else {
               labName <- "None"
             }
@@ -114,27 +138,24 @@ NLPStudio <- R6::R6Class(
               studio <- self
             } else if (type == "list") {
               studio = list(
-                studioList = list(
+                metaData = list(
                   name = private$..name,
                   desc = private$..desc,
                   currentLab = labName,
-                  labs = self$getLabs(type = 'list'),
                   modified = private$..modified,
                   created = private$..created
                 ),
-                labsList = list(
-                  self$getLabs(type = 'list')
-                )
+                labs = self$getLabs(type = 'list')
               )
             } else if (type == "df") {
               studio = list(
-                studioDf = data.frame(name = private$..name,
+                metaData = data.frame(name = private$..name,
                                       desc = private$..desc,
                                       currentLab = labName,
                                       created = private$..created,
                                       modified = private$..modified,
                                       stringsAsFactors = FALSE),
-                labsDf = self$getLabs(type = "df")
+                labs = self$getLabs(type = "df")
               )
             } else {
               v <- Validate0$new()
@@ -155,12 +176,14 @@ NLPStudio <- R6::R6Class(
               labs = lapply(private$..labs, function(l) l)
             } else if (type == "list") {
               labs = lapply(private$..labs, function(l) {
-                l$getLab(type = "list")
+                lab <- l$getLab(type = "list")
+                lab$metaData
+
               })
             } else if (type == "df") {
               labs = rbindlist(lapply(private$..labs, function(l) {
                 lab <- l$getLab(type = "list")
-                lab$labList
+                lab$metaData
               }))
             } else {
               v <- Validate0$new()
@@ -220,8 +243,8 @@ NLPStudio <- R6::R6Class(
             }
 
             # Add lab to lab list
-            labData <- lab$getLab(type = "list")
-            private$..labs[[labData$labList$name]] <- lab
+            l <- lab$getLab(type = "list")
+            private$..labs[[l$metaData$name]] <- lab
             private$..modified <- Sys.time()
 
             # Update enter ...
@@ -298,7 +321,7 @@ NLPStudio <- R6::R6Class(
               lab <- lab$getLab(type = "list")
 
               # Remove from disc
-              base::unlink(lab$path, recursive = TRUE)
+              base::unlink(lab$metaData$path, recursive = TRUE)
 
               # Remove from global environment
               rm(list = ls(envir = .GlobalEnv)[grep(name,ls(envir = .GlobalEnv))], envir = .GlobalEnv)
@@ -319,7 +342,7 @@ NLPStudio <- R6::R6Class(
             if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "enterLab",
-                       fieldName = "lab", value = labData$name, level = "Info",
+                       fieldName = "lab", value = labData$metaData$name, level = "Info",
                        msg = "Already entered lab.",
                        expect = NULL)
             } else {
@@ -328,8 +351,8 @@ NLPStudio <- R6::R6Class(
                 currentLab <- private$..currentLab$getLab("list")
                 v <- Validate0$new()
                 v$notify(cls = "NLPStudio", method = "enterLab",
-                         fieldName = "lab", value = labData$name, level = "Info",
-                         msg = paste("Leaving", currentLab$name, ". Entering", labData$name),
+                         fieldName = "lab", value = labData$metaData$name, level = "Info",
+                         msg = paste("Leaving", currentLab$metaData$name, ". Entering", labData$metaData$name),
                          expect = NULL)
               }
               private$..currentLab <- lab
@@ -352,9 +375,9 @@ NLPStudio <- R6::R6Class(
             if (!isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "leaveLab",
-                       fieldName = "lab", value = labData$name, level = "Warn",
-                       msg = paste("Unable to leave lab", labData$name,
-                                   ". Current lab is", currentLab$name, "."),
+                       fieldName = "lab", value = labData$metaData$name, level = "Warn",
+                       msg = paste("Unable to leave lab", labData$metaData$name,
+                                   ". Current lab is", currentLab$metaData$name, "."),
                        expect = NULL)
             } else {
               private$..currentLab <- "None"

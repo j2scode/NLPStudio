@@ -32,7 +32,7 @@ Lab <- R6::R6Class(
   private = list(
     ..name = character(0),
     ..desc = character(0),
-    ..parent = character(0),
+    ..parent = nlpStudio,
     ..parentName = "nlpStudio",
     ..path = character(0),
     ..documents = list(),
@@ -108,9 +108,11 @@ Lab <- R6::R6Class(
       # Assign its name in the global environment
       assign(name, self, envir = .GlobalEnv)
 
+      # Add lab to NLPStudio
+      nlpStudio$addLab(self)
+
       # Update Cache
       nlpStudioCache$setCache(name, self)
-      nlpStudioCache$setCache("nlpStudio", nlpStudio)
 
       invisible(self)
     },
@@ -121,7 +123,7 @@ Lab <- R6::R6Class(
         lab <- self
       } else if (type == "list") {
         lab = list(
-          labList = list(
+          metaData = list(
             name = private$..name,
             desc = private$..desc,
             parent = private$..parentName,
@@ -129,20 +131,18 @@ Lab <- R6::R6Class(
             modified = private$..modified,
             created = private$..created
           ),
-          collectionsList = list(
-            self$getDocuments(type = "list")
-          )
+          documents = self$getDocuments(type = "list")
         )
       } else if (type == "df") {
         lab = list(
-          labDf = data.frame(name = private$..name,
+          metaData = data.frame(name = private$..name,
                              desc = private$..desc,
                              parent = private$..parentName,
                              path = private$..path,
                              modified = private$..modified,
                              created = private$..created,
                              stringsAsFactors = FALSE),
-          collectionsDf = self$getDocuments(type = "df")
+          documents = self$getDocuments(type = "df")
           )
       } else {
         v <- Validate0$new()
@@ -190,14 +190,16 @@ Lab <- R6::R6Class(
     getDocuments = function(type = "list") {
 
       if (type == "object") {
-        collections = lapply(private$..documents, function(c) c)
+        documents = lapply(private$..documents, function(d) d)
       } else if (type == "list") {
-        collections = lapply(private$..documents, function(c) {
-          c$getDocument(type = "list")
+        documents = lapply(private$..documents, function(d) {
+          document <- d$getDocument(type = "list")
+          document$metaData
         })
       } else if (type == "df") {
-        collections = rbindlist(lapply(private$..documents, function(c) {
-          c$getDocument(type = "list")
+        documents = rbindlist(lapply(private$..documents, function(d) {
+          document <- d$getDocument(type = "list")
+          document$metaData
         }))
       } else {
         v <- Validate0$new()
@@ -209,7 +211,7 @@ Lab <- R6::R6Class(
                  expect = NULL)
         stop()
       }
-      return(collections)
+      return(documents)
     },
 
     addDocument = function(document) {
@@ -225,13 +227,14 @@ Lab <- R6::R6Class(
       }
 
       # Add collection to list of collections
-      documentData <- document$getDocument(type = "list")
-      document$addParent(self)
-      private$..documents[[documentData$name]] <- document
+      d <- document$getDocument(type = "list")
+      private$..documents[[d$metaData$name]] <- document
       private$..modified <- Sys.time()
 
+      # Add parent to document
+      document$addParent(self)
+
       # Update Cache
-      nlpStudioCache$setCache("nlpStudio", nlpStudio)
       nlpStudioCache$setCache(private$..name, self)
 
       invisible(self)

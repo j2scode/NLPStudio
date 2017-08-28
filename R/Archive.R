@@ -46,6 +46,7 @@ Archive <- R6::R6Class(
         private = list(
           ..name = "nlpArchive",
           ..desc = "Archive for NLPStudio Objects",
+          ..path = character(0),
           ..modified = character(0),
           ..created = character(),
           ..archives = list()
@@ -54,6 +55,8 @@ Archive <- R6::R6Class(
         public = list(
 
           initialize = function() {
+            dirs <- nlpStudio$getDirectories()
+            private$..path <- dirs$archives
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
           },
@@ -75,16 +78,20 @@ Archive <- R6::R6Class(
             dirs <- nlpStudio$getDirectories()
 
             archiveFile <- file.path(dirs$archives,
-                                     paste0(sub('\\..*', '',c), "-object-",
-                                            "-archive-", o$name,
+                                     paste0(sub('\\..*', '',c), "-object",
+                                            "-archive-", o$metaData$name,
                                             format(Sys.time(),'-%Y%m%d-%H%M%S')))
 
-            files <- list.files(path = o$path, all.files = TRUE, full.names = TRUE,
+            files <- list.files(path = o$metaData$path, all.files = TRUE, full.names = TRUE,
                                 recursive = TRUE, include.dirs = TRUE)
             zip(archiveFile, files)
 
             # Add to list of archives
-            private$..archives[[o$name]] <- object
+            private$..archives[[o$metaData$name]] <- list(
+              name = o$metaData$name,
+              class = class(object)[1],
+              path = paste0(archiveFile, ".zip")
+            )
             private$..modified <- Sys.time()
           },
 
@@ -94,24 +101,24 @@ Archive <- R6::R6Class(
               archive <- self
             } else if (type == "list") {
               archive = list(
-                archiveList = list(
+                metaData = list(
                   name = private$..name,
                   desc = private$..desc,
+                  path = private$..path,
                   modified = private$..modified,
                   created = private$..created
                 ),
-                archivesList = list(
-                  self$getArchives(type = "list")
-                )
+                archives = self$getArchives(type = "list")
               )
             } else if (type == "df") {
               archive = list(
-                archiveDf = data.frame(name = private$..name,
-                                       desc = private$..desc,
-                                       modified = private$..modified,
-                                       created = private$..created,
-                                       stringsAsFactors = FALSE),
-                archivesDf = self$getArchives(type = "df")
+                metaData = data.frame(name = private$..name,
+                                      desc = private$..desc,
+                                      path = private$..path,
+                                      modified = private$..modified,
+                                      created = private$..created,
+                                      stringsAsFactors = FALSE),
+                archives = self$getArchives(type = "df")
               )
             } else {
               v <- Validate0$new()
@@ -131,27 +138,9 @@ Archive <- R6::R6Class(
             if (type == "object") {
               archives = lapply(private$..archives, function(a) a)
             } else if (type == "list") {
-              archives = lapply(private$..archives, function(a) {
-                if (class(a)[1] == "Lab") {
-                  archive <- a$getLab(type = "list")
-                  archive <- archive$labList
-                } else {
-                  archive <- a$getDocument(type = "list")
-                  archive <- archive$documentList
-                }
-                archive
-              })
+              archives = lapply(private$..archives, function(a) a)
             } else if (type == "df") {
-              archives = rbindlist(lapply(private$..archives, function(a) {
-                if (class(a)[1] == "Lab") {
-                  archive <- a$getLab(type = "list")
-                  archive <- archive$labList
-                } else {
-                  archive <- a$getDocument(type = "list")
-                  archive <- archive$documentList
-                }
-                archive
-              }))
+              archives = rbindlist(lapply(private$..archives, function(a) a))
             } else {
               v <- Validate0$new()
               v$notify(cls = "Archive", method = "getArchives",

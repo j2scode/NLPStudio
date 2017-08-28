@@ -30,8 +30,8 @@ testNLPStudio <- function() {
 
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot((Sys.time() - studio$created) < 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$created) < 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
     # Logit
     logTests(cls = cls, mthd = "initiate", note = "Successfully created nlpStudio")
@@ -65,12 +65,12 @@ testNLPStudio <- function() {
 
     # Test getStudio, list format
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(studio$name == "nlpStudio")
-    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(studio$current == "None")
+    stopifnot(studio$metaData$name == "nlpStudio")
+    stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(studio$metaData$current == "None")
     stopifnot(length(studio$labs) == 0)
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) > 1)
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) > 1)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -87,13 +87,13 @@ testNLPStudio <- function() {
 
     # Test getStudio, data frame
     studio <<- nlpStudio$getStudio(type = "df")
-    stopifnot(nrow(studio$studioDf) == 1)
-    stopifnot(studio$studioDf$name[1] == "nlpStudio")
-    stopifnot(studio$studioDf$desc[1] == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(studio$studioDf$current[1] == "None")
-    stopifnot((Sys.time() - studio$studioDf$created[1]) > 1)
-    stopifnot((Sys.time() - studio$studioDf$modified[1]) > 1)
-    stopifnot(nrow(studio$labsDf) == 0)
+    stopifnot(nrow(studio$metaData) == 1)
+    stopifnot(studio$metaData$name[1] == "nlpStudio")
+    stopifnot(studio$metaData$desc[1] == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(studio$metaData$current[1] == "None")
+    stopifnot((Sys.time() - studio$metaData$created[1]) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified[1]) > 1)
+    stopifnot(nrow(studio$labs) == 0)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -120,10 +120,14 @@ testNLPStudio <- function() {
     # Successful attempt
     nlpStudio$addLab(Development, enter = FALSE)
 
+    # Confirm directory created
+    dirs <- nlpStudio$getDirectories()
+    stopifnot(dir.exists(file.path(dirs$labs, "Development")))
+
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -160,17 +164,18 @@ testNLPStudio <- function() {
 
     # Test getLab list format
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(studio$name == "nlpStudio")
-    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(studio$current == "None")
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot(studio$metaData$name == "nlpStudio")
+    stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(studio$metaData$current == "None")
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
     stopifnot(length(studio$labs) == 1)
-    stopifnot(studio$labs[[1]]$name == "Development")
-    stopifnot(studio$labs[[1]]$desc == "Development Lab")
-    stopifnot((Sys.time() - studio$labs[[1]]$created) < 1)
-    stopifnot((Sys.time() - studio$labs[[1]]$modified) < 1)
+    stopifnot(studio$labs[[1]]$metaData$name == "Development")
+    stopifnot(studio$labs[[1]]$metaData$desc == "Development Lab")
+    stopifnot(studio$labs[[1]]$metaData$parentName == "nlpStudio")
+    stopifnot((Sys.time() - studio$labs[[1]]$metaData$created) < 1)
+    stopifnot((Sys.time() - studio$labs[[1]]$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -188,17 +193,18 @@ testNLPStudio <- function() {
 
     # Test getLab df format
     studio <<- nlpStudio$getStudio(type = "df")
-    stopifnot(studio$studioDf$name == "nlpStudio")
-    stopifnot(studio$studioDf$desc == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(studio$studioDf$current == "None")
-    stopifnot((Sys.time() - studio$studioDf$created) > 1)
-    stopifnot((Sys.time() - studio$studioDf$modified) < 1)
+    stopifnot(studio$metaData$name == "nlpStudio")
+    stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(studio$metaData$current == "None")
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
-    stopifnot(nrow(studio$labsDf) == 1)
-    stopifnot(studio$labsDf$name[1] == "Development")
-    stopifnot(studio$labsDf$desc[1] == "Development Lab")
-    stopifnot((Sys.time() - studio$labsDf$created[1]) < 1)
-    stopifnot((Sys.time() - studio$labsDf$modified[1]) < 1)
+    stopifnot(nrow(studio$labs) == 1)
+    stopifnot(studio$labs$metaData$name[1] == "Development")
+    stopifnot(studio$labs$metaData$desc[1] == "Development Lab")
+    stopifnot(studio$labs[1]$metaData$parentName == "nlpStudio")
+    stopifnot((Sys.time() - studio$labs$metaData$created[1]) < 1)
+    stopifnot((Sys.time() - studio$labs$metaData$modified[1]) < 1)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -217,17 +223,21 @@ testNLPStudio <- function() {
     Lab$new(name = "Bart",desc = "Simpsons Lab")
     nlpStudio$addLab(Bart, enter = TRUE)
 
+    # Confirm directory created
+    dirs <- nlpStudio$getDirectories()
+    stopifnot(dir.exists(file.path(dirs$labs, "Bart")))
+
     # Copy test files over
     l <- Bart$getLab(type = "list")
     fromFolder <- "./tests/testFiles"
-    toFolder <- l$path
+    toFolder <- l$metaData$path
     fileList <- list.files(fromFolder)
     file.copy(file.path(fromFolder, fileList), toFolder)
 
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -265,20 +275,22 @@ testNLPStudio <- function() {
 
     # Test getLab list format
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(studio$name == "nlpStudio")
-    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(isTRUE(all.equal(studio$currentLab, "Bart")))
+    stopifnot(studio$metaData$name == "nlpStudio")
+    stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(studio$currentLab == "Bart")
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 5)
 
     stopifnot(length(studio$labs) == 2)
     stopifnot(studio$labs[[1]]$name == "Development")
     stopifnot(studio$labs[[1]]$desc == "Development Lab")
+    stopifnot(studio$labs[[1]]$metaData$parentName == "nlpStudio")
     stopifnot((Sys.time() - studio$labs[[1]]$created) > 0.5)
     stopifnot((Sys.time() - studio$labs[[1]]$modified) > 0.5)
 
     stopifnot(studio$labs[[2]]$name == "Bart")
     stopifnot(studio$labs[[2]]$desc == "Simpsons Lab")
+    stopifnot(studio$labs[[2]]$metaData$parentName == "nlpStudio")
     stopifnot((Sys.time() - studio$labs[[2]]$created) < 5)
     stopifnot((Sys.time() - studio$labs[[2]]$modified) < 5)
 
@@ -299,22 +311,24 @@ testNLPStudio <- function() {
 
     # Test getLab df format
     studio <<- nlpStudio$getStudio(type = "df")
-    stopifnot(studio$studioDf$name == "nlpStudio")
-    stopifnot(studio$studioDf$desc == "NLPStudio: Natural Language Processing Studio")
-    stopifnot(isTRUE(all.equal(studio$studioDf$currentLab, "Bart")))
-    stopifnot((Sys.time() - studio$studioDf$created) > 1)
-    stopifnot((Sys.time() - studio$studioDf$modified) < 5)
+    stopifnot(studio$metaData$name == "nlpStudio")
+    stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
+    stopifnot(isTRUE(all.equal(studio$metaData$currentLab, "Bart")))
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 5)
 
-    stopifnot(nrow(studio$labsDf) == 2)
-    stopifnot(studio$labsDf$name[1] == "Development")
-    stopifnot(studio$labsDf$desc[1] == "Development Lab")
-    stopifnot((Sys.time() - studio$labsDf$created[1]) > 0.5)
-    stopifnot((Sys.time() - studio$labsDf$modified[1]) > 0.5)
+    stopifnot(nrow(studio$labs) == 2)
+    stopifnot(studio$labs$name[1] == "Development")
+    stopifnot(studio$labs$desc[1] == "Development Lab")
+    stopifnot(studio$labs[1]$metaData$parentName == "nlpStudio")
+    stopifnot((Sys.time() - studio$labs$created[1]) > 0.5)
+    stopifnot((Sys.time() - studio$labs$modified[1]) > 0.5)
 
-    stopifnot(studio$labsDf$name[2] == "Bart")
-    stopifnot(studio$labsDf$desc[2] == "Simpsons Lab")
-    stopifnot((Sys.time() - studio$labsDf$created[2]) < 5)
-    stopifnot((Sys.time() - studio$labsDf$modified[2]) < 5)
+    stopifnot(studio$labs$name[2] == "Bart")
+    stopifnot(studio$labs$desc[2] == "Simpsons Lab")
+    stopifnot(studio$labs[1]$metaData$parentName == "nlpStudio")
+    stopifnot((Sys.time() - studio$labs$created[2]) < 5)
+    stopifnot((Sys.time() - studio$labs$modified[2]) < 5)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -355,7 +369,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(isTRUE(all.equal(studio$currentLab, "Development")))
+    stopifnot(studio$metaData$currentLab == "Development")
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -373,11 +387,11 @@ testNLPStudio <- function() {
 
     Bart$leaveLab() # Should warning, attempt to leave a non-current lab
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(isTRUE(all.equal(studio$currentLab, "Development")))
+    stopifnot(studio$metaData$currentLab == "Development")
 
     Development$leaveLab()
     studio <<- nlpStudio$getStudio(type = "list")
-    stopifnot(isTRUE(all.equal(studio$currentLab, "None")))
+    stopifnot(studio$metaData$currentLab == "None")
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -411,27 +425,30 @@ testNLPStudio <- function() {
 
     # Confirm date modified updated correctly
     studio <- nlpStudio$getStudio(type = "list")
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$created) > 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
     # # Confirm removed from list
     labs <<- nlpStudio$getLabs(type = "list")
     for (l in 1:length(labs)) {
-      stopifnot(!isTRUE(all.equal(labs[[l]]$name, "Bart")))
+      stopifnot(!isTRUE(all.equal(labs[[l]]$metaData$name, "Bart")))
     }
 
     # Confirm archives
     a <- nlpArchives$getArchive(type = "list")
-    stopifnot(a$archiveList$name == "nlpArchive")
-    stopifnot(a$archiveList$desc == "Archive for NLPStudio Objects")
-    stopifnot((Sys.time() - a$archiveList$modified) < 5)
-    stopifnot((Sys.time() - a$archiveList$created) > 5)
-    stopifnot(a$archiveLists[[1]]$name == "Bart")
-    stopifnot(a$archiveLists[[1]]$parent == "nlpStudio")
-    stopifnot(a$archiveLists[[1]]$desc == "Simpsons Lab")
-    stopifnot(a$archiveLists[[1]]$path == "./Labs/Bart")
-    stopifnot((Sys.time() - a$archivesList[[1]]$modified) > 5)
-    stopifnot((Sys.time() - a$archivesList[[1]]$created) > 5)
+    stopifnot(a$metaData$name == "nlpArchive")
+    stopifnot(a$metaData$desc == "Archive for NLPStudio Objects")
+    stopifnot((Sys.time() - a$metaData$modified) < 5)
+    stopifnot((Sys.time() - a$metaData$created) > 5)
+    stopifnot(a$archives[[1]]$name == "Bart")
+    stopifnot(a$archives[[1]]$class == "Lab")
+    stopifnot(grepl("Bart", a$archives[[1]]$path))
+    stopifnot((Sys.time() - a$archives[[1]]$modified) > 5)
+    stopifnot((Sys.time() - a$archives[[1]]$created) > 5)
+
+    # Confirm directory does not exist and archive does
+    stopifnot(!dir.exists("./NLPStudio/NLPStudio/Labs/Bart"))
+    stopifnot(file.exists(a$archives[[1]]$path))
 
     # Print archives
     nlpArchives$printArchives()
@@ -480,13 +497,10 @@ test16()
 
 }
 
+dirs <- nlpStudio$getDirectories()
+lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
 cls <- "NLPStudio"
-labsDir <- "./Labs"
-archiveDir <- "./Archives"
 cacheFile <- "./.StudioCache.Rdata"
-
-base::unlink(labsDir, recursive = TRUE)
-base::unlink(archiveDir, recursive = TRUE)
 base::unlink(cacheFile)
 
 devtools::load_all()
