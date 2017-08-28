@@ -48,7 +48,6 @@ Validate0 <- R6::R6Class(
     notifyWarn  = function(note) futile.logger::flog.warn(note, name = "yellow"),
     notifyError = function(note) {
       futile.logger::flog.error(note, name = "red")
-      stop()
     }
   ),
 

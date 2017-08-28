@@ -115,15 +115,19 @@ DocumentCollection <- R6::R6Class(
 
       # Validate Name
       v <- ValidateName$new()
-      v$validate(cls = "DocumentCollection", method = "initialize",
-                 name, expect = FALSE)
+      if (v$validate(cls = "DocumentCollection", method = "initialize",
+                 value = name, expect = FALSE) == FALSE) {
+        stop()
+      }
       # Validate parent
       v <- ValidateClass$new()
-      v$validate(cls = "DocumentCollection", method = "initialize",
+      if (v$validate(cls = "DocumentCollection", method = "initialize",
                  fieldName = "parent",
                  value = parent, level = "Error",
                  msg = "Path is required.",
-                 expect = private$..parentTypes)
+                 expect = private$..parentTypes) == FALSE) {
+        stop()
+      }
 
       # Instantiate variables
       private$..name <- name
@@ -143,18 +147,23 @@ DocumentCollection <- R6::R6Class(
 
     getDocument = function(type = "list") {
 
-      if (format == "object") {
+      if (type == "object") {
         document <- self
-      } else if (format == "list") {
+      } else if (type == "list") {
         document = list(
-          name = private$..name,
-          parent = private$..parentName,
-          path = private$..path,
-          desc = private$..desc,
-          modified = private$..modified,
-          created = private$..created
+          documentList = list(
+            name = private$..name,
+            parent = private$..parentName,
+            path = private$..path,
+            desc = private$..desc,
+            modified = private$..modified,
+            created = private$..created
+          ),
+          documentsList = list(
+            self$getDocuments(type = "list")
+          )
         )
-      } else if (format == "df") {
+      } else if (type == "df") {
         document = list(
           documentDf = data.frame(name = private$..name,
                                   parent = private$..parentName,
@@ -174,6 +183,7 @@ DocumentCollection <- R6::R6Class(
                              "Must be 'object', 'list', or 'df'.",
                              "See ?DocumentCollection"),
                  expect = NULL)
+        stop()
       }
       return(document)
     },
@@ -199,10 +209,12 @@ DocumentCollection <- R6::R6Class(
 
       # Validate document
       v <- ValidateClass$new()
-      v$validate(cls = "DocumentCollection", method = "addDocument",
+      if (v$validate(cls = "DocumentCollection", method = "addDocument",
                  fieldName = "document", value = document, level = "Error",
                  msg = "Argument is not a Document class object.",
-                 expect = "Document")
+                 expect = "Document") == FALSE) {
+        stop()
+      }
 
       # Add document to list of documents for collection
       doc <- document$getDocument(type = "list")
@@ -236,11 +248,34 @@ DocumentCollection <- R6::R6Class(
                              "Must be 'object', 'list', or 'df'.",
                              "See ?DocumentCollection"),
                  expect = NULL)
+        stop()
       }
       return(documents)
     },
 
     removeDocument = function(name, purge = FALSE) {
+
+      # Confirm name parameter is not missing
+      if (missing(name)) {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "removeDocument",
+                 fieldName = "name", value = "", level = "Error",
+                 msg = paste("Name of document is missing with no default.",
+                             "See ?DocumentCollection for further assistance."),
+                 expect = TRUE)
+        stop()
+      }
+
+      # Confirm document exists
+      if (!exists(name, envir = .GlobalEnv)) {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "removeDocument",
+                 fieldName = "name", value = name, level = "Error",
+                 msg = paste("Document does not exist.",
+                             "See ?DocumentCollection for further assistance."),
+                 expect = TRUE)
+        stop()
+      }
 
       # Get document
       d <- get(name, envir = .GlobalEnv)
@@ -248,13 +283,15 @@ DocumentCollection <- R6::R6Class(
       # Confirm the document is a document or collection
       classes <- c("Document", "DocumentCollection")
       v <- ValidateClass$new()
-      v$validate(cls = "DocumentCollection", method = "removeDocument",
+      if (v$validate(cls = "DocumentCollection", method = "removeDocument",
                  fieldName = "name", value = name, level = "Error",
                  msg = paste("The object named", name,
                              "is not a valid Document or DocumentCollection",
                              "object.",
                              "See ?DocumentCollection"),
-                 expect = classes)
+                 expect = classes) == FALSE) {
+        stop()
+      }
 
       # Confirm document is not self
       if (name == private$..name) {
@@ -266,12 +303,12 @@ DocumentCollection <- R6::R6Class(
                              "be performed by the parent object.",
                              "See ?DocumentCollection"),
                  expect = NULL)
+        stop()
       }
 
       # Archive
-      a <- Archive$new()
-      a$archive(self)
-      a$archive(d)
+      nlpArchives$archive(self)
+      nlpArchives$archive(d)
 
       # Remove document from collection
       private$..documents[[name]] <- NULL
@@ -312,12 +349,17 @@ DocumentCollection <- R6::R6Class(
                                have DocumentCollection or Lab",
                                "objects as parents"),
                    expect = "DocumentCollection")
+        stop()
       }
 
       p <- private$..getParent(parent)
       private$..parent <- parent
       private$..parentName <- p$name
       private$..path <- file.path(p$path, name)
+    },
+
+    getParent = function() {
+      return(private$..parent)
     },
 
     #-------------------------------------------------------------------------#

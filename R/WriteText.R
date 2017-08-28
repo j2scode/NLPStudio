@@ -39,21 +39,26 @@ WriteText <- R6::R6Class(
                  msg = paste("Unable to write document. Path is missing without a default",
                              "See ?WriteText for assistance."),
                  expect = TRUE)
+        stop()
       }
 
       v <- ValidateClass$new()
-      v$validate(cls = "WriteText", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteText", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
                              "See ?WriteText for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "WriteText", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteText", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteText for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       if (missing(content)) {
         v <- Validate0$new()
@@ -62,14 +67,17 @@ WriteText <- R6::R6Class(
                    msg = paste("Unable to write content. Content is missing with no default",
                                "See ?WriteText for assistance."),
                    expect = TRUE)
+        stop()
       }
 
       v <- ValidateNotEmpty$new()
-      v$validate(cls = "WriteText", method = "writeData",
+      if (v$validate(cls = "WriteText", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",
                              "See ?WriteText for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       con <- file(path)
       on.exit(close(con))

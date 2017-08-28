@@ -112,23 +112,30 @@ Document <- R6::R6Class(
         v$notify(cls = "Document", method = "initialize", fieldName = "name",
                  value = "", level = "Error", msg = "Name is required.",
                  expect = NULL)
+        stop()
       }
       if (missing(fileName)) {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "initialize", fieldName = "fileName",
                  value = fileName, level = "Error", msg = "File name is required.",
                  expect = NULL)
+        stop()
       }
 
       # Validate non-missing parameters
       v <- ValidateName$new()
-      v$validate(cls = "Document", method = "initialize", name, expect = FALSE)
+      if (v$validate(cls = "Document", method = "initialize",
+                     value = name, expect = FALSE) == FALSE) {
+        stop()
+      }
 
       if (!missing(parent)) {
         v <- ValidatePath$new()
-        v$validate(cls = "Document", method = "initialize", fieldName = "path",
+       if (v$validate(cls = "Document", method = "initialize", fieldName = "path",
                    value = path, level = "Error", msg = "",
-                   expect = private$..parentTypes)
+                   expect = private$..parentTypes) == FALSE) {
+         stop()
+       }
       }
 
       # Instantiate variables
@@ -184,6 +191,7 @@ Document <- R6::R6Class(
                              "Must be 'object', 'list', or 'df'.",
                              "See ?Document"),
                  expect = NULL)
+        stop()
       }
       return(document)
     },
@@ -227,6 +235,7 @@ Document <- R6::R6Class(
                              "Must be 'object', 'list', or 'df'.",
                              "See ?DocumentCollection"),
                  expect = NULL)
+        stop()
       }
       return(documents)
     },
@@ -248,21 +257,28 @@ Document <- R6::R6Class(
                            "the 'rm()' function. See ?Document or ?rm for further",
                            "assistance."),
                expect = NULL)
+      stop()
     },
 
     addParent = function(parent) {
 
       v <- ValidateClass$new()
-      v$validate(cls = "Document", method = "addParent", fieldName = "parent",
+      if (v$validate(cls = "Document", method = "addParent", fieldName = "parent",
                  level = "Error", value = parent,
                  msg = paste("Unable to add parent object. Objects of the",
                              "Document class may only have DocumentCollection",
                              "objects as parents"),
-                 expect = "DocumentCollection")
+                 expect = "DocumentCollection") == FALSE) {
+        stop()
+      }
       p <- private$getParent(parent)
       private$..parent <- parent
       private$..parentName <- p$name
       private$..path <- file.path(p$path, name)
+    },
+
+    getParent = function() {
+      return(private$..parent)
     },
 
     #-------------------------------------------------------------------------#
@@ -286,6 +302,7 @@ Document <- R6::R6Class(
                    level = "Error", value = format,
                    msg = paste("Format,", format, ",is not a valid document format.",
                                "See ?Document for assistance."))
+        stop()
       }
     },
 
@@ -299,13 +316,16 @@ Document <- R6::R6Class(
                                "Content variable is missing with no default.",
                                "See ?Document for assistance."),
                  expect = NULL)
+        stop()
       } else {
         v <- ValidateNotEmpty$new()
-        v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
+        if (v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
                    level = "Error", value = content,
                    msg = paste("Unable to write content.  Content variable is empty.",
                                "See ?Document for assistance."),
-                   expect = NULL)
+                   expect = NULL) == FALSE) {
+          stop()
+        }
       }
       if (format %in% private$..format) {
         if (format == "bin") w <- WriteBin$new()
@@ -324,6 +344,7 @@ Document <- R6::R6Class(
                  msg = paste("Unable to write content, format,", format,
                              ",is not a valid document format.",
                              "See ?Document for assistance."))
+        stop()
       }
     }
   )

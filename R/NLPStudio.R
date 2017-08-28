@@ -71,16 +71,6 @@ NLPStudio <- R6::R6Class(
           ..modified = "None"
         ),
 
-        active = list(
-
-          desc = function(value) {
-            if (missing(value)) {
-              private$..desc
-            } else {
-            private$..desc <- value
-            }
-          }
-        ),
         public = list(
 
           initialize = function() {
@@ -120,18 +110,23 @@ NLPStudio <- R6::R6Class(
               labName <- "None"
             }
 
-            if (format == "object") {
+            if (type == "object") {
               studio <- self
-            } else if (format == "list") {
+            } else if (type == "list") {
               studio = list(
-                name = private$..name,
-                desc = private$..desc,
-                currentLab = labName,
-                labs = self$getLabs(format = 'list'),
-                modified = private$..modified,
-                created = private$..created
+                studioList = list(
+                  name = private$..name,
+                  desc = private$..desc,
+                  currentLab = labName,
+                  labs = self$getLabs(type = 'list'),
+                  modified = private$..modified,
+                  created = private$..created
+                ),
+                labsList = list(
+                  self$getLabs(type = 'list')
+                )
               )
-            } else if (format == "df") {
+            } else if (type == "df") {
               studio = list(
                 studioDf = data.frame(name = private$..name,
                                       desc = private$..desc,
@@ -144,42 +139,38 @@ NLPStudio <- R6::R6Class(
             } else {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "getLabs",
-                       fieldName = "format", value = format, level = "Error",
-                       msg = paste("Invalid format requested.",
-                                   "Must be 'object', 'list', or 'df'.",
+                       fieldName = "type", value = type, level = "Error",
+                       msg = paste("Type", type, "is not a valid type.",
+                                   "Valid types include 'object', 'list', and 'df'.",
                                    "See ?NLPStudio"),
                        expect = NULL)
+              stop()
             }
             return(studio)
           },
 
           getLabs = function(type = "list") {
 
-            if (format == "object") {
+            if (type == "object") {
               labs = lapply(private$..labs, function(l) l)
-            } else if (format == "list") {
+            } else if (type == "list") {
               labs = lapply(private$..labs, function(l) {
                 l$getLab(type = "list")
               })
-            } else if (format == "df") {
+            } else if (type == "df") {
               labs = rbindlist(lapply(private$..labs, function(l) {
                 lab <- l$getLab(type = "list")
-                labData = list(
-                  name = lab$name,
-                  desc = lab$desc,
-                  modified = lab$modified,
-                  created = lab$created
-                )
-                labData
+                lab$labList
               }))
             } else {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "getLabs",
-                       fieldName = "format", value = format, level = "Error",
-                       msg = paste("Invalid format requested.",
-                                   "Must be 'object', 'list', or 'df'.",
+                       fieldName = "type", value = type, level = "Error",
+                       msg = paste("Type", type, "is not a valid type.",
+                                   "Valid types include 'object', 'list', and 'df'.",
                                    "See ?NLPStudio"),
                        expect = NULL)
+              stop()
             }
             return(labs)
           },
@@ -202,21 +193,35 @@ NLPStudio <- R6::R6Class(
           addLab = function(lab, enter = FALSE) {
 
             # Validation
+            if (missing(lab)) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "addLab",
+                         fieldName = "lab", value = "", level = "Error",
+                         msg = paste("Unable to add lab.",
+                                     "Variable lab is missing with no default."),
+                         expect = TRUE)
+              stop()
+            }
+
             v <- ValidateClass$new()
-            v$validate(cls = "NLPStudio", method = "addLab",
-                       fieldName = "lab", value = lab, level = "Error",
-                       msg = paste("Object is not a valid 'Lab' type."),
-                       expect = "Lab")
+            if (v$validate(cls = "NLPStudio", method = "addLab",
+                           fieldName = "lab", value = lab, level = "Error",
+                           msg = paste("Object is not a valid 'Lab' type."),
+                           expect = "Lab") == FALSE) {
+              stop()
+            }
 
             v <- ValidateLogical$new()
-            v$validate(cls = "NLPStudio", method = "addLab",
-                       fieldName = "enter", value = enter, level = "Error",
-                       msg = paste("Invalid logical,", enter, "must be TRUE or FALSE"),
-                       expect = TRUE)
+            if (v$validate(cls = "NLPStudio", method = "addLab",
+                           fieldName = "enter", value = enter, level = "Error",
+                           msg = paste("Invalid logical,", enter, "must be TRUE or FALSE"),
+                           expect = TRUE) == FALSE) {
+              stop()
+            }
 
             # Add lab to lab list
             labData <- lab$getLab(type = "list")
-            private$..labs[[labData$name]] <- lab
+            private$..labs[[labData$labList$name]] <- lab
             private$..modified <- Sys.time()
 
             # Update enter ...
@@ -229,47 +234,81 @@ NLPStudio <- R6::R6Class(
 
           },
 
-          removeLab = function(lab) {
+          removeLab = function(name, purge = FALSE) {
+
+            # Confirm name parameter is not missing
+            if (missing(name)) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "removeLab",
+                       fieldName = "name", value = "", level = "Error",
+                       msg = paste("Name of lab is missing with no default.",
+                                   "See ?NLPStudio for further assistance."),
+                       expect = TRUE)
+              stop()
+            }
+
+            # Confirm lab exists
+            if (!exists(name, envir = .GlobalEnv)) {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "removeLab",
+                       fieldName = "name", value = name, level = "Error",
+                       msg = paste("Lab does not exist.",
+                                   "See ?NLPStudio for further assistance."),
+                       expect = TRUE)
+              stop()
+            }
+
+            # Get Lab
+            lab <- get(name, envir = .GlobalEnv)
 
             # Confirm lab is a lab
             v <- ValidateClass$new()
-            v$validate(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "lab", value = lab, level = "Error",
-                       msg = paste("Object is not a valid 'Lab' type."),
-                       expect = "Lab")
-
-            labData <- lab$getLab(type = "list")
+            if (v$validate(cls = "NLPStudio", method = "removeLab",
+                           fieldName = "lab", value = lab, level = "Error",
+                           msg = paste("Object is not a valid 'Lab' type.",
+                                       "Encountered object of the",
+                                       class(lab), "class.",
+                                       "See ?NLPStudio for further assistance."),
+                           expect = "Lab") == FALSE) {
+              stop()
+            }
 
             # Confirm lab is not current
             if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "lab", value = labData$name, level = "Error",
+                       fieldName = "name", value = name, level = "Error",
                        msg = "Unable to remove a current lab.  See ?NLPStudio",
-                       expect = "Lab")
+                       expect = NULL)
+              stop()
             }
 
             # Archive lab
-            lab$archiveLab()
+            nlpArchives$archive(lab)
 
             # Remove lab from nlpStudio
-            private$..labs[[labData$name]] <- NULL
+            private$..labs[[name]] <- NULL
             private$..modified <- Sys.time()
+            nlpStudioCache$setCache(private$..name, self)
 
-            # Remove from global environment
-            rm(list = ls(envir = .GlobalEnv)[grep(labData$name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+            # Remove from  memory and disc if purge == TRUE
+            if (purge == TRUE) {
 
-            # Remove from cache
-            cache <- nlpStudioCache$loadCache()
-            cache[[labData$name]] <- NULL
-            nlpStudioCache$replaceCache(cache)
-            nlpStudioCache$saveCache()
-            rm(cache)
+              # Get document information
+              lab <- lab$getLab(type = "list")
 
-            # Update Cache
-            nlpStudioCache$setCache("nlpStudio", self)
+              # Remove from disc
+              base::unlink(lab$path, recursive = TRUE)
 
-            invisible(self)
+              # Remove from global environment
+              rm(list = ls(envir = .GlobalEnv)[grep(name,ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+
+              # Remove from cache
+              cache <- nlpStudioCache$loadCache()
+              cache[[name]] <- NULL
+              nlpStudioCache$replaceCache(cache)
+              nlpStudioCache$saveCache()
+            }
 
           },
 

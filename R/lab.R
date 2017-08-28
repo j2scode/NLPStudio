@@ -32,6 +32,9 @@ Lab <- R6::R6Class(
   private = list(
     ..name = character(0),
     ..desc = character(0),
+    ..parent = character(0),
+    ..parentName = "nlpStudio",
+    ..path = character(0),
     ..documents = list(),
     ..modified = "None",
     ..created = "None",
@@ -59,34 +62,43 @@ Lab <- R6::R6Class(
       private$..directories <- nlpStudio$getDirectories()
 
       # Validate Name
-      v <- ValidationManager$new()
-      v$validateName(cls = "NLPStudio", method = "initialize", name = name,
-                     expect = FALSE)
+      v <- ValidateName$new()
+      if (v$validate(cls = "NLPStudio", method = "initialize", value = name,
+                     expect = FALSE) == FALSE) {
+        stop()
+      }
 
       # Confirm lab does not already exist
       v <- ValidateExists$new()
-      v$validate(cls = "Lab", method = "initialize",
+      if (v$validate(cls = "Lab", method = "initialize",
                  fieldName = "name", value = name, level = "Error",
                  msg = paste("Cannot create lab because", name,
                              "already exists.",
                              "See ?Lab"),
-                 expect = FALSE)
+                 expect = FALSE) == FALSE) {
+        stop()
+      }
 
       # Confirm directory does not exist
       v <- ValidatePath$new()
-      v$validate(cls = "Lab", method = "initialize",
+      if (v$validate(cls = "Lab", method = "initialize",
                  fieldName = "name",
                  value = file.path(private$..directories$labs, name),
                  level = "Error",
                  msg = paste("Cannot create lab because", name,
                              "directory already exists.",
                              "See ?Lab"),
-                 expect = FALSE)
+                 expect = FALSE) == FALSE) {
+        stop()
+      }
 
       # Instantiate variables
       private$..name <- name
       if (is.null(desc)) { desc <- paste(name, "Lab") }
       private$..desc <- desc
+      private$..parent <- nlpStudio
+      private$..parentName <- "nlpStudio"
+      private$..path <- file.path(private$..directories$labs, name)
       private$..modified <- Sys.time()
       private$..created <- Sys.time()
 
@@ -105,20 +117,28 @@ Lab <- R6::R6Class(
 
     getLab = function(type = "list") {
 
-      if (format == "object") {
+      if (type == "object") {
         lab <- self
-      } else if (format == "list") {
+      } else if (type == "list") {
         lab = list(
-          name = private$..name,
-          desc = private$..desc,
-          collections = self$getDocuments(type = "list"),
-          modified = private$..modified,
-          created = private$..created
+          labList = list(
+            name = private$..name,
+            desc = private$..desc,
+            parent = private$..parentName,
+            path = private$..path,
+            modified = private$..modified,
+            created = private$..created
+          ),
+          collectionsList = list(
+            self$getDocuments(type = "list")
+          )
         )
-      } else if (format == "df") {
+      } else if (type == "df") {
         lab = list(
           labDf = data.frame(name = private$..name,
                              desc = private$..desc,
+                             parent = private$..parentName,
+                             path = private$..path,
                              modified = private$..modified,
                              created = private$..created,
                              stringsAsFactors = FALSE),
@@ -127,11 +147,12 @@ Lab <- R6::R6Class(
       } else {
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "getLab",
-                 fieldName = "format", value = format, level = "Error",
+                 fieldName = "type", value = type, level = "Error",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
                              "See ?Lab"),
                  expect = NULL)
+        stop()
       }
 
       return(lab)
@@ -160,28 +181,21 @@ Lab <- R6::R6Class(
 
     archiveLab = function() {
 
-      filePath <- file.path(private$..directories$labs, private$..name)
-      if(length(list.files(path = filePath, all.files = TRUE,
-                          recursive = TRUE, include.dirs = TRUE)) > 0) {
+      a <- Archive$new()
+      a$archive(self)
 
-        a <- Archive0$new()
-        a$archive(fileName = private$..name,
-                  filePath = file.path(private$..directories$archives,
-                                       private$..name),
-                  self)
-      }
     },
 
 
     getDocuments = function(type = "list") {
 
-      if (format == "object") {
+      if (type == "object") {
         collections = lapply(private$..documents, function(c) c)
-      } else if (format == "list") {
+      } else if (type == "list") {
         collections = lapply(private$..documents, function(c) {
           c$getDocument(type = "list")
         })
-      } else if (format == "df") {
+      } else if (type == "df") {
         collections = rbindlist(lapply(private$..documents, function(c) {
           c$getDocument(type = "list")
         }))
@@ -193,6 +207,7 @@ Lab <- R6::R6Class(
                              "Must be 'object', 'list', or 'df'.",
                              "See ?Lab"),
                  expect = NULL)
+        stop()
       }
       return(collections)
     },
@@ -201,11 +216,13 @@ Lab <- R6::R6Class(
 
       # Validater
       v <- ValidateClass$new()
-      v$validate(cls = "Lab", level = "Error", method = "addDocument",
+      if (v$validate(cls = "Lab", level = "Error", method = "addDocument",
                    fieldName = "document", value = document,
                    msg = paste("Invalid class. DocumentCollection class expected",
                                class(document), "encountered."),
-                   expect = "DocumentCollection")
+                   expect = "DocumentCollection") == FALSE) {
+        stop()
+      }
 
       # Add collection to list of collections
       documentData <- document$getDocument(type = "list")
@@ -229,13 +246,15 @@ Lab <- R6::R6Class(
       # Confirm parameter is a collection
       classes <- c("DocumentCollection")
       v <- ValidateClass$new()
-      v$validate(cls = "Lab", method = "removeDocument",
+      if (v$validate(cls = "Lab", method = "removeDocument",
                  fieldName = "name", value = name, level = "Error",
                  msg = paste("The object named", name,
                              "is not a valid DocumentCollection",
                              "object.",
                              "See ?DocumentCollection"),
-                 expect = classes)
+                 expect = classes) == FALSE) {
+        stop()
+      }
 
 
       # Confirm document is not self
@@ -249,12 +268,12 @@ Lab <- R6::R6Class(
                              "Use the nlpStudio object to remove Labs.",
                              "See ?NLPStudio"),
                  expect = NULL)
+        stop()
       }
 
       # Archive
-      a <- Archive$new()
-      a$archive(self)
-      a$archive(d)
+      nlpArchives$archive(self)
+      nlpArchives$archive(d)
 
       # Remove collection from lab and update cache
       private$..documents[[name]] <- NULL

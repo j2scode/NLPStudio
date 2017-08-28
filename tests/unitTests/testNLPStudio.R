@@ -9,6 +9,12 @@ testNLPStudio <- function() {
     # Source cache and log
     source("./tests/checkCache.r")
     source("./tests/logTests.r")
+
+    # Test file paths
+    csvTestFile <- "./tests/testFiles/contractions.csv"
+    textTestFile <- "./tests/testFiles/en_US.news.txt"
+    rdataTestFile <- "./tests/testFiles/quadgrams.Rdata"
+
   }
 
   # Test 0: Confirm instantiation of nlpStudio
@@ -20,7 +26,7 @@ testNLPStudio <- function() {
     stopifnot("NLPStudio" %in% class(nlpStudio))
 
     # Error processing
-    #studio <<- nlpStudio$getStudio(format = "xxx") # Should fail, invalid format type, Success
+    #studio <<- nlpStudio$getStudio(type = "xxx") # Should fail, invalid format type, Success
 
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
@@ -93,7 +99,7 @@ testNLPStudio <- function() {
     stopifnot(checkCache("nlpStudio") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getStudio(format = 'df')", note = "Data frame returned successfully")
+    logTests(cls = cls, mthd = "getStudio(type = 'df')", note = "Data frame returned successfully")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -102,7 +108,16 @@ testNLPStudio <- function() {
     test <- "test4: Add labs"
     cat(paste("\n",test, " Commencing\r"))
 
+    # Instantiate lab
     Lab$new(name = "Development", desc = "Development Lab")
+
+
+    # Validation
+    #nlpStudio$addLab() # fails, lab missing: success
+    #nlpStudio$addLab(finfo,enter = FALSE) # fails, invalid class: success
+    #nlpStudio$addLab(Development, enter = cls) # fails invalid logical
+
+    # Successful attempt
     nlpStudio$addLab(Development, enter = FALSE)
 
     # Confirm modified date updated
@@ -135,7 +150,7 @@ testNLPStudio <- function() {
     stopifnot(checkCache("Development") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'object')", note = "Successfully returned object type")
+    logTests(cls = cls, mthd = "getLab(type = 'object')", note = "Successfully returned object type")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -162,7 +177,7 @@ testNLPStudio <- function() {
     stopifnot(checkCache("Development") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'list')", note = "Successfully returned list type")
+    logTests(cls = cls, mthd = "getLab(type = 'list')", note = "Successfully returned list type")
     logTests(cls = cls, mthd = "addLab", note = "Successfully added lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -190,7 +205,7 @@ testNLPStudio <- function() {
     stopifnot(checkCache("Development") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'df')", note = "Successfully returned df type")
+    logTests(cls = cls, mthd = "getLab(type = 'df')", note = "Successfully returned df type")
     logTests(cls = cls, mthd = "addLab", note = "Successfully added lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -201,6 +216,13 @@ testNLPStudio <- function() {
 
     Lab$new(name = "Bart",desc = "Simpsons Lab")
     nlpStudio$addLab(Bart, enter = TRUE)
+
+    # Copy test files over
+    l <- Bart$getLab(type = "list")
+    fromFolder <- "./tests/testFiles"
+    toFolder <- l$path
+    fileList <- list.files(fromFolder)
+    file.copy(file.path(fromFolder, fileList), toFolder)
 
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
@@ -247,7 +269,7 @@ testNLPStudio <- function() {
     stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(isTRUE(all.equal(studio$currentLab, "Bart")))
     stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 1)
+    stopifnot((Sys.time() - studio$modified) < 5)
 
     stopifnot(length(studio$labs) == 2)
     stopifnot(studio$labs[[1]]$name == "Development")
@@ -257,8 +279,8 @@ testNLPStudio <- function() {
 
     stopifnot(studio$labs[[2]]$name == "Bart")
     stopifnot(studio$labs[[2]]$desc == "Simpsons Lab")
-    stopifnot((Sys.time() - studio$labs[[2]]$created) < 1)
-    stopifnot((Sys.time() - studio$labs[[2]]$modified) < 1)
+    stopifnot((Sys.time() - studio$labs[[2]]$created) < 5)
+    stopifnot((Sys.time() - studio$labs[[2]]$modified) < 5)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -281,7 +303,7 @@ testNLPStudio <- function() {
     stopifnot(studio$studioDf$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(isTRUE(all.equal(studio$studioDf$currentLab, "Bart")))
     stopifnot((Sys.time() - studio$studioDf$created) > 1)
-    stopifnot((Sys.time() - studio$studioDf$modified) < 1)
+    stopifnot((Sys.time() - studio$studioDf$modified) < 5)
 
     stopifnot(nrow(studio$labsDf) == 2)
     stopifnot(studio$labsDf$name[1] == "Development")
@@ -291,8 +313,8 @@ testNLPStudio <- function() {
 
     stopifnot(studio$labsDf$name[2] == "Bart")
     stopifnot(studio$labsDf$desc[2] == "Simpsons Lab")
-    stopifnot((Sys.time() - studio$labsDf$created[2]) < 1.5)
-    stopifnot((Sys.time() - studio$labsDf$modified[2]) < 1.5)
+    stopifnot((Sys.time() - studio$labsDf$created[2]) < 5)
+    stopifnot((Sys.time() - studio$labsDf$modified[2]) < 5)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
@@ -372,15 +394,18 @@ testNLPStudio <- function() {
     test <- "test15: Remove lab"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Attempt to remove a non-existent lab ( a function): Success
-    #nlpStudio$removeLab(logTests)
-
-    # Attempt to remove a current lab. should fail
+    # Validation
+    #nlpStudio$removeLab() # fail lab missing: success
+    #nlpStudio$removeLab(ditto) # fail does not exist: success
+    #nlpStudio$removeLab("labsDir") # fail not a lab
     Development$enterLab()
-    #nlpStudio$removeLab(Development)# Success
+    #nlpStudio$removeLab("Development")# fail, can't remove current lab
+
+    # Load files into lab for archiving
+
 
     # Successfuly remove Bart
-    nlpStudio$removeLab(Bart)
+    nlpStudio$removeLab("Bart", purge = TRUE)
     stopifnot(exists("Bart") == FALSE)
     stopifnot(exists("Development") == TRUE)
 
@@ -395,12 +420,29 @@ testNLPStudio <- function() {
       stopifnot(!isTRUE(all.equal(labs[[l]]$name, "Bart")))
     }
 
+    # Confirm archives
+    a <- nlpArchives$getArchive(type = "list")
+    stopifnot(a$archiveList$name == "nlpArchive")
+    stopifnot(a$archiveList$desc == "Archive for NLPStudio Objects")
+    stopifnot((Sys.time() - a$archiveList$modified) < 5)
+    stopifnot((Sys.time() - a$archiveList$created) > 5)
+    stopifnot(a$archiveLists[[1]]$name == "Bart")
+    stopifnot(a$archiveLists[[1]]$parent == "nlpStudio")
+    stopifnot(a$archiveLists[[1]]$desc == "Simpsons Lab")
+    stopifnot(a$archiveLists[[1]]$path == "./Labs/Bart")
+    stopifnot((Sys.time() - a$archivesList[[1]]$modified) > 5)
+    stopifnot((Sys.time() - a$archivesList[[1]]$created) > 5)
+
+    # Print archives
+    nlpArchives$printArchives()
+
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)
     stopifnot(checkCache('Development') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "removeLab", note = "Tested validation and removal of lab")
+    logTests(cls = cls, mthd = "removeLab", note = "Tested archive of files and inventory of archives")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -440,7 +482,7 @@ test16()
 
 cls <- "NLPStudio"
 labsDir <- "./Labs"
-archiveDir <- "./Archive"
+archiveDir <- "./Archives"
 cacheFile <- "./.StudioCache.Rdata"
 
 base::unlink(labsDir, recursive = TRUE)

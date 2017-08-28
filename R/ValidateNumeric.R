@@ -28,9 +28,9 @@ ValidateNumeric <- R6::R6Class(
 
       if (exists('value') & length(value) != 0) {
         if (!is.numeric(value)) {
+          self$notify(cls, method, fieldName, value, level, msg, expect)
           return(FALSE)
         } else {
-          self$notify(cls, method, fieldName, value, level, msg, expect)
           return(TRUE)
         }
       } else {

@@ -48,27 +48,34 @@ WriteRdata <- R6::R6Class(
                  msg = paste("Unable to write document. Path is missing without a default",
                              "See ?WriteRdata for assistance."),
                  expect = TRUE)
+        stop()
       }
       v <- ValidateName$new()
-      v$validate(cls = "WriteRdata", method = "writeData", fieldName = "name",
+      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "name",
                  level = "Error", value = name,
                  msg = paste("Unable to write document. Name", name, "is invalid.",
                              "See ?WriteRdata for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       v <- ValidateClass$new()
-      v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
                              "See ?WriteRdata for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteRdata for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       if (missing(content)) {
         v <- Validate0$new()
@@ -77,14 +84,17 @@ WriteRdata <- R6::R6Class(
                    msg = paste("Unable to write content. Content is missing with no default",
                                "See ?WriteRdata for assistance."),
                    expect = TRUE)
+        stop()
       }
 
       v <- ValidateNotEmpty$new()
-      v$validate(cls = "WriteRdata", method = "writeData",
+      if (v$validate(cls = "WriteRdata", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",
                              "See ?WriteRdata for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       assign(name, content)
       save(list=name, file = path)

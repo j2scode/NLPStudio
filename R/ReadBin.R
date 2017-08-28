@@ -36,21 +36,26 @@ ReadBin <- R6::R6Class(
         msg = paste("Unable to read document. Path is missing without a default",
                     "See ?ReadBin for assistance."),
         expect = TRUE)
+        stop()
       }
 
       v <- ValidateClass$new()
-      v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
+      if (v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is not a character string.",
                              "See ?ReadBin for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
+      if (v$validate(cls = "ReadBin", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path", path, "is invalid.",
                              "See ?ReadBin for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       content <- readBin(path, raw(), file.info(path)$size)
       return(content)

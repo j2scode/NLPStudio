@@ -73,7 +73,9 @@
 #'  implemented in the Document and Collection subclasses }
 #'  \item{\code{removeDocument(document)}}{Base method for removing documents from
 #'  a collection. Specific behaviors implemented in the Collection composite class}
-#'  \item{\code{addPath(path)}}{Base method for adding a path to a document.
+#'  \item{\code{addParent(path)}}{Base method for adding the parent object to a document.
+#'  Specific behaviors implemented in the Collection composite class}
+#'  \item{\code{getParent(path)}}{Base method for retrieving the parent object for a document.
 #'  Specific behaviors implemented in the Collection composite class}
 #' }
 #'
@@ -125,17 +127,7 @@ Document0 <- R6::R6Class(
 
     ..created = character(0),
     ..documents = list(),
-    ..modified = character(0),
-
-    getParent = function(parent) {
-
-      if ("Lab" %in% class(parent)) {
-        p <- parent$getLab(type = "list")
-      } else {
-        p <- parent$getDocument(type = "list")
-      }
-      return(p)
-    }
+    ..modified = character(0)
   ),
 
   public = list(
@@ -150,6 +142,7 @@ Document0 <- R6::R6Class(
     getDocuments = function() stop("Method is not available from Document0, an abstract class!"),
     removeDocument = function(document, purge = FALSE) stop("Method is not available from Document0, an abstract class!"),
     addParent = function(parent) stop("Method is not available from Document0, an abstract class!"),
+    getParent = function() stop("Method is not available from Document0, an abstract class!"),
 
     # Input / Output Methods
     readDocument = function() stop("Method is not available from Document0, an abstract class!"),

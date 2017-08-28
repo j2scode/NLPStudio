@@ -37,33 +37,44 @@ ValidateName <- R6::R6Class(
         v$notify(cls = cls, method = method, fieldName = "name",
                  level = "Error", value = "",
                  msg = "Name is required", expect = NULL)
+        return(FALSE)
       }
 
       # Validation: Name is not empty
       v <- ValidateNotEmpty$new()
-      v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = value,
-                 msg = "Name must not be empty", expect = TRUE)
+      if (v$validate(cls = cls, method = method, fieldName = "name",
+                     level = "Error", value = value,
+                     msg = "Name must not be empty", expect = TRUE) == FALSE) {
+        return(FALSE)
+      }
 
       # Validation: name is character class
       v <- ValidateClass$new()
-      v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = class(value),
-                 msg = "Name isn't a character class", expect = "character")
+      if (v$validate(cls = cls, method = method, fieldName = "name",
+                     level = "Error", value = class(value),
+                     msg = "Name isn't a character class",
+                     expect = "character") == FALSE) {
+        return(FALSE)
+      }
 
       # Validation: Name's existence is what is expected
       v <- ValidateExists$new()
-      v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = value,
-                 msg = "Name already exists", expect = expect)
+      if (v$validate(cls = cls, method = method, fieldName = "name",
+                     level = "Error", value = value,
+                     msg = "Name already exists",
+                     expect = expect) == FALSE) {
+        return(FALSE)
+      }
 
       # Validation: No spaces
       v <- ValidateNoSpaces$new()
-      v$validate(cls = cls, method = method, fieldName = "name",
-                 level = "Error", value = value,
-                 msg = "Name must have no spaces", expect = TRUE)
-
-      rm(v)
+      if (v$validate(cls = cls, method = method, fieldName = "name",
+                     level = "Error", value = value,
+                     msg = "Name must have no spaces",
+                     expect = TRUE) == FALSE) {
+        return(FALSE)
+      }
+      return(TRUE)
     }
   ),
   lock_class = FALSE,

@@ -39,20 +39,25 @@ WriteBin <- R6::R6Class(
                  msg = paste("Unable to write document. Path is missing without a default",
                              "See ?WriteBin for assistance."),
                  expect = TRUE)
+        stop()
       }
       v <- ValidateClass$new()
-      v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
                              "See ?WriteBin for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteBin for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       if (missing(content)) {
         v <- Validate0$new()
@@ -61,14 +66,17 @@ WriteBin <- R6::R6Class(
                    msg = paste("Unable to write content. Content is missing with no default",
                                "See ?WriteBin for assistance."),
                    expect = TRUE)
+        stop()
       }
 
       v <- ValidateNotEmpty$new()
-      v$validate(cls = "WriteBin", method = "writeData",
+      if (v$validate(cls = "WriteBin", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",
                              "See ?WriteBin for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
 
       writeBin(content, path)

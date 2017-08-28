@@ -39,21 +39,26 @@ WriteCsv <- R6::R6Class(
                  msg = paste("Unable to write document. Path is missing without a default",
                              "See ?WriteCsv for assistance."),
                  expect = TRUE)
+        stop()
       }
 
       v <- ValidateClass$new()
-      v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
                              "See ?WriteCsv for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
+      if (v$validate(cls = "WriteCsv", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteCsv for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       if (missing(content)) {
         v <- Validate0$new()
@@ -62,14 +67,17 @@ WriteCsv <- R6::R6Class(
                    msg = paste("Unable to write content. Content is missing with no default",
                                "See ?WriteCsv for assistance."),
                    expect = TRUE)
+        stop()
       }
 
       v <- ValidateNotEmpty$new()
-      v$validate(cls = "WriteCsv", method = "writeData",
+      if (v$validate(cls = "WriteCsv", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",
                              "See ?WriteCsv for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       write.csv(content, file = path, row.names = FALSE)
     }

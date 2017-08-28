@@ -38,21 +38,26 @@ ReadCsv <- R6::R6Class(
                  msg = paste("Unable to read document. Path is missing without a default",
                              "See ?ReadCsv for assistance."),
                  expect = TRUE)
+        stop()
       }
 
       v <- ValidateClass$new()
-      v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
+      if (v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is not a character string.",
                              "See ?ReadCsv for assistance."),
-                 expect = "character")
+                 expect = "character") == FALSE) {
+        stop()
+      }
 
       v <- ValidatePath$new()
-      v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
+      if (v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path", path, "is invalid.",
                              "See ?ReadCsv for assistance."),
-                 expect = TRUE)
+                 expect = TRUE) == FALSE) {
+        stop()
+      }
 
       content <- read.csv(path, header = header, stringsAsFactors = FALSE,
                                   sep = ",", quote = "\"'")
