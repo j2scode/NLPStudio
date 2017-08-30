@@ -48,6 +48,7 @@
 Lab <- R6::R6Class(
   classname = "Lab",
   private = list(
+    ..class = "Lab",
     ..name = character(0),
     ..desc = character(0),
     ..parent = nlpStudio,
@@ -170,6 +171,7 @@ Lab <- R6::R6Class(
         lab = list(
           metaData = list(
             name = private$..name,
+            class = private$..class,
             desc = private$..desc,
             parentName = private$..parentName,
             path = private$..path,
@@ -184,6 +186,7 @@ Lab <- R6::R6Class(
       getDf <- function() {
         lab = list(
           metaData = data.frame(name = private$..name,
+                                class = private$..class,
                                 desc = private$..desc,
                                 parentName = private$..parentName,
                                 path = private$..path,
@@ -232,6 +235,10 @@ Lab <- R6::R6Class(
 
     leaveLab = function() {
       nlpStudio$leaveLab(self)
+    },
+
+    addArchive = function(archiveFile) {
+      private$..archiveFile <- archiveFile
     },
 
     archiveLab = function() {

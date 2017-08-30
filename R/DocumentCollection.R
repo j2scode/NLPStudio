@@ -95,9 +95,13 @@
 #' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
 #' @param type = Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list"
 #'
+#' @field class Character string indicating the class of the object. This field used to restore objects from archive.
 #' @field created A date time variable indicating the date / time the object was created.
-#' @field documents A list of objects of the Document class, maintained within the DocumentCollection class.
+#' @field documents A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.
 #' @field modified A date time variable indicating the date / time the object was modified.
+#' @field parentName Character string indicating the name of the parent object.
+#' @field parentTypes A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection".
+#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -106,6 +110,10 @@
 DocumentCollection <- R6::R6Class(
   classname = "DocumentCollection",
   inherit = Document0,
+
+  private = list(
+    ..class = "DocumentCollection"
+  ),
 
   public = list(
     #-------------------------------------------------------------------------#
@@ -156,6 +164,7 @@ DocumentCollection <- R6::R6Class(
         document = list(
           metaData = list(
             name = private$..name,
+            class = private$..class,
             parentName = private$..parentName,
             path = private$..path,
             desc = private$..desc,
@@ -170,6 +179,7 @@ DocumentCollection <- R6::R6Class(
       getDf <- function() {
         document = list(
           metaData = data.frame(name = private$..name,
+                                class = private$..class,
                                 parentName = private$..parentName,
                                 path = private$..path,
                                 fileName = private$..fileName,

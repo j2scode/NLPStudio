@@ -83,11 +83,13 @@
 #' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
 #' @param type = Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list".
 #'
+#' @field class Character string indicating the class of the object. This field used to restore objects from archive.
 #' @field created A date time variable indicating the date / time the object was created.
 #' @field documents A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.
 #' @field modified A date time variable indicating the date / time the object was modified.
+#' @field parentName Character string indicating the name of the parent object.
 #' @field parentTypes A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection". They may be overwritten by subclasses.
-#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's name (for Lab or DocumentCollection objects), or a file name for Document objects.
+#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -98,6 +100,10 @@ Document <- R6::R6Class(
   inherit = Document0,
   lock_objects = FALSE,
   lock_class = FALSE,
+
+  private = list(
+    ..class = "Document"
+  ),
 
   public = list(
 
@@ -167,6 +173,7 @@ Document <- R6::R6Class(
         document <- list(
           metaData = list(
             name = private$..name,
+            class = private$..class,
             parent = private$..parentName,
             path = private$..path,
             fileName = private$..fileName,
@@ -182,6 +189,7 @@ Document <- R6::R6Class(
       getDf <- function() {
         document = list(
           metaData <- data.frame(name = private$..name,
+                                 class = private$..class,
                                  parent = private$..parentName,
                                  path = private$..path,
                                  fileName = private$..fileName,

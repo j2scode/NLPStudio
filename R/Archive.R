@@ -46,7 +46,16 @@ Archive <- R6::R6Class(
           ..path = character(0),
           ..modified = character(0),
           ..created = character(),
-          ..archives = list()
+          ..archives = list(
+            name = character(0),
+            file = character(0),
+            objName = character(0),
+            objClass = character(0),
+            objDesc = character(0),
+            objParentName = character(0),
+            objPath = character(0)
+
+          )
         ),
 
         public = list(
@@ -186,9 +195,7 @@ Archive <- R6::R6Class(
             private$..modified <- Sys.time()
           },
 
-          restore = function(objectName, parent) {
-
-            #TODO: Complete
+          restore = function(objectName) {
 
             # Confirm object name is not missing
             if (missing(objectName)) {
@@ -221,6 +228,30 @@ Archive <- R6::R6Class(
                        expect = NULL)
               stop()
             }
+
+            # Confirm parent exists
+            objectData <- private$..archives[[objectName]]
+
+            v <- ValidateExists$new()
+            if (v$validate(cls = "Archive", method = "restore",
+                           fieldName = "parent", value = objectData$metaData$parentName,
+                           level = "Error",
+                           msg = paste("Unable to restore object.
+                                       Object parent does not exist.",
+                                       "Restore", objectData$metaData$parentName,
+                                       ", then restore", objectName,
+                                       "See ?Archive for further assistance."),
+                           expect = NULL) == FALSE) {
+              stop()
+            }
+
+            # Restore files
+            unzip(zipfile = objectData$metaData$archivePath, overwrite = FALSE,
+                  exdir = objectData$metaData$path, junkpaths = TRUE,
+                  files = NULL)
+
+            # Create object
+
 
           }
         )

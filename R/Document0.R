@@ -95,14 +95,17 @@
 #' @param format  A character string indicating the document format to be read or written.  Valid values are c("bin", "text", "csv", "rdata"). Defaults to "text"
 #' @param name Character string indicating the name of the document. Required for all objects
 #' @param parent An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.
+#' @param path Character string containing the relative directory path to the document.
 #' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
 #' @param type = Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list".
 #'
+#' @field class Character string indicating the class of the object. This field used to restore objects from archive.
 #' @field created A date time variable indicating the date / time the object was created.
 #' @field documents A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.
 #' @field modified A date time variable indicating the date / time the object was modified.
+#' @field parentName Character string indicating the name of the parent object.
 #' @field parentTypes A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection". They may be overwritten by subclasses.
-#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's name (for Lab or DocumentCollection objects), or a file name for Document objects.
+#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -114,6 +117,7 @@ Document0 <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
+    ..class = "Document0",
     ..content = character(0),
     ..desc = character(0),
     ..fileName = character(0),
@@ -124,9 +128,8 @@ Document0 <- R6::R6Class(
     ..path = character(0),
     ..type = c("df", "list", "object"),
     ..parentTypes = c("Lab", "DocumentCollection"),
-
-    ..created = character(0),
     ..documents = list(),
+    ..created = character(0),
     ..modified = character(0)
   ),
 

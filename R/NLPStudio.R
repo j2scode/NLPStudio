@@ -70,6 +70,7 @@ NLPStudio <- R6::R6Class(
         classname = "NLPStudio",
         private = list(
           ..name = "nlpStudio",
+          ..class = "NLPStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
             studio = "./NLPStudio",
@@ -147,6 +148,7 @@ NLPStudio <- R6::R6Class(
               studio = list(
                 metaData = list(
                   name = private$..name,
+                  class = private$..class,
                   desc = private$..desc,
                   currentLab = private$..currentLabName,
                   modified = private$..modified,
@@ -160,6 +162,7 @@ NLPStudio <- R6::R6Class(
             getDf <- function() {
               studio = list(
                 metaData = data.frame(name = private$..name,
+                                      class = private$..class,
                                       desc = private$..desc,
                                       currentLab = private$..currentLabName,
                                       created = private$..created,
@@ -434,9 +437,10 @@ NLPStudio <- R6::R6Class(
           },
 
           restoreLab = function(labName) {
+            #TODO: Complete
             a <- Archive$new()
 
-          }
+          },
 
           getDirectories = function() {
             private$..studioDirs
