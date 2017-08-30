@@ -11,42 +11,51 @@
 #' to house separate versions of the data for analysis. Note: This class is a
 #' singleton pattern. An NLPStudio object called nlpStudio is instantiated at
 #' load time.  Any subsequent initializations will return the single nlpStudio
-#' instance.
+#' instance. There are two sets of methods.  The first set enables clients to
+#' retrieve information about the NLPStudio object.  The second set allows
+#' clients to add, remove, enter, and leave labs.
 #'
-#' @field nlpStudio: The name of the single NLPStudio object created at load time.
-#'
-#' @section Methods:
+#' @section NLPStudio Object Methods:
 #' \describe{
-#'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded.}
-#'  \item{\code{getStudio()}}{Retrieves current studio object, returns in list format and prints to console}
-#'  \item{\code{addLab(lab, current)}}{Adds an existing lab to the NLPStudio object list of labs.  If current is set to TRUE, it is also assigned to the 'currentLab' variable.}
-#'  \item{\code{removeLab()}}{Method which archives the lab and removes it from the global environment and from cache.}
-#'  \item{\code{listlabs()}}{Returns a data frame of labs in the NLPStudio and prints them to console}
+#'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
+#'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}#'
+#'  \item{\code{getStudio(type = "list")}}{Returns the current NLPStudio in a variety of formats. Supported formats (types) include c("object", "list", "df"). The default type is "list".}
+#'  \item{\code{printStudio()}}{Prints the nlpStudio object and its member objects of the Lab class to the console in data frame format.}
 #' }
 #'
-#' @section Parameters:
-#' @param name A character string containing the studio name
+#' @section Lab Methods:
+#' \describe{
+#'  \item{\code{getLabs(type = "list")}}{Returns the list of member labs in the nlpStudio object in a variety of formats(types).  Supported formats (types) include c("object", "list", "df"). The default type is "list".}
+#'  \item{\code{addLab(lab, enter = FALSE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
+#'  \item{\code{removeLab(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and cache.}
+#'  \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
+#'  \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
+#'
+#'
 #' @param desc A character string containing the studio description
-#' @param current A logical indicating whether to set the lab current.
-#' @param lab An object of class 'Lab'
+#' @param enter A logical indicating whether to enter a lab and to set the lab current.
+#' @param lab An object of class 'Lab'.
+#' @param name A character string containing the studio name.
+#' @param type A character string indicating the format in which the 'get' methods return results.
 #'
-#' @section Active Bindings:
-#' \describe{
-#'  \item{\code{desc()}}{An active binding that gets and sets the NLPStudio description}
-#'  \item{\code{current()}}{An active binding that gets and sets the current lab. With the exception of the cross-lab classes, all objects act on the current lab. }
-#' }
+#' @field studioDirs List containing the directories included in the NLPStudio.
+#' @field labs List containing the member lab objects
+#' @field currentLab An object of the Lab class. This is the currently active Lab object.
+#' @field currentLabName Character string containing the name of the current lab.
+#' @field created Datetime object indicating when the nlpStudio object was created.
+#' @field modified Datetime object indicating when the nlpStudio object was last modified.
 #'
 #' @docType class
 #' @examples
 #' \dontrun{
-#' nlpStudio$getStudio()
-#' nlpStudio$desc <- "Homer's NLPStudio"  # Changes the description of the studio
-#' nlpStudio$addLab("Lisa", current = FALSE)
-#' nlpStudio$addLab("Bart", current = TRUE)
+#' nlpStudio$getStudio() # Returns nlpStudio meta data in list format
+#' nlpStudio$addLab(Lisa, enter = FALSE) # Lisa must be an existing lab. See ?Lab.
+#' nlpStudio$addLab(Bart, enter = TRUE) # Bart must be an existing lab See ?Lab.
 #' nlpStudio$removeLab("Bart") # Fails: Cannot remove a current lab
-#' nlpStudio$currentLab <- "Lisa"
+#' nlpStudio$enterLab(Lisa)
 #' nlpStudio$removeLab("Bart") # Success!
-#' nlpStudio$listlabs()  # Renders a list of labs to console and to data frame
+#' nlpStudio$getStudio()  # Renders a list of meta data and member labs.
+#' nlpStudio$printStudio() # Prints meta data and member lab information in data frame format, to console.
 #' }
 #'
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -70,11 +79,15 @@ NLPStudio <- R6::R6Class(
             ),
           ..labs = list(),
           ..currentLab = "None",
+          ..currentLabName = "None",
           ..created = "None",
           ..modified = "None"
         ),
 
         public = list(
+          #-------------------------------------------------------------------#
+          #                       NLPStudio Methods                           #
+          #-------------------------------------------------------------------#
 
           initialize = function() {
 
@@ -126,76 +139,51 @@ NLPStudio <- R6::R6Class(
 
           getStudio = function(type = "list") {
 
-            if ("Lab" %in% class(private$..currentLab)) {
-              lab <- private$..currentLab
-              lab <- lab$getLab(type = "list")
-              labName <- lab$metaData$name
-            } else {
-              labName <- "None"
+            getObject <- function() {
+              return(self)
             }
 
-            if (type == "object") {
-              studio <- self
-            } else if (type == "list") {
+            getList <- function() {
               studio = list(
                 metaData = list(
                   name = private$..name,
                   desc = private$..desc,
-                  currentLab = labName,
+                  currentLab = private$..currentLabName,
                   modified = private$..modified,
                   created = private$..created
                 ),
                 labs = self$getLabs(type = 'list')
               )
-            } else if (type == "df") {
+              return(studio)
+            }
+
+            getDf <- function() {
               studio = list(
                 metaData = data.frame(name = private$..name,
                                       desc = private$..desc,
-                                      currentLab = labName,
+                                      currentLab = private$..currentLabName,
                                       created = private$..created,
                                       modified = private$..modified,
                                       stringsAsFactors = FALSE),
                 labs = self$getLabs(type = "df")
               )
-            } else {
+              return(studio)
+            }
+
+            if (type == "object") {studio <- getObject() }
+            else if (type == "list") {studio <- getList() }
+            else if (type == "df") {studio <- getDf() }
+            else {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "getLabs",
-                       fieldName = "type", value = type, level = "Error",
+                       fieldName = "type", value = type, level = "Warn",
                        msg = paste("Type", type, "is not a valid type.",
                                    "Valid types include 'object', 'list', and 'df'.",
                                    "See ?NLPStudio"),
                        expect = NULL)
-              stop()
+              studio <- getList()
             }
             return(studio)
-          },
-
-          getLabs = function(type = "list") {
-
-            if (type == "object") {
-              labs = lapply(private$..labs, function(l) l)
-            } else if (type == "list") {
-              labs = lapply(private$..labs, function(l) {
-                lab <- l$getLab(type = "list")
-                lab$metaData
-
-              })
-            } else if (type == "df") {
-              labs = rbindlist(lapply(private$..labs, function(l) {
-                lab <- l$getLab(type = "list")
-                lab$metaData
-              }))
-            } else {
-              v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "getLabs",
-                       fieldName = "type", value = type, level = "Error",
-                       msg = paste("Type", type, "is not a valid type.",
-                                   "Valid types include 'object', 'list', and 'df'.",
-                                   "See ?NLPStudio"),
-                       expect = NULL)
-              stop()
-            }
-            return(labs)
           },
 
           printStudio = function() {
@@ -211,6 +199,49 @@ NLPStudio <- R6::R6Class(
             print.data.frame(studio$labsDf)
             cat("\n================================================================================\n")
 
+          },
+
+          #-------------------------------------------------------------------#
+          #                           Lab Methods                             #
+          #-------------------------------------------------------------------#
+          getLabs = function(type = "list") {
+
+            getObject <- function() {
+              labs = lapply(private$..labs, function(l) l)
+              return(labs)
+            }
+
+            getList <- function() {
+              labs = lapply(private$..labs, function(l) {
+                lab <- l$getLab(type = "list")
+                lab$metaData
+
+              })
+              return(labs)
+            }
+
+            getDf <- function() {
+              labs = rbindlist(lapply(private$..labs, function(l) {
+                lab <- l$getLab(type = "list")
+                lab$metaData
+              }))
+              return(labs)
+            }
+
+            if (type == "object") {labs <- getObject()}
+            else if (type == "list") {labs <- getList()}
+            else if (type == "df") {labs <- getDf()}
+            else {
+              v <- Validate0$new()
+              v$notify(cls = "NLPStudio", method = "getLabs",
+                       fieldName = "type", value = type, level = "Warn",
+                       msg = paste("Type", type, "is not a valid type.",
+                                   "Valid types include 'object', 'list', and 'df'.",
+                                   "See ?NLPStudio"),
+                       expect = NULL)
+              labs <- getList()
+            }
+            return(labs)
           },
 
           addLab = function(lab, enter = FALSE) {
@@ -247,8 +278,11 @@ NLPStudio <- R6::R6Class(
             private$..labs[[l$metaData$name]] <- lab
             private$..modified <- Sys.time()
 
-            # Update enter ...
-            if (enter == TRUE) private$..currentLab <- lab
+            # Update current lab
+            if (enter == TRUE) {
+              private$..currentLab <- lab
+              private$..currentLabName <- l$metaData$name
+            }
 
             # Update Cache
             nlpStudioCache$setCache("nlpStudio", self)
@@ -309,6 +343,8 @@ NLPStudio <- R6::R6Class(
             # Archive lab
             nlpArchives$archive(lab)
 
+            # TODO: Cycle through collections, setting parent to "None"
+
             # Remove lab from nlpStudio
             private$..labs[[name]] <- NULL
             private$..modified <- Sys.time()
@@ -356,6 +392,7 @@ NLPStudio <- R6::R6Class(
                          expect = NULL)
               }
               private$..currentLab <- lab
+              private$..currentLabName <- labData$metaData$name
               private$..modified <- Sys.time()
             }
 
@@ -381,6 +418,7 @@ NLPStudio <- R6::R6Class(
                        expect = NULL)
             } else {
               private$..currentLab <- "None"
+              private$..currentLabName <- "None"
               private$..modified <- Sys.time()
             }
 
@@ -390,6 +428,16 @@ NLPStudio <- R6::R6Class(
             invisible(self)
 
           },
+
+          archiveLab = function(lab) {
+            lab$archiveLab()
+          },
+
+          restoreLab = function(labName) {
+            a <- Archive$new()
+
+          }
+
           getDirectories = function() {
             private$..studioDirs
           }

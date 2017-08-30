@@ -1,28 +1,46 @@
-## ---- Lab
 #==============================================================================#
 #                                 Lab                                          #
 #==============================================================================#
 #' Lab
 #'
-#' \code{Lab} Class for managing collections of documents.
+#' \code{Lab} Class environment where NLP happens.
 #'
-#' The primary function of this class is to maintain collections of documents.
-#' Methods have been developed to add, and remove document collections.
-#' Additionally, functionality is included to get/print and archive the lab.
+#' The environment in which NLP happens. There are two groups of methods. The
+#' first group allows clients to instantiate, retrieve, print, enter, leave,
+#' and archive a Lab object.  The second set of methods allow clients to retrieve
+#' the contained documents, add a document, and remove a document.
 #'
-#' @section Methods:
+#' @section Lab Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of Lab Class}
-#'  \item{\code{getLab(verbose = FALSE)}}{Retrieves the meta data for the Lab, as well as a list of its document collections. If verbose is false, a data frame is returned.  If verbose is true, data frame is returned and the lab and its colllections are printed to console.}
-#'   \item{\code{archiveLab()}}{Compresses and stores the lab in the archive directory. This method is also called prior to removing a lab from the Studio. }
-#'   \item{\code{addDocument(name, desc)}}{Adds a document collection to the list of collections in the lab}
-#'   \item{\code{removeDocument(name, purge = FALSE)}}{Removes a document collection from the list and removes the collection from memory of purge = TRUE}
+#'  \item{\code{getLab(type = "list")}}{Retrieves the meta data for the Lab, as well as a list of its document collections. The results can be returned in a variety of types (formats). Valid types are c("object", "list", "df"). The default is "list".}
+#'  \item{\code{printLab()}}{Prints the meta data for the Lab object as well as a list of document collections in data frame format.}
+#'  \item{\code{enterLab()}}{Sets a Lab object current in the NLPStudio.}
+#'  \item{\code{leaveLab()}}{Sets the current Lab object in the NLPStudio to "none" .}
+#'  \item{\code{desc}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
 #' }
 #'
-#' @section Private Fields:
-#' @param name A character string containing the name of the Lab
+#' @section Document Methods:
+#' \describe{
+#'  \item{\code{getDocuments(type = "list")}}{Returns a list of documents in a range of formats.  Valid types (formats) are c("object", "list", "df").  The default is "list".}
+#'  \item{\code{addDocument(document)}}{Adds a document to the Lab object's list of document collections.}
+#'  \item{\code{removeDocument(document, purge = FALSE)}}{Removes a document from the Lab object's list of document collections.  If the purge variable is set to TRUE, the Lab object is archived, the document is removed from the global environment, its directory is deleted, and it is removed from cache.}
+#' }
+#'
 #' @param desc A chararacter string containing the description of the Lab
-#' @param collections A list containing collection objects
+#' @param document An object of the DocumentCollection class to be added to the Lab object's list of document collections.
+#' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
+#' @param purge A boolean variable.  Used in the removeDocument method. Indicates whether to purge a document from memory, disk, and cache.
+#' @param type A character string indicating the return format for the "get" methods.  Valid values are c("object", "list", "df")
+#'
+#' @field parent An object of class NLPStudio that contains the Lab object. This is always equal to the singleton object "nlpStudio".
+#' @field parentName Character string indicating the name of the parent, which is always "nlpStudio".
+#' @field path Character string indicating the directory path of the Lab object.
+#' @field documents List of documents of class DocumentCollection that are members of the Lab object.
+#' @field directories List of directories included in each lab object.
+#' @field modified Datetime variable indicating the date/time the object was created.
+#' @field created Datetime variable indicating the date/time the object was last modified.
+#'
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -36,9 +54,9 @@ Lab <- R6::R6Class(
     ..parentName = "nlpStudio",
     ..path = character(0),
     ..documents = list(),
+    ..directories = list(),
     ..modified = "None",
-    ..created = "None",
-    ..directories = list()
+    ..created = "None"
   ),
 
   active = list(
@@ -55,6 +73,10 @@ Lab <- R6::R6Class(
   ),
 
   public = list(
+
+    #-------------------------------------------------------------------------#
+    #                              Lab Methods                                #
+    #-------------------------------------------------------------------------#
 
     initialize = function(name, desc = NULL) {
 
@@ -117,53 +139,78 @@ Lab <- R6::R6Class(
       invisible(self)
     },
 
-    getLab = function(type = "list") {
+    getParent = function(type = "object") {
 
       if (type == "object") {
-        lab <- self
+        private$..parent
       } else if (type == "list") {
+        private$..parent(getStudio(type = "list"))
+      } else if (type == "df") {
+        private$..parent(getStudio(type = "df"))
+      } else {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "getLab",
+                 fieldName = "type", value = type, level = "Warn",
+                 msg = paste("Invalid format requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "Parent is returned in 'list' format",
+                             "See ?Lab"),
+                 expect = NULL)
+        private$..parent(getStudio(type = "list"))
+      }
+    },
+
+    getLab = function(type = "list") {
+
+      getObject <- function() {
+        return(self)
+      }
+
+      getList <- function() {
         lab = list(
           metaData = list(
             name = private$..name,
             desc = private$..desc,
-            parent = private$..parentName,
+            parentName = private$..parentName,
             path = private$..path,
             modified = private$..modified,
             created = private$..created
           ),
           documents = self$getDocuments(type = "list")
         )
-      } else if (type == "df") {
+        return(lab)
+      }
+
+      getDf <- function() {
         lab = list(
           metaData = data.frame(name = private$..name,
-                             desc = private$..desc,
-                             parent = private$..parentName,
-                             path = private$..path,
-                             modified = private$..modified,
-                             created = private$..created,
-                             stringsAsFactors = FALSE),
+                                desc = private$..desc,
+                                parentName = private$..parentName,
+                                path = private$..path,
+                                modified = private$..modified,
+                                created = private$..created,
+                                stringsAsFactors = FALSE),
           documents = self$getDocuments(type = "df")
-          )
-      } else {
+        )
+        return(lab)
+      }
+
+      if (type == "object") {lab <- getObject}
+      else if (type == "list") {lab <- getList()}
+      else if (type == "df") {lab <- getDf()}
+      else {
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "getLab",
-                 fieldName = "type", value = type, level = "Error",
+                 fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
+                             "Lab is returned in 'list' format",
                              "See ?Lab"),
                  expect = NULL)
-        stop()
+        lab <- getList()
       }
 
       return(lab)
-    },
-
-    enterLab = function() {
-      nlpStudio$enterLab(self)
-    },
-
-    leaveLab = function() {
-      nlpStudio$leaveLab(self)
     },
 
     printLab = function() {
@@ -179,6 +226,14 @@ Lab <- R6::R6Class(
       cat("\n================================================================================\n")
     },
 
+    enterLab = function() {
+      nlpStudio$enterLab(self)
+    },
+
+    leaveLab = function() {
+      nlpStudio$leaveLab(self)
+    },
+
     archiveLab = function() {
 
       a <- Archive$new()
@@ -186,30 +241,46 @@ Lab <- R6::R6Class(
 
     },
 
+    #-------------------------------------------------------------------------#
+    #                         Document Methods                                #
+    #-------------------------------------------------------------------------#
 
     getDocuments = function(type = "list") {
 
-      if (type == "object") {
+      getObject <- function() {
         documents = lapply(private$..documents, function(d) d)
-      } else if (type == "list") {
+        return(documents)
+      }
+
+      getList <- function() {
         documents = lapply(private$..documents, function(d) {
           document <- d$getDocument(type = "list")
           document$metaData
         })
-      } else if (type == "df") {
+        return(documents)
+      }
+
+      getDf <- function() {
         documents = rbindlist(lapply(private$..documents, function(d) {
           document <- d$getDocument(type = "list")
           document$metaData
         }))
-      } else {
+        return(documents)
+      }
+
+      if (type == "object") {documents <- getObject() }
+      else if (type == "list") {documents <- getList() }
+      else if (type == "df") {documents <- getDf()}
+      else {
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "getDocuments",
-                 fieldName = "format", value = format, level = "Error",
+                 fieldName = "format", value = format, level = "Warn",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
+                             "Documents returned in 'list' format.",
                              "See ?Lab"),
                  expect = NULL)
-        stop()
+        documents <- getList()
       }
       return(documents)
     },
@@ -289,7 +360,7 @@ Lab <- R6::R6Class(
         d <- d$getDocument(format = "list")
 
         # Remove from disc
-        file.remove(d$path)
+        base::unlink(d$path)
 
         # Remove from global environment
         rm(list = ls(envir = .GlobalEnv)[grep(name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)

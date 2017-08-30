@@ -64,7 +64,7 @@ testNLPStudio <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getStudio, list format
-    studio <<- nlpStudio$getStudio(type = "list")
+    studio <<- nlpStudio$getStudio(type = "xxx") #Return list with warning
     stopifnot(studio$metaData$name == "nlpStudio")
     stopifnot(studio$metaData$desc == "NLPStudio: Natural Language Processing Studio")
     stopifnot(studio$metaData$current == "None")
@@ -237,7 +237,7 @@ testNLPStudio <- function() {
     # Confirm modified date updated
     studio <<- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$metaData$created) > 1)
-    stopifnot((Sys.time() - studio$metaData$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 1.5)
 
     # Check cache
     stopifnot(checkCache("nlpStudio") == TRUE)

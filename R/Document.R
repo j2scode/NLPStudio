@@ -159,9 +159,11 @@ Document <- R6::R6Class(
 
     getDocument = function(type = "list") {
 
-      if (format == "object") {
-        document <- self
-      } else if (format == "list") {
+      getObject <- function() {
+        return(self)
+      }
+
+      getList <- function() {
         document <- list(
           metaData = list(
             name = private$..name,
@@ -174,27 +176,37 @@ Document <- R6::R6Class(
           ),
           documents = list()
         )
-      } else if (format == "df") {
+        return(document)
+      }
+
+      getDf <- function() {
         document = list(
           metaData <- data.frame(name = private$..name,
-                                   parent = private$..parentName,
-                                   path = private$..path,
-                                   fileName = private$..fileName,
-                                   desc = private$..desc,
-                                   modified = private$..modified,
-                                   created = private$..created,
-                                   stringsAsFactors = FALSE),
+                                 parent = private$..parentName,
+                                 path = private$..path,
+                                 fileName = private$..fileName,
+                                 desc = private$..desc,
+                                 modified = private$..modified,
+                                 created = private$..created,
+                                 stringsAsFactors = FALSE),
           documents = data.frame(0)
         )
-      } else {
+        return(document)
+      }
+
+      if (format == "object") {document <- getObject()}
+      else if (format == "list") {document <- getList()}
+      else if (format == "df") {document <- getDf()}
+      else {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "getDocument",
-                 fieldName = "type", value = type, level = "Error",
+                 fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
+                             "Document returned in 'list' format.",
                              "See ?Document"),
                  expect = NULL)
-        stop()
+        document <- getList()
       }
       return(document)
     },

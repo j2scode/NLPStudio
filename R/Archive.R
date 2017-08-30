@@ -1,27 +1,23 @@
 ## ---- Archive
 #==============================================================================#
-#                                 Archive                                     #
+#                                 Archive                                      #
 #==============================================================================#
 #' Archive
 #'
-#' \code{Archive} Abstract class for archiving objects in the NLPStudio
+#' \code{Archive} Abstract class for archiving and restoring objects in the NLPStudio
 #'
-#' This abstract class defines the methods used by the concrete classes for
-#' archiving objects in the NLPStudio
+#' This singleton class has one instance, the 'nlpArchive', which is created at package
+#' load time. Tbis class enables clients to archive and restore objectswithin the NLPStudio.
 #'
-#' @docType class
-#' @examples
-#' \dontrun{
-#' a <- archive$new()
-#' a$archive0("development")
-#' }
-#'
-#' @section Methods:
+#' @section Archive and Restore Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of class Archive}
+#'  \item{\code{getInstance()}}{Returns the object 'nlpArchive' as an Archive class object.}
+#'  \item{\code{getArchive()}}{Returns the Archive meta data in a variety of formats.  Supported formats include c("object", "list", "df",). The default format is 'list'.}
+#'  \item{\code{getArchives()}}{Returns a list of Archived objects in a variety of formats.  Supported formats include c("object", "list", "df",). The default format is 'list'.}
+#'  \item{\code{printArchives()}}{Prints the meta data and list of Archived objects to the console in data frame format.}
 #'  \item{\code{archive(object)}}{Archives the object in the NLPStudio archive subdirectory }
-#'  \item{\code{getArchives()}}{Returns the list of archives in object, list or data frame formats.  }
-#'  \item{\code{printArchives()}}{Prints list of archives to console.}
+#'  \item{\code{restore(objectName, parent = NULL)}}{Restores the object given by the name parameter. This recovers the directories and files, intantiates the object and, if the parent object is passed as a parameter, adds the object to the parent object.}
 #' }
 #'
 #' @section Parameters:
@@ -32,6 +28,7 @@
 #'  \item{object$path}{Character string containing the directory containing the object}
 #' }
 #'
+#' @docType class
 #' @author John James, \email{j2sdatalab@@gmail.com}
 #' @export
 Archive <- R6::R6Class(
@@ -65,6 +62,103 @@ Archive <- R6::R6Class(
             invisible(self)
           },
 
+          getArchive = function(type = "list") {
+
+            getObject <- function() {
+              return(self)
+            }
+
+            getList <- function() {
+              archive = list(
+                metaData = list(
+                  name = private$..name,
+                  desc = private$..desc,
+                  path = private$..path,
+                  modified = private$..modified,
+                  created = private$..created
+                ),
+                archives = self$getArchives(type = "list")
+              )
+              return(archive)
+            }
+
+            getDf <- function() {
+              archive = list(
+                metaData = data.frame(name = private$..name,
+                                      desc = private$..desc,
+                                      path = private$..path,
+                                      modified = private$..modified,
+                                      created = private$..created,
+                                      stringsAsFactors = FALSE),
+                archives = self$getArchives(type = "df")
+              )
+              return(archive)
+            }
+
+            if (type == "object") {archive <- getObject()}
+            else if (type == "list") {archive <- getList()}
+            else if (type == "df") {archive <- getDf()}
+            else {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "getArchive",
+                       fieldName = "type", value = type, level = "Warn",
+                       msg = paste("Invalid type requested.",
+                                   "Must be 'object', 'list', or 'df'.",
+                                   "Returning Archive in 'list' format.",
+                                   "See ?Archive"),
+                       expect = NULL)
+              archive <- getList()
+            }
+            return(archive)
+          },
+
+          getArchives = function(type = "list") {
+
+            getObject <- function() {
+              archives = lapply(private$..archives, function(a) a)
+              return(archives)
+            }
+
+            getList <- function() {
+              archives = lapply(private$..archives, function(a) a)
+              return(archives)
+            }
+
+            getDf <- function() {
+              archives = rbindlist(lapply(private$..archives, function(a) a))
+              return(archives)
+            }
+
+            if (type == "object") {archives <- getObject()}
+            else if (type == "list") {archives = getList()}
+            else if (type == "df") {archives = getDf()}
+            else {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "getArchives",
+                       fieldName = "type", value = type, level = "Warn",
+                       msg = paste("Invalid type requested.",
+                                   "Must be 'object', 'list', or 'df'.",
+                                   "Returning Archives in 'list' format.",
+                                   "See ?Archive"),
+                       expect = NULL)
+              archives <- getList()
+            }
+            return(archives)
+          },
+
+          printArchives = function() {
+
+            archives <- self$getArchive(type = "df")
+
+            cat("\n\n================================================================================",
+                "\nArchive:")
+            print.data.frame(archives$archiveDf)
+            cat("\n--------------------------------------------------------------------------------",
+                "\nArchives:")
+            print.data.frame(archives$archivesDf)
+            cat("\n================================================================================\n")
+          },
+
           archive = function(object) {
 
             c <- class(object)[1]
@@ -87,84 +181,47 @@ Archive <- R6::R6Class(
             zip(archiveFile, files)
 
             # Add to list of archives
-            private$..archives[[o$metaData$name]] <- list(
-              name = o$metaData$name,
-              class = class(object)[1],
-              path = paste0(archiveFile, ".zip")
-            )
+            o$metaData$archivePath <- paste0(archiveFile, ".zip")
+            private$..archives[[o$metaData$name]] <- o
             private$..modified <- Sys.time()
           },
 
-          getArchive = function(type = "list") {
+          restore = function(objectName, parent) {
 
-            if (type == "object") {
-              archive <- self
-            } else if (type == "list") {
-              archive = list(
-                metaData = list(
-                  name = private$..name,
-                  desc = private$..desc,
-                  path = private$..path,
-                  modified = private$..modified,
-                  created = private$..created
-                ),
-                archives = self$getArchives(type = "list")
-              )
-            } else if (type == "df") {
-              archive = list(
-                metaData = data.frame(name = private$..name,
-                                      desc = private$..desc,
-                                      path = private$..path,
-                                      modified = private$..modified,
-                                      created = private$..created,
-                                      stringsAsFactors = FALSE),
-                archives = self$getArchives(type = "df")
-              )
-            } else {
+            #TODO: Complete
+
+            # Confirm object name is not missing
+            if (missing(objectName)) {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "getArchive",
-                       fieldName = "type", value = type, level = "Error",
-                       msg = paste("Invalid type requested.",
-                                   "Must be 'object', 'list', or 'df'.",
+              v$notify(cls = "Archive", method = "restore",
+                       fieldName = "objectName", value = "", level = "Error",
+                       msg = paste("The object name is a required field",
+                                   "See ?Archive for further assistance."),
+                       expect = NULL)
+              stop()
+            }
+
+            # Confirm object name is a character string
+            v <- ValidateClass$new()
+            if (v$validate(cls = "Archive", method = "restore",
+                     fieldName = "objectName", value = "", level = "Error",
+                     msg = paste("The object name muset be a character string.",
+                                 "See ?Archive for further assistance."),
+                     expect = "character") == FALSE) {
+              stop()
+            }
+
+            # Confirm object has been archived.
+            if (!exists(private$archives[[objectName]])) {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "restore",
+                       fieldName = "objectName", value = objectName, level = "Error",
+                       msg = paste("The object", objectName, "has not been archived.",
                                    "See ?Archive"),
                        expect = NULL)
               stop()
             }
-            return(archive)
-          },
 
-          getArchives = function(type = "list") {
-
-            if (type == "object") {
-              archives = lapply(private$..archives, function(a) a)
-            } else if (type == "list") {
-              archives = lapply(private$..archives, function(a) a)
-            } else if (type == "df") {
-              archives = rbindlist(lapply(private$..archives, function(a) a))
-            } else {
-              v <- Validate0$new()
-              v$notify(cls = "Archive", method = "getArchives",
-                       fieldName = "type", value = type, level = "Error",
-                       msg = paste("Invalid type requested.",
-                                   "Must be 'object', 'list', or 'df'.",
-                                   "See ?Archive"),
-                       expect = NULL)
-              stop()
-            }
-            return(archives)
-          },
-
-          printArchives = function() {
-
-            archives <- self$getArchive(type = "df")
-
-            cat("\n\n================================================================================",
-                "\nArchive:")
-            print.data.frame(archives$archiveDf)
-            cat("\n--------------------------------------------------------------------------------",
-                "\nArchives:")
-            print.data.frame(archives$archivesDf)
-            cat("\n================================================================================\n")
           }
         )
       )

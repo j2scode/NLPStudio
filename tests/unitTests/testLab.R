@@ -12,7 +12,7 @@ testLab <- function() {
     if (exists("oxford", envir = .GlobalEnv)) {
       rm(list = ls(envir = .GlobalEnv)[grep("oxford", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
     }
-    if (dir.exists("./Labs/blue") == TRUE) unlink("./Labs/blue", recursive = TRUE)
+    if (dir.exists("./NLPStudio/Labs/blue") == TRUE) unlink("./NLPStudio/Labs/blue", recursive = TRUE)
 
     # Source cache and log
     source("./tests/checkCache.r")
@@ -25,16 +25,16 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test Instantiation
-    # Lab$new() # should fail, name is required: Success
-    Lab$new(name = "blue", "Blue Lab")
-    #Lab$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
+    # lab$metaData$new() # should fail, name is required: Success
+    lab$metaData$new(name = "blue", "Blue Lab")
+    #lab$metaData$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
     stopifnot("Lab" %in% class(blue))
-    stopifnot(dir.exists("./Labs/blue"))
+    stopifnot(dir.exists("./NLPStudio/Labs/blue"))
 
-    # Confirm modified date updated
+    # Confirm instantiation
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$created) < 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$created) < 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
     # Logit
     logTests(cls = cls, mthd = "initiate", note = "Successfully created lab")
@@ -44,7 +44,7 @@ testLab <- function() {
   }
 
   test1 = function() {
-    test <- "test1: getLab('object'), no collections"
+    test <- "test1: getLab('object'), no documents"
     cat(paste("\n",test, " Commencing\r"))
 
     Sys.sleep(2)
@@ -63,16 +63,18 @@ testLab <- function() {
   }
 
   test2 = function() {
-    test <- "test2: getLab('list'), no collections"
+    test <- "test2: getLab('list'), no documents"
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab, list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot(length(lab$collections) == 0)
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) > 1)
+    stopifnot(lab$metaData$name == "blue")
+    stopifnot(lab$metaData$desc == "Blue Lab")
+    stopifnot(lab$metaData$parent == "nlpStudio")
+    stopifnot(lab$metaData$path == "./NLPStudio/Labs/blue")
+    stopifnot(length(lab$documents) == 0)
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) > 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -89,12 +91,12 @@ testLab <- function() {
 
     # Test getLab, data frame
     lab <<- blue$getLab(type = "df")
-    stopifnot(nrow(lab$labDf) == 1)
-    stopifnot(lab$labDf$name[1] == "blue")
-    stopifnot(lab$labDf$desc[1] == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created[1]) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified[1]) > 1)
-    stopifnot(nrow(lab$collectionsDf) == 0)
+    stopifnot(nrow(lab$metaData$labDf) == 1)
+    stopifnot(lab$metaData$labDf$name[1] == "blue")
+    stopifnot(lab$metaData$labDf$desc[1] == "Blue Lab")
+    stopifnot((Sys.time() - lab$metaData$labDf$created[1]) > 1)
+    stopifnot((Sys.time() - lab$metaData$labDf$modified[1]) > 1)
+    stopifnot(nrow(lab$metaData$documentsDf) == 0)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -111,7 +113,7 @@ testLab <- function() {
 
     # Get lab name, which is also the path for the collection
     lab <<- blue$getLab(type = "list")
-    path <- lab$name
+    path <- lab$metaData$name
 
     # Create and add collection
     DocumentCollection$new(name = "brown", path = path, desc = "Brown Corpus")
@@ -121,8 +123,8 @@ testLab <- function() {
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -159,16 +161,16 @@ testLab <- function() {
 
     # Test getLab list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot(lab$metaData$name == "blue")
+    stopifnot(lab$metaData$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    stopifnot(length(lab$collections) == 1)
-    stopifnot(lab$collections[[1]]$name == "brown")
-    stopifnot(lab$collections[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$collections[[1]]$created) < 1)
-    stopifnot((Sys.time() - lab$collections[[1]]$modified) < 1)
+    stopifnot(length(lab$metaData$documents) == 1)
+    stopifnot(lab$metaData$documents[[1]]$name == "brown")
+    stopifnot(lab$metaData$documents[[1]]$desc == "Brown Corpus")
+    stopifnot((Sys.time() - lab$metaData$documents[[1]]$created) < 1)
+    stopifnot((Sys.time() - lab$metaData$documents[[1]]$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -186,16 +188,16 @@ testLab <- function() {
 
     # Test getLab df format
     lab <<- blue$getLab(type = "df")
-    stopifnot(lab$labDf$name == "blue")
-    stopifnot(lab$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified) < 1)
+    stopifnot(lab$metaData$labDf$name == "blue")
+    stopifnot(lab$metaData$labDf$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
 
-    stopifnot(nrow(lab$collectionsDf) == 1)
-    stopifnot(lab$collectionsDf$name[1] == "brown")
-    stopifnot(lab$collectionsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$collectionsDf$created[1]) < 1)
-    stopifnot((Sys.time() - lab$collectionsDf$modified[1]) < 1)
+    stopifnot(nrow(lab$metaData$documentsDf) == 1)
+    stopifnot(lab$metaData$documentsDf$name[1] == "brown")
+    stopifnot(lab$metaData$documentsDf$desc[1] == "Brown Corpus")
+    stopifnot((Sys.time() - lab$metaData$documentsDf$created[1]) < 1)
+    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[1]) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -213,15 +215,15 @@ testLab <- function() {
 
     # Get lab name, which is also the path for the collection
     lab <<- blue$getLab(type = "list")
-    path <- lab$name
+    path <- lab$metaData$name
 
     DocumentCollection$new(name = "oxford", path = path, desc = "Oxford Corpus")
     blue$addDocument(oxford)
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -237,7 +239,7 @@ testLab <- function() {
 
 
   test9 <- function() {
-    test <- "test9: getLab('object') with two collections"
+    test <- "test9: getLab('object') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
     lab <<- blue$getLab(type = "object")
@@ -254,26 +256,26 @@ testLab <- function() {
   }
 
   test10 <- function() {
-    test <- "test10: getLab('list') with two collections"
+    test <- "test10: getLab('list') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot(lab$metaData$name == "blue")
+    stopifnot(lab$metaData$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    stopifnot(length(lab$collections) == 2)
-    stopifnot(lab$collections[[1]]$name == "brown")
-    stopifnot(lab$collections[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$collections[[1]]$created) > 0.5)
-    stopifnot((Sys.time() - lab$collections[[1]]$modified) > 0.5)
+    stopifnot(length(lab$metaData$documents) == 2)
+    stopifnot(lab$metaData$documents[[1]]$name == "brown")
+    stopifnot(lab$metaData$documents[[1]]$desc == "Brown Corpus")
+    stopifnot((Sys.time() - lab$metaData$documents[[1]]$created) > 0.5)
+    stopifnot((Sys.time() - lab$metaData$documents[[1]]$modified) > 0.5)
 
-    stopifnot(lab$collections[[2]]$name == "oxford")
-    stopifnot(lab$collections[[2]]$desc == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$collections[[2]]$created) < 1)
-    stopifnot((Sys.time() - lab$collections[[2]]$modified) < 1)
+    stopifnot(lab$metaData$documents[[2]]$name == "oxford")
+    stopifnot(lab$metaData$documents[[2]]$desc == "Oxford Corpus")
+    stopifnot((Sys.time() - lab$metaData$documents[[2]]$created) < 1)
+    stopifnot((Sys.time() - lab$metaData$documents[[2]]$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -281,32 +283,32 @@ testLab <- function() {
     stopifnot(checkCache("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned blue list with two collections")
+    logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned blue list with two documents")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
   test11 <- function() {
-    test <- "test11: getLab('df') with two collections"
+    test <- "test11: getLab('df') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab df format
     lab <<- blue$getLab(type = "df")
-    stopifnot(lab$labDf$name == "blue")
-    stopifnot(lab$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified) < 1)
+    stopifnot(lab$metaData$labDf$name == "blue")
+    stopifnot(lab$metaData$labDf$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
 
-    stopifnot(nrow(lab$collectionsDf) == 2)
-    stopifnot(lab$collectionsDf$name[1] == "brown")
-    stopifnot(lab$collectionsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$collectionsDf$created[1]) > 0.5)
-    stopifnot((Sys.time() - lab$collectionsDf$modified[1]) > 0.5)
+    stopifnot(nrow(lab$metaData$documentsDf) == 2)
+    stopifnot(lab$metaData$documentsDf$name[1] == "brown")
+    stopifnot(lab$metaData$documentsDf$desc[1] == "Brown Corpus")
+    stopifnot((Sys.time() - lab$metaData$documentsDf$created[1]) > 0.5)
+    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[1]) > 0.5)
 
-    stopifnot(lab$collectionsDf$name[2] == "oxford")
-    stopifnot(lab$collectionsDf$desc[2] == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$collectionsDf$created[2]) < 1)
-    stopifnot((Sys.time() - lab$collectionsDf$modified[2]) < 1)
+    stopifnot(lab$metaData$documentsDf$name[2] == "oxford")
+    stopifnot(lab$metaData$documentsDf$desc[2] == "Oxford Corpus")
+    stopifnot((Sys.time() - lab$metaData$documentsDf$created[2]) < 1)
+    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[2]) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -314,7 +316,7 @@ testLab <- function() {
     stopifnot(checkCache('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab('df')", note = "Successfully returned df type with 2 collections")
+    logTests(cls = cls, mthd = "getLab('df')", note = "Successfully returned df type with 2 documents")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -328,9 +330,9 @@ testLab <- function() {
 
     # Successfuly remove oxford from collection list
     blue$removeDocument(oxford)
-    collections <<- blue$getDocuments(type = "list")
-    for (c in 1:length(collections)) {
-      stopifnot(!isTRUE(all.equal(collections[[c]]$name, "oxford")))
+    documents <<- blue$getDocuments(type = "list")
+    for (c in 1:length(documents)) {
+      stopifnot(!isTRUE(all.equal(documents[[c]]$name, "oxford")))
     }
 
     # Confirm object exists in global environment
@@ -338,8 +340,8 @@ testLab <- function() {
 
     # Confirm date modified updated correctly
     lab <- blue$getLab()
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -357,13 +359,13 @@ testLab <- function() {
 
     # Successfuly remove purge document from document list
     lab <- blue$getLab(type = "list")
-    path <- lab$name
+    path <- lab$metaData$name
     DocumentCollection$new(name = "penn", path = path, desc = "Penn Corpus")
     blue$removeDocument(penn, purge = TRUE)
-    collections <<- blue$getDocuments(type = "list")
-    if (length(collections) > 0) {
-      for (c in 1:length(collections)) {
-        stopifnot(!isTRUE(all.equal(collections[[c]]$name, "penn")))
+    documents <<- blue$getDocuments(type = "list")
+    if (length(documents) > 0) {
+      for (c in 1:length(documents)) {
+        stopifnot(!isTRUE(all.equal(documents[[c]]$name, "penn")))
       }
     }
 
@@ -372,8 +374,8 @@ testLab <- function() {
 
     # Confirm date modified updated correctly
     lab <- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$created) > 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)

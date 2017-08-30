@@ -147,13 +147,16 @@ DocumentCollection <- R6::R6Class(
 
     getDocument = function(type = "list") {
 
-      if (type == "object") {
+      getObject <- function() {
         document <- self
-      } else if (type == "list") {
+        return(document)
+      }
+
+      getList <- function() {
         document = list(
           metaData = list(
             name = private$..name,
-            parent = private$..parentName,
+            parentName = private$..parentName,
             path = private$..path,
             desc = private$..desc,
             modified = private$..modified,
@@ -161,27 +164,37 @@ DocumentCollection <- R6::R6Class(
           ),
           documents = self$getDocuments(type = "list")
         )
-      } else if (type == "df") {
+        return(document)
+      }
+
+      getDf <- function() {
         document = list(
           metaData = data.frame(name = private$..name,
-                                  parent = private$..parentName,
-                                  path = private$..path,
-                                  fileName = private$..fileName,
-                                  desc = private$..desc,
-                                  modified = private$..modified,
-                                  created = private$..created,
-                                  stringsAsFactors = FALSE),
+                                parentName = private$..parentName,
+                                path = private$..path,
+                                fileName = private$..fileName,
+                                desc = private$..desc,
+                                modified = private$..modified,
+                                created = private$..created,
+                                stringsAsFactors = FALSE),
           documents = self$getDocuments(type = "df")
         )
-      } else {
+        return(document)
+      }
+
+      if (type == "object") { document <- getObject() }
+      else if (type == "list") { document <- getList() }
+      else if (type == "df") { document <- getDf() }
+      else {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "getDocument",
-                 fieldName = "type", value = type, level = "Error",
+                 fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
+                             "Returning 'list' format.",
                              "See ?DocumentCollection"),
                  expect = NULL)
-        stop()
+        document <- getList()
       }
       return(document)
     },
@@ -227,27 +240,40 @@ DocumentCollection <- R6::R6Class(
 
     getDocuments = function(type = "list") {
 
-      if (type == "object") {
+      getObject <- function() {
         documents = lapply(private$..documents, function(d) d)
-      } else if (type == "list") {
+        return(documents)
+      }
+
+      getList <- function() {
         documents = lapply(private$..documents, function(d) {
           document <- d$getDocument(type = "list")
           document$metaData
         })
-      } else if (type == "df") {
+        return(documents)
+      }
+
+      getDf <- function() {
         documents = rbindlist(lapply(private$..documents, function(d) {
           document <- d$getDocument(type = "list")
           document$metaData
         }))
-      } else {
+        return(documents)
+      }
+
+      if (type == "object") { documents <- getObject() }
+      else if (type == "list") { documents <- getList() }
+      else if (type == "df") { documents <- getDf() }
+      else {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "getdocuments",
-                 fieldName = "type", value = type, level = "Error",
+                 fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
+                             "Returning 'list' format",
                              "See ?DocumentCollection"),
                  expect = NULL)
-        stop()
+        documents <- getList()
       }
       return(documents)
     },
@@ -383,6 +409,7 @@ DocumentCollection <- R6::R6Class(
         document = list(
           metaData = list(
             name = d$private$..name,
+            parentName = d$private$..parentName,
             desc = d$private$..desc,
             path = d$private$..path,
             fileName = d$private$..fileName),
