@@ -1,35 +1,51 @@
-## ---- Archive
 #==============================================================================#
-#                                 Archive                                      #
+#                                   Archive                                    #
 #==============================================================================#
 #' Archive
 #'
-#' \code{Archive} Abstract class for archiving and restoring objects in the NLPStudio
+#' \code{Archive} Class for archiving and restoring objects in the NLPStudio
 #'
-#' This singleton class has one instance, the 'nlpArchive', which is created at package
-#' load time. Tbis class enables clients to archive and restore objectswithin the NLPStudio.
+#' \strong{Archive Class Overview:}
 #'
-#' @section Archive and Restore Methods:
-#' \describe{
-#'  \item{\code{new()}}{Creates an object of class Archive}
-#'  \item{\code{getInstance()}}{Returns the object 'nlpArchive' as an Archive class object.}
-#'  \item{\code{getArchive()}}{Returns the Archive meta data in a variety of formats.  Supported formats include c("object", "list", "df",). The default format is 'list'.}
-#'  \item{\code{getArchives()}}{Returns a list of Archived objects in a variety of formats.  Supported formats include c("object", "list", "df",). The default format is 'list'.}
-#'  \item{\code{printArchives()}}{Prints the meta data and list of Archived objects to the console in data frame format.}
-#'  \item{\code{archive(object)}}{Archives the object in the NLPStudio archive subdirectory }
-#'  \item{\code{restore(objectName, parent = NULL)}}{Restores the object given by the name parameter. This recovers the directories and files, intantiates the object and, if the parent object is passed as a parameter, adds the object to the parent object.}
+#' The Archive class manages the process of archiving and restoring objects
+#' in the NLPStudio. An object of the Archive class is instantiated the first
+#' time the package is loaded. Thereafter, the object is saved and recovered
+#' from cache at load time. The Archive object maintains a list of objects that
+#' were archived. The object files are compressed and stored in the
+#' Archives sub directory.
+#'
+#' @section Archive Class Collaborators:
+#' The collaborators of the Archive class are:
+#' \itemize{
+#'  \item Lab: Class in which NLP takes place. The class contains objects of the DocumentCollection class.
+#'  \item Document0: Strategy class defining and encapsulating interfaces and algorithms for managing members of this composite class.
+#'  \item DocumentCollection: Composite class containing objects of the Document class.
+#'  \item Document: Leaf class of the Document objects.
+#'  }
+#'
+#' @section Archive Methods:
+#' The archive methods are as follows:
+#' \itemize{
+#'  \item{\code{new()}}{Instantiates an object of the Archive class.  This object is instantiated the first time the package is loaded.}
+#'  \item{\code{archive(object)}}{Method that archives an object.  The object is stored in a list within the Archive object. The files are compressed and stored in the Archive subdirectory.}
+#'  \item{\code{getArchives(name, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the name parameter.}
+#'  \item{\code{printArchives(name)}}{Method for printing to console the meta data for a specific archive or a list of archives for the object matching the name parameter.}
+#'  \item{\code{restoreArchive(archiveName)}}{Method for restoring an object from archive. It requires the archive name in the name-YYYY-MM-DD-## format, where ## is a sequence number.}
 #' }
 #'
-#' @section Parameters:
-#' @param object
-#' \describe{
-#'  \item{object$name}{Character string with name of the object}
-#'  \item{object$desc}{Character string with description of the object e.g. "development-environment-archive"}
-#'  \item{object$path}{Character string containing the directory containing the object}
-#' }
+#'
+#' @param name The name of the archived object.
+#' @param object The object to be archived.
+#' @param type Character string indicating the format in which the getArchives method returns the archive information. Valid values are c("list" "df", "object"). The default is "list".
+#' @param archiveName The name of the archive, a concatenation of its name, date, and sequence number.
+#'
+#' @field archiveFileName Character string indicating the name of the archive containing the object's files.
+#' @field created Date/time object indicating the date and time the archive was created.
+#' @field seq Integer containing the sequence number for the archive of an object completed on a single day.
+#'
 #'
 #' @docType class
-#' @author John James, \email{j2sdatalab@@gmail.com}
+#' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 Archive <- R6::R6Class(
   "SingletonContainer",
@@ -43,112 +59,99 @@ Archive <- R6::R6Class(
         private = list(
           ..name = "nlpArchive",
           ..desc = "Archive for NLPStudio Objects",
-          ..path = character(0),
-          ..modified = character(0),
-          ..created = character(),
+          ..path = "./NLPStudio/Archives",
           ..archives = list(
-            name = character(0),
-            file = character(0),
-            objName = character(0),
-            objClass = character(0),
-            objDesc = character(0),
-            objParentName = character(0),
-            objPath = character(0)
-
-          )
+            archiveName = character(0),
+            archiveFile = character(0),
+            objectName = character(0),
+            seqnum = integer(),
+            object = list(),
+            created = character(0)
+          ),
+          ..created = character(0),
+          ..modified = character(0)
         ),
 
         public = list(
 
           initialize = function() {
-            dirs <- nlpStudio$getDirectories()
-            private$..path <- dirs$archives
-            private$..modified <- Sys.time()
+
+            # Initialize path variable
             private$..created <- Sys.time()
+            private$..modified <- Sys.time()
+
+            # Assign name in global environment
+            assign(private$..name, self, envir = .GlobalEnv)
+
+            # Cache
+            nlpStudioCache$setCache(key = private$..name, value = self)
+
+            invisible(self)
           },
 
           getInstance = function() {
             invisible(self)
           },
 
-          getArchive = function(type = "list") {
+          getArchives = function(name, type = "list") {
 
-            getObject <- function() {
-              return(self)
-            }
+            # Actually not an object but a list containing the archived object.
+            getObject <- function(name) {
 
-            getList <- function() {
-              archive = list(
-                metaData = list(
-                  name = private$..name,
-                  desc = private$..desc,
-                  path = private$..path,
-                  modified = private$..modified,
-                  created = private$..created
-                ),
-                archives = self$getArchives(type = "list")
-              )
-              return(archive)
-            }
-
-            getDf <- function() {
-              archive = list(
-                metaData = data.frame(name = private$..name,
-                                      desc = private$..desc,
-                                      path = private$..path,
-                                      modified = private$..modified,
-                                      created = private$..created,
-                                      stringsAsFactors = FALSE),
-                archives = self$getArchives(type = "df")
-              )
-              return(archive)
-            }
-
-            if (type == "object") {archive <- getObject()}
-            else if (type == "list") {archive <- getList()}
-            else if (type == "df") {archive <- getDf()}
-            else {
-              v <- Validate0$new()
-              v$notify(cls = "Archive", method = "getArchive",
-                       fieldName = "type", value = type, level = "Warn",
-                       msg = paste("Invalid type requested.",
-                                   "Must be 'object', 'list', or 'df'.",
-                                   "Returning Archive in 'list' format.",
-                                   "See ?Archive"),
-                       expect = NULL)
-              archive <- getList()
-            }
-            return(archive)
-          },
-
-          getArchives = function(type = "list") {
-
-            getObject <- function() {
-              archives = lapply(private$..archives, function(a) a)
+              if (length(private$..archives > 0)) {
+                archives <- lapply(private$..archives, function(a) {
+                  if (a$objectName == name) a
+                })
+              }
               return(archives)
             }
 
-            getList <- function() {
-              archives = lapply(private$..archives, function(a) a)
+            getList <- function(name) {
+              if (length(private$..archives > 0)) {
+
+                archives <- lapply(private$..archives, function(a) {
+                  if (a$objectName == name) a
+                })
+                archives = list(
+                  archiveName = archives$archiveName,
+                  archiveFile = archives$archiveFile,
+                  objectName = archives$objectName,
+                  seqNum = archives$seqNum,
+                  created = archives$created
+                )
+              }
               return(archives)
             }
 
             getDf <- function() {
-              archives = rbindlist(lapply(private$..archives, function(a) a))
+
+              if (length(private$..archives > 0)) {
+
+                archives <- lapply(private$..archives, function(a) {
+                  if (a$objectName == name) a
+                })
+                archives = data.frame(
+                  archiveName = archives$archiveName,
+                  archiveFile = archives$archiveFile,
+                  objectName = archives$objectName,
+                  seqNum = archives$seqNum,
+                  created = archives$created
+                )
+              }
               return(archives)
             }
 
             if (type == "object") {archives <- getObject()}
-            else if (type == "list") {archives = getList()}
-            else if (type == "df") {archives = getDf()}
+            else if (type == "list") {archives <- getList()}
+            else if (type == "df") {archives <- getDf()}
             else {
               v <- Validate0$new()
               v$notify(cls = "Archive", method = "getArchives",
                        fieldName = "type", value = type, level = "Warn",
                        msg = paste("Invalid type requested.",
                                    "Must be 'object', 'list', or 'df'.",
-                                   "Returning Archives in 'list' format.",
-                                   "See ?Archive"),
+                                   "Returning Archive in 'list' format.",
+                                   "See ?Archive for further assistance."),
                        expect = NULL)
               archives <- getList()
             }
@@ -160,29 +163,62 @@ Archive <- R6::R6Class(
             archives <- self$getArchive(type = "df")
 
             cat("\n\n================================================================================",
-                "\nArchive:")
-            print.data.frame(archives$archiveDf)
-            cat("\n--------------------------------------------------------------------------------",
-                "\nArchives:")
-            print.data.frame(archives$archivesDf)
+                "\nArchive(s):")
+            print.data.frame(archives)
             cat("\n================================================================================\n")
           },
 
           archive = function(object) {
 
-            c <- class(object)[1]
+            # Validate parameter
+            if (missing(object)) {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "archive",
+                       fieldName = "object", value = "", level = "Error",
+                       msg = paste("Object is missing with no default.",
+                                   "See ?Archive for further assistance."),
+                       expect = NULL)
+              stop()
+            }
 
-            if (c == "Lab") {
+            # Validate class of parameter
+            cls <- class(object)[1]
+            if (!(cls %in% c("Lab", "Document", "DocumentCollection", "Corpus"))) {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "archive",
+                       fieldName = "object", value = "", level = "Error",
+                       msg = paste("Object must be a 'Lab', 'Document',",
+                                   "'DocumentCollection', or 'Corpus' object",
+                                   "See ?Archive for further assistance."),
+                       expect = NULL)
+              stop()
+            }
+
+            # Get object name
+            if (cls == "Lab") {
               o <- object$getLab(type = "list")
             } else {
               o <- object$getDocument(type = "list")
             }
+            objName <- o$metaData$name
 
-            dirs <- nlpStudio$getDirectories()
+            # Format date
+            today <-  as.Date(as.POSIXct(Sys.time(), format = "%m/%d/%Y %H:%M:%S", tz = "EDT"))
 
-            archiveFile <- file.path(dirs$archives,
-                                     paste0(sub('\\..*', '',c), "-object",
-                                            "-archive-", o$metaData$name,
+            # Get sequence number
+            archives <- self$getArchives(objectName, type = "df")
+            archives <- archives %>% filter(objectName == objName & as.Date(created) == today)
+            if (nrow(archives) > 0) {
+              seqNum <- archives[which.max(archives$seqNum), archives$seqNum]
+              seqNum <- seqNum + 1
+            } else {
+              seqNum <- 1
+            }
+
+            # Compress and Archive Files
+            archiveFile <- file.path(private$..path,
+                                     paste0(sub('\\..*', '',c), "-class-object",
+                                            "-archive-", objName,
                                             format(Sys.time(),'-%Y%m%d-%H%M%S')))
 
             files <- list.files(path = o$metaData$path, all.files = TRUE, full.names = TRUE,
@@ -190,15 +226,26 @@ Archive <- R6::R6Class(
             zip(archiveFile, files)
 
             # Add to list of archives
-            o$metaData$archivePath <- paste0(archiveFile, ".zip")
-            private$..archives[[o$metaData$name]] <- o
+            archiveName <- paste0(objName,"-",today,"-", seqNum)
+            archiveFile <- paste0(archiveFile, ".zip")
+            private$..archives[[archiveName]]$archiveName <- archiveName
+            private$..archives[[archiveName]]$archiveFile <- archiveFile
+            private$..archives[[archiveName]]$objectName <- objName
+            private$..archives[[archiveName]]$seqNum <- seqNum
+            private$..archives[[archiveName]]$object <- as.environment(as.list(object, all.names = TRUE))
+            private$..archives[[archiveName]]$created <- Sys.time()
+
+            # Note date modified and store in cache.
             private$..modified <- Sys.time()
+            nlpStudioCache$setCache(key = private$..name, value = self)
+
+            invisible(self)
           },
 
-          restore = function(objectName) {
+          restore = function(archiveName) {
 
             # Confirm object name is not missing
-            if (missing(objectName)) {
+            if (missing(archiveName)) {
               v <- Validate0$new()
               v$notify(cls = "Archive", method = "restore",
                        fieldName = "objectName", value = "", level = "Error",
@@ -208,29 +255,37 @@ Archive <- R6::R6Class(
               stop()
             }
 
-            # Confirm object name is a character string
+            # Confirm archiveName is a character string
             v <- ValidateClass$new()
             if (v$validate(cls = "Archive", method = "restore",
-                     fieldName = "objectName", value = "", level = "Error",
-                     msg = paste("The object name muset be a character string.",
+                     fieldName = "archiveName", value = archiveName, level = "Error",
+                     msg = paste("The archiveName variable must be a character string.",
                                  "See ?Archive for further assistance."),
                      expect = "character") == FALSE) {
               stop()
             }
 
             # Confirm object has been archived.
-            if (!exists(private$archives[[objectName]])) {
+            if (!exists(private$..archive[[archiveName]])) {
               v <- Validate0$new()
               v$notify(cls = "Archive", method = "restore",
-                       fieldName = "objectName", value = objectName, level = "Error",
-                       msg = paste("The object", objectName, "has not been archived.",
-                                   "See ?Archive"),
+                       fieldName = "archiveName", value = archiveName, level = "Error",
+                       msg = paste("The archive", archiveName, "does not exist.",
+                                   "See ?Archive for further assistance."),
                        expect = NULL)
               stop()
             }
 
             # Confirm parent exists
-            objectData <- private$..archives[[objectName]]
+            object <- as.environment(as.list(private$..archives[[archiveName]]$object, all.names = TRUE))
+
+            if (class(object)[1] == "Lab") {
+              objectData <- object$getLab()
+            } else if (class(object)[1] %in% c("Document", "DocumentCollection")) {
+              objectData <- objectd$getDocument()
+            } else if (class(objectd[1] %in% c("Corpus"))) {
+              objectData <- getCorpus()
+            }
 
             v <- ValidateExists$new()
             if (v$validate(cls = "Archive", method = "restore",
@@ -246,13 +301,19 @@ Archive <- R6::R6Class(
             }
 
             # Restore files
-            unzip(zipfile = objectData$metaData$archivePath, overwrite = FALSE,
+            unzip(zipfile = objectData$metaData$archiveFile, overwrite = FALSE,
                   exdir = objectData$metaData$path, junkpaths = TRUE,
                   files = NULL)
 
             # Create object
+            assign(objectData$metaData$name, object, envir = .GlobalEnv)
 
+            # Note date modified and store in cache.
+            private$..modified <- Sys.time()
+            nlpStudioCache$setCache(key = objectData$metaData$name, value = object)
+            nlpStudioCache$setCache(key = private$..name, value = self)
 
+            invisible(object)
           }
         )
       )

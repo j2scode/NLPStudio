@@ -1,7 +1,7 @@
 .onLoad <- function(libname, pkgname) {
 
   # Instantiate Singleton Classes
-  if (file.exists("./.StudioCache.Rdata")) {
+  if (file.exists("./NLPStudio/.StudioCache.Rdata")) {
     packageStartupMessage("\nWelcome back to the NLPStudio (Beta)!\n\n")
     nlpStudioCache <<- StudioCache$new()$getInstance()
     nlpStudio <<- NLPStudio$new()$getInstance()

@@ -26,7 +26,7 @@ testLab <- function() {
 
     # Test Instantiation
     # lab$metaData$new() # should fail, name is required: Success
-    lab$metaData$new(name = "blue", "Blue Lab")
+    lab <<- Lab$new(name = "blue", "Blue Lab")
     #lab$metaData$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
     stopifnot("Lab" %in% class(blue))
     stopifnot(dir.exists("./NLPStudio/Labs/blue"))

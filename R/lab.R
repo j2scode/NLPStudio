@@ -51,7 +51,7 @@ Lab <- R6::R6Class(
     ..class = "Lab",
     ..name = character(0),
     ..desc = character(0),
-    ..parent = nlpStudio,
+    ..parent = character(0),
     ..parentName = "nlpStudio",
     ..path = character(0),
     ..documents = list(),
