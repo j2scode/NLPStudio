@@ -198,7 +198,7 @@ Lab <- R6::R6Class(
         return(lab)
       }
 
-      if (type == "object") {lab <- getObject}
+      if (type == "object") {lab <- getObject()}
       else if (type == "list") {lab <- getList()}
       else if (type == "df") {lab <- getDf()}
       else {
@@ -221,11 +221,18 @@ Lab <- R6::R6Class(
       lab <- self$getLab(type = "df")
 
       cat("\n\n================================================================================",
-          "\nLab:")
-      print.data.frame(lab$labDf)
-      cat("\n---------------------------------------------------------------------------------",
-          "\nCollections:\n")
-      print.data.frame(lab$collectionsDf)
+          "\n--------------------------------------Lab----------------------------------------")
+      cat("\n                              Name:", lab$metaData$name)
+      cat("\n                       Description:", lab$metaData$desc)
+      cat("\n                            Parent:", lab$metaData$parentName)
+      cat("\n                              Path:", lab$metaData$path)
+      cat("\n                     Date Modified:", lab$metaData$modified)
+      cat("\n                      Date Created:", lab$metaData$created)
+      cat("\n================================================================================\n")
+
+      cat("\n\n================================================================================")
+      cat("\n-------------------------Document Collections(s)--------------------------------\n")
+      print.data.frame(lab$documents)
       cat("\n================================================================================\n")
     },
 

@@ -194,13 +194,20 @@ NLPStudio <- R6::R6Class(
             studio <- nlpStudio$getStudio(type = "df")
 
             cat("\n\n================================================================================",
-                "\nNLPStudio: ")
-            print.data.frame(studio$studioDf)
-
-            cat("\n---------------------------------------------------------------------------------",
-                "\nLabs:\n")
-            print.data.frame(studio$labsDf)
+                "\n----------------------------------NLPStudio-------------------------------------\n")
+            cat("\n                              Name:", studio$metaData$name)
+            cat("\n             ",studio$metaData$desc)
+            cat("\n                       Current Lab:", studio$metaData$currentLab)
+            cat("\n                     Date Modified:", format(studio$metaData$modified))
+            cat("\n                      Date Created:", format(studio$metaData$created), "\n")
             cat("\n================================================================================\n")
+
+            if (length(studio$labs) > 0) {
+              cat("\n\n================================================================================")
+              cat("\n---------------------------------Lab(s)-----------------------------------------\n")
+              print.data.frame(studio$labs)
+              cat("\n================================================================================\n")
+            }
 
           },
 
@@ -348,7 +355,7 @@ NLPStudio <- R6::R6Class(
 
             # TODO: Cycle through collections, setting parent to "None"
 
-            # Remove lab from nlpStudio
+            # Remove lab from nlpStudio and update the modified time.
             private$..labs[[name]] <- NULL
             private$..modified <- Sys.time()
             nlpStudioCache$setCache(private$..name, self)
@@ -371,7 +378,6 @@ NLPStudio <- R6::R6Class(
               nlpStudioCache$replaceCache(cache)
               nlpStudioCache$saveCache()
             }
-
           },
 
           enterLab = function(lab) {

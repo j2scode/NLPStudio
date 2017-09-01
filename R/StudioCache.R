@@ -38,7 +38,7 @@ StudioCache <- R6::R6Class(
         classname = "StudioCache",
         private = list(
           ..cache = character(0),
-          ..cacheFile = "./.StudioCache.Rdata"
+          ..cacheFile = "./NLPStudio/.StudioCache.Rdata"
         ),
         public = list(
           initialize = function() private$..cache <- new.env(parent = emptyenv()),

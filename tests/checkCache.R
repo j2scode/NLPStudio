@@ -4,7 +4,7 @@ checkCache <- function(name) {
   cache <<- nlpStudioCache$getCache(name)
   if (!all.equal(cache, object)) return(FALSE)
 
-  load("./.StudioCache.Rdata")
+  load("./NLPStudio/.StudioCache.Rdata")
   if (isTRUE(all.equal(nlpStudioCache[[name]], object)) != TRUE) return(FALSE)
 
   return(TRUE)

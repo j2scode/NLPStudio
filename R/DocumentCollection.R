@@ -137,15 +137,27 @@ DocumentCollection <- R6::R6Class(
         stop()
       }
 
+      # Obtain parent information
+      if (class(parent)[1] == "Lab") {
+        p <- parent$getLab()
+      } else {
+        p <- parent$getDocument()
+      }
+
       # Instantiate variables
       private$..name <- name
-      private$..path <- path
       private$..desc <- desc
+      private$..parent <- parent
+      private$..parentName <- p$metaData$parentName
+      private$..path <- file.path(p$metaData$path, name)
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
+      print("************path ****************\n")
+      print(private$..path)
+
       # Create Directory
-      dir.create(path)
+      dir.create(private$..path)
 
       # Assign the name to the object in the global environment and update cache
       assign(name, self, envir = .GlobalEnv)
@@ -214,12 +226,19 @@ DocumentCollection <- R6::R6Class(
 
       d <- self$getDocument(type = "df")
 
-      cat("\n\n#===============================================================================#")
-      cat("\n                            DOCUMENT COLLECTION                                 \n")
-      print.data.frame(d$documentDf)
-      cat("\n#-------------------------------------------------------------------------------#")
-      cat("\n                              DOCUMENTS                                        \n")
-      print.data.frame(d$documentsDf)
+      cat("\n\n================================================================================",
+          "\n---------------------------Document Collection-----------------------------------")
+      cat("\n                              Name:", d$metaData$name)
+      cat("\n                       Description:", d$metaData$desc)
+      cat("\n                            Parent:", d$metaData$parentName)
+      cat("\n                              Path:", d$metaData$path)
+      cat("\n                     Date Modified:", d$metaData$modified)
+      cat("\n                      Date Created:", d$metaData$created)
+      cat("\n================================================================================\n")
+
+      cat("\n\n================================================================================",
+          "\n--------------------------------Documents----------------------------------------\n")
+      print.data.frame(d$documents)
       cat("\n#===============================================================================#\n\n")
     },
 
@@ -354,7 +373,7 @@ DocumentCollection <- R6::R6Class(
       if (purge == TRUE) {
 
         # Get document information
-        d <- d$getDocument(format = "list")
+        d <- d$getDocument(type = "list")
 
         # Remove from disc
         file.remove(d$path)
@@ -378,7 +397,7 @@ DocumentCollection <- R6::R6Class(
         private$..parent <- parent
 
         # Add parent name
-        p <- getParent(format = "list")
+        p <- self$getParent()
         private$..parentName <- p$metaData$name
 
         # Update path
@@ -402,8 +421,8 @@ DocumentCollection <- R6::R6Class(
 
     getParent = function() {
 
-      if ("Lab" %in% class(private$..parent)) p <- private$..parent$getLab(format = "list")
-      else p <- private$..parent$getDocument(format = "list")
+      if ("Lab" %in% class(private$..parent)[1]) p <- private$..parent$getLab(type = "list")
+      else p <- private$..parent$getDocument(type = "list")
 
       return(p)
     },

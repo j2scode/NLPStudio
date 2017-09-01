@@ -116,7 +116,7 @@ testLab <- function() {
     path <- lab$metaData$name
 
     # Create and add collection
-    DocumentCollection$new(name = "brown", path = path, desc = "Brown Corpus")
+    DocumentCollection$new(name = "brown", parent = blue, desc = "Brown Corpus")
     stopifnot("DocumentCollection" %in% class(brown))
     stopifnot("Lab" %in% class(blue))
     blue$addDocument(brown)
@@ -217,7 +217,7 @@ testLab <- function() {
     lab <<- blue$getLab(type = "list")
     path <- lab$metaData$name
 
-    DocumentCollection$new(name = "oxford", path = path, desc = "Oxford Corpus")
+    DocumentCollection$new(name = "oxford", parent = blue, desc = "Oxford Corpus")
     blue$addDocument(oxford)
 
     # Confirm modified date updated
@@ -360,7 +360,7 @@ testLab <- function() {
     # Successfuly remove purge document from document list
     lab <- blue$getLab(type = "list")
     path <- lab$metaData$name
-    DocumentCollection$new(name = "penn", path = path, desc = "Penn Corpus")
+    DocumentCollection$new(name = "penn", parent = blue, desc = "Penn Corpus")
     blue$removeDocument(penn, purge = TRUE)
     documents <<- blue$getDocuments(type = "list")
     if (length(documents) > 0) {

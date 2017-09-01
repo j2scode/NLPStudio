@@ -415,9 +415,6 @@ testNLPStudio <- function() {
     Development$enterLab()
     #nlpStudio$removeLab("Development")# fail, can't remove current lab
 
-    # Load files into lab for archiving
-
-
     # Successfuly remove Bart
     nlpStudio$removeLab("Bart", purge = TRUE)
     stopifnot(exists("Bart") == FALSE)
@@ -426,7 +423,7 @@ testNLPStudio <- function() {
     # Confirm date modified updated correctly
     studio <- nlpStudio$getStudio(type = "list")
     stopifnot((Sys.time() - studio$metaData$created) > 1)
-    stopifnot((Sys.time() - studio$metaData$modified) < 1)
+    stopifnot((Sys.time() - studio$metaData$modified) < 5)
 
     # # Confirm removed from list
     labs <<- nlpStudio$getLabs(type = "list")
@@ -435,20 +432,15 @@ testNLPStudio <- function() {
     }
 
     # Confirm archives
-    a <- nlpArchives$getArchive(type = "list")
-    stopifnot(a$metaData$name == "nlpArchive")
-    stopifnot(a$metaData$desc == "Archive for NLPStudio Objects")
-    stopifnot((Sys.time() - a$metaData$modified) < 5)
-    stopifnot((Sys.time() - a$metaData$created) > 5)
-    stopifnot(a$archives[[1]]$name == "Bart")
-    stopifnot(a$archives[[1]]$class == "Lab")
-    stopifnot(grepl("Bart", a$archives[[1]]$path))
-    stopifnot((Sys.time() - a$archives[[1]]$modified) > 5)
-    stopifnot((Sys.time() - a$archives[[1]]$created) > 5)
-
+    a <<- nlpArchives$getArchives(type = "list")
+    stopifnot(a[[1]]$name == "Bart")
+    stopifnot(a[[1]]$class == "Lab")
+    stopifnot(grepl("Bart", a[[1]]$archiveFile))
+    stopifnot((Sys.time() - a[[1]]$created) < 5)
+    #
     # Confirm directory does not exist and archive does
-    stopifnot(!dir.exists("./NLPStudio/NLPStudio/Labs/Bart"))
-    stopifnot(file.exists(a$archives[[1]]$path))
+    stopifnot(!dir.exists("./NLPStudio/Labs/Bart"))
+    stopifnot(file.exists(a[[1]]$archiveFile))
 
     # Print archives
     nlpArchives$printArchives()
@@ -500,7 +492,7 @@ test16()
 dirs <- nlpStudio$getDirectories()
 lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
 cls <- "NLPStudio"
-cacheFile <- "./.StudioCache.Rdata"
+cacheFile <- "./NLPSTudio/StudioCache.Rdata"
 base::unlink(cacheFile)
 
 devtools::load_all()
