@@ -7,8 +7,9 @@ testNLPStudio <- function() {
     if (exists("Bart", envir = .GlobalEnv))rm("Bart", envir = .GlobalEnv)
 
     # Source cache and log
-    source("./tests/checkCache.r")
-    source("./tests/logTests.r")
+    source("./tests/testFunctions/checkCache.r")
+    source("./tests/testFunctions/logTests.r")
+    source("./tests/testFunctions/copyFiles.r")
 
     # Test file paths
     csvTestFile <- "./tests/testFiles/contractions.csv"

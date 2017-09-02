@@ -1,5 +1,4 @@
 testLab <- function() {
-
   init <- function() {
 
     # Clean up
@@ -12,11 +11,19 @@ testLab <- function() {
     if (exists("oxford", envir = .GlobalEnv)) {
       rm(list = ls(envir = .GlobalEnv)[grep("oxford", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
     }
-    if (dir.exists("./NLPStudio/Labs/blue") == TRUE) unlink("./NLPStudio/Labs/blue", recursive = TRUE)
+    if (exists("penn", envir = .GlobalEnv)) {
+      rm(list = ls(envir = .GlobalEnv)[grep("penn", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+    }
+    if (exists("stanford", envir = .GlobalEnv)) {
+      rm(list = ls(envir = .GlobalEnv)[grep("stanford", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+    }
+
+    if (dir.exists("./NLPStudio/Labs/blue") == TRUE) base::unlink("./NLPStudio/Labs/blue", recursive = TRUE)
 
     # Source cache and log
-    source("./tests/checkCache.r")
-    source("./tests/logTests.r")
+    source("./tests/testFunctions/checkCache.r")
+    source("./tests/testFunctions/logTests.r")
+    source("./tests/testFunctions/copyFiles.r")
   }
 
   # Test 0: Confirm instantiation of lab
@@ -36,6 +43,9 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) < 1)
     stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
+    # Confirm directory created
+    stopifnot(dir.exists("./NLPStudio/Labs/blue"))
+
     # Logit
     logTests(cls = cls, mthd = "initiate", note = "Successfully created lab")
     logTests(cls = cls, mthd = "initiate", note = "Create and modified dates initialized correctly")
@@ -52,6 +62,7 @@ testLab <- function() {
     # Test getLab object format
     lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
+    stopifnot("Lab" %in% class(blue))
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -86,7 +97,7 @@ testLab <- function() {
   }
 
   test3 = function() {
-    test <- "test3: getLab('df') No labs"
+    test <- "test3: getLab('df') with no documents"
     cat(paste("\n",test, " Commencing\r"))
 
     # Test getLab, data frame
@@ -96,7 +107,7 @@ testLab <- function() {
     stopifnot(lab$metaData$labDf$desc[1] == "Blue Lab")
     stopifnot((Sys.time() - lab$metaData$labDf$created[1]) > 1)
     stopifnot((Sys.time() - lab$metaData$labDf$modified[1]) > 1)
-    stopifnot(nrow(lab$metaData$documentsDf) == 0)
+    stopifnot(nrow(lab$documentsDf) == 0)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -120,6 +131,10 @@ testLab <- function() {
     stopifnot("DocumentCollection" %in% class(brown))
     stopifnot("Lab" %in% class(blue))
     blue$addDocument(brown)
+    copyFiles("./NLPStudio/Labs/blue/brown")
+
+    # Confirm directory created
+    stopifnot(dir.exists("./NLPStudio/Labs/blue/brown"))
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
@@ -133,6 +148,7 @@ testLab <- function() {
     # Logit
     logTests(cls = cls, mthd = "addDocument", note = "Created collection and added to lab")
     logTests(cls = cls, mthd = "addDocument", note = "Date modified updated correctly")
+    logTests(cls = cls, mthd = "addDocument", note = "Directory created")
 
 
     cat(paste("\n", test, " Completed: Success!\n"))
@@ -145,6 +161,13 @@ testLab <- function() {
 
     lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
+    stopifnot("Lab" %in% class(blue))
+
+    # Check existence of documents
+    documents <- blue$getDocuments(type = "object")
+    for (i in length(documents)) {
+      stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
+    }
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -164,13 +187,13 @@ testLab <- function() {
     stopifnot(lab$metaData$name == "blue")
     stopifnot(lab$metaData$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
 
-    stopifnot(length(lab$metaData$documents) == 1)
-    stopifnot(lab$metaData$documents[[1]]$name == "brown")
-    stopifnot(lab$metaData$documents[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$metaData$documents[[1]]$created) < 1)
-    stopifnot((Sys.time() - lab$metaData$documents[[1]]$modified) < 1)
+    stopifnot(nrow(lab$documents) == 1)
+    stopifnot(lab$documents[[1]]$name == "brown")
+    stopifnot(lab$documents[[1]]$desc == "Brown Corpus")
+    stopifnot((Sys.time() - lab$documents[[1]]$created) < 1.5)
+    stopifnot((Sys.time() - lab$documents[[1]]$modified) < 1.5)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -193,11 +216,11 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
     stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
 
-    stopifnot(nrow(lab$metaData$documentsDf) == 1)
-    stopifnot(lab$metaData$documentsDf$name[1] == "brown")
-    stopifnot(lab$metaData$documentsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$metaData$documentsDf$created[1]) < 1)
-    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[1]) < 1)
+    stopifnot(nrow(lab$documentsDf) == 1)
+    stopifnot(lab$documentsDf$name[1] == "brown")
+    stopifnot(lab$documentsDf$desc[1] == "Brown Corpus")
+    stopifnot((Sys.time() - lab$documentsDf$created[1]) < 1)
+    stopifnot((Sys.time() - lab$documentsDf$modified[1]) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -219,6 +242,10 @@ testLab <- function() {
 
     DocumentCollection$new(name = "oxford", parent = blue, desc = "Oxford Corpus")
     blue$addDocument(oxford)
+    copyFiles("./NLPStudio/Labs/blue/oxford")
+
+    # Confirm directory created
+    stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
@@ -233,6 +260,7 @@ testLab <- function() {
     # Logit
     logTests(cls = cls, mthd = "addDocument(oxford)", note = "Successfully added 2nd collection")
     logTests(cls = cls, mthd = "addDocument(oxford)", note = "Date modified updated correctly")
+    logTests(cls = cls, mthd = "addDocument(oxford)", note = "Directory created")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -244,6 +272,13 @@ testLab <- function() {
 
     lab <<- blue$getLab(type = "object")
     stopifnot(isTRUE(all.equal(lab, blue)))
+
+    # Check existence of documents
+    documents <- blue$getDocuments(type = "object")
+    for (i in length(documents)) {
+      stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
+    }
+    stopifnot(i == 2)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -264,18 +299,18 @@ testLab <- function() {
     stopifnot(lab$metaData$name == "blue")
     stopifnot(lab$metaData$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 2)
 
-    stopifnot(length(lab$metaData$documents) == 2)
-    stopifnot(lab$metaData$documents[[1]]$name == "brown")
-    stopifnot(lab$metaData$documents[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$metaData$documents[[1]]$created) > 0.5)
-    stopifnot((Sys.time() - lab$metaData$documents[[1]]$modified) > 0.5)
+    stopifnot(length(lab$documents) == 2)
+    stopifnot(lab$documents[[1]]$name == "brown")
+    stopifnot(lab$documents[[1]]$desc == "Brown Corpus")
+    stopifnot((Sys.time() - lab$documents[[1]]$created) > 0.5)
+    stopifnot((Sys.time() - lab$documents[[1]]$modified) > 0.5)
 
-    stopifnot(lab$metaData$documents[[2]]$name == "oxford")
-    stopifnot(lab$metaData$documents[[2]]$desc == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$metaData$documents[[2]]$created) < 1)
-    stopifnot((Sys.time() - lab$metaData$documents[[2]]$modified) < 1)
+    stopifnot(lab$documents[[2]]$name == "oxford")
+    stopifnot(lab$documents[[2]]$desc == "Oxford Corpus")
+    stopifnot((Sys.time() - lab$documents[[2]]$created) < 2)
+    stopifnot((Sys.time() - lab$documents[[2]]$modified) < 2)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -299,16 +334,16 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
     stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
 
-    stopifnot(nrow(lab$metaData$documentsDf) == 2)
-    stopifnot(lab$metaData$documentsDf$name[1] == "brown")
-    stopifnot(lab$metaData$documentsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$metaData$documentsDf$created[1]) > 0.5)
-    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[1]) > 0.5)
+    stopifnot(nrow(lab$documentsDf) == 2)
+    stopifnot(lab$documentsDf$name[1] == "brown")
+    stopifnot(lab$documentsDf$desc[1] == "Brown Corpus")
+    stopifnot((Sys.time() - lab$documentsDf$created[1]) > 0.5)
+    stopifnot((Sys.time() - lab$documentsDf$modified[1]) > 0.5)
 
-    stopifnot(lab$metaData$documentsDf$name[2] == "oxford")
-    stopifnot(lab$metaData$documentsDf$desc[2] == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$metaData$documentsDf$created[2]) < 1)
-    stopifnot((Sys.time() - lab$metaData$documentsDf$modified[2]) < 1)
+    stopifnot(lab$documentsDf$name[2] == "oxford")
+    stopifnot(lab$documentsDf$desc[2] == "Oxford Corpus")
+    stopifnot((Sys.time() - lab$documentsDf$created[2]) < 1)
+    stopifnot((Sys.time() - lab$documentsDf$modified[2]) < 1)
 
     # Check cache
     stopifnot(checkCache("blue") == TRUE)
@@ -329,14 +364,24 @@ testLab <- function() {
     # blue$removeDocument(logTests)
 
     # Successfuly remove oxford from collection list
-    blue$removeDocument(oxford)
+    blue$removeDocument(oxford, purge = FALSE)
     documents <<- blue$getDocuments(type = "list")
-    for (c in 1:length(documents)) {
-      stopifnot(!isTRUE(all.equal(documents[[c]]$name, "oxford")))
+    for (d in 1:length(documents)) {
+      stopifnot(!isTRUE(all.equal(documents[[d]]$name, "oxford")))
     }
 
     # Confirm object exists in global environment
     stopifnot(exists('oxford'))
+
+    # Confirm directory has not been  deleted
+    stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
+
+    # Confirm document exists in archive
+    archives <- nlpArchives$getArchives(type = "list")
+    stopifnot(archives[[1]]$objectName == "oxford")
+    stopifnot(archives[[1]]$archiveName == "oxford-2017-09-02-1")
+    stopifnot(archives[[1]]$seqNum == 1)
+    stopifnot(archives[[1]]$numFiles == 4)
 
     # Confirm date modified updated correctly
     lab <- blue$getLab()
@@ -357,11 +402,25 @@ testLab <- function() {
     test <- "test13: Remove collection, purge = TRUE"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Successfuly remove purge document from document list
+    # Create  new document
     lab <- blue$getLab(type = "list")
     path <- lab$metaData$name
     DocumentCollection$new(name = "penn", parent = blue, desc = "Penn Corpus")
+
+    # Add new document
+    blue$addDocument(penn)
+    copyFiles("./NLPStudio/Labs/blue/penn")
+
+    # Confirm object exists as class DocumentCollection
+    stopifnot("DocumentCollection" %in% class(penn))
+
+    # Confirm directory created
+    stopifnot(dir.exists("./NLPStudio/Labs/blue/penn"))
+
+    # Remove document with a vengeance
     blue$removeDocument(penn, purge = TRUE)
+
+    # Confirm document removed from lab
     documents <<- blue$getDocuments(type = "list")
     if (length(documents) > 0) {
       for (c in 1:length(documents)) {
@@ -369,8 +428,19 @@ testLab <- function() {
       }
     }
 
-    # Confirm object exists in global environment
+    # Confirm object has been removed from global environment
     stopifnot(!exists('penn'))
+
+    # Confirm files deleted
+    stopifnot(!dir.exists("./NLPStudio/Labs/blue/penn"))
+
+    # Confirm Archived
+    archives <- nlpArchives$getArchives(type = "list")
+    stopifnot(archives[[2]]$objectName == "penn")
+    stopifnot(archives[[2]]$archiveName == "penn-2017-09-02-1")
+    stopifnot(archives[[2]]$numFiles == 4)
+    stopifnot(archives[[2]]$seqNum == 1)
+    stopifnot(as.Date(archives[[2]]$created) == as.Date(Sys.time()))
 
     # Confirm date modified updated correctly
     lab <- blue$getLab(type = "list")
@@ -391,24 +461,23 @@ testLab <- function() {
     test <- "test14: Print lab"
     cat(paste("\n",test, " Commencing\r"))
 
-    blue$printLab()
+    # Add lab
+    DocumentCollection$new(name = "stanford", parent = blue, desc = "Stanford Corpus")
+    blue$addDocument(stanford)
+    copyFiles("./NLPStudio/Labs/blue/stanford")
+
+    # Confirm object exists as class DocumentCollection
+    stopifnot("DocumentCollection" %in% class(stanford))
+
+    # Confirm directory created
+    stopifnot(dir.exists("./NLPStudio/Labs/blue/stanford"))
+
+    blue$printLab()  # should show 2 documents
 
     # Logit
     logTests(cls = cls, mthd = "printLab", note = "Print lab tested")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
-
-  test15 <- function() {
-    test <- "test15: Test Archive"
-    cat(paste("\n",test, " Commencing\r"))
-
-    blue$printLab()
-
-    # Logit
-    logTests(cls = cls, mthd = "printLab", note = "Print lab tested")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
 
   init()
   test0()

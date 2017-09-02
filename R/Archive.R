@@ -28,8 +28,9 @@
 #' \itemize{
 #'  \item{\code{new()}}{Instantiates an object of the Archive class.  This object is instantiated the first time the package is loaded.}
 #'  \item{\code{archive(object)}}{Method that archives an object.  The object is stored in a list within the Archive object. The files are compressed and stored in the Archive subdirectory.}
-#'  \item{\code{getArchives(name, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the name parameter.}
-#'  \item{\code{printArchives(name)}}{Method for printing to console the meta data for a specific archive or a list of archives for the object matching the name parameter.}
+#'  \item{\code{getArchives(object, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the name parameter.}
+#'  \item{\code{printArchives(objectName = 'all')}}{Method for printing to console the meta data for a specific archive or a list of archives for the object matching the object name parameter. The default is to print all archives.}
+#'  \item{\code{searchArchives(objectName, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the object name parameter.}
 #'  \item{\code{restoreArchive(archiveName)}}{Method for restoring an object from archive. It requires the archive name in the name-YYYY-MM-DD-## format, where ## is a sequence number.}
 #' }
 #'
@@ -86,98 +87,7 @@ Archive <- R6::R6Class(
             invisible(self)
           },
 
-          getArchives = function(objectName = "all", type = "list") {
-
-            searchArchives <- function(objectName) {
-
-              if (objectName == "all") {
-                archives <- private$..archives
-              } else {
-                archives <- list()
-                archives <- lapply(private$..archives, function(a) {
-                  if (a$objectName == objectName) a
-                })
-                return(archives)
-              }
-            }
-
-            # Actually not an object but a list containing the archived object.
-            getObject <- function(archives) {
-              return(archives)
-            }
-
-            getList <- function(archives) {
-              archives <- lapply(archives, function(a) {
-                archives = list(
-                  archiveName = a$archiveName,
-                  archiveFile = a$archiveFile,
-                  objectName = a$objectName,
-                  seqNum = a$seqNum,
-                  created = a$created
-                )
-                archives
-              })
-              return(archives)
-            }
-
-            getDf <- function(archives) {
-              archives <- rbindlist(lapply(archives, function(a) {
-                archives = list(
-                  archiveName = a$archiveName,
-                  archiveFile = a$archiveFile,
-                  objectName = a$objectName,
-                  seqNum = a$seqNum,
-                  created = a$created
-                )
-                archives
-              }))
-              return(archives)
-            }
-
-            # Search for object in archive
-            archives <- searchArchives(objectName)
-
-            if (!is.null(archives)) {
-
-              # Format archives
-              if (type == "object") {archives <- getObject(archives)}
-              else if (type == "list") {archives <- getList(archives)}
-              else if (type == "df") {archives <- getDf(archives)}
-              else {
-                v <- Validate0$new()
-                v$notify(cls = "Archive", method = "getArchives",
-                         fieldName = "type", value = type, level = "Warn",
-                         msg = paste("Invalid type requested.",
-                                     "Must be 'object', 'list', or 'df'.",
-                                     "Returning Archive in 'list' format.",
-                                     "See ?Archive for further assistance."),
-                         expect = NULL)
-                archives <- getList(archives)
-              }
-            }
-            return(archives)
-          },
-
-          printArchives = function(objectName = "all") {
-
-            archives <- self$getArchives(objectName, type = "df")
-
-            if (nrow(archives) == 0) {
-              cat("\n\n================================================================================",
-                  "\n-------------------------------Archive(s)----------------------------------------")
-              cat("\n                              No Archives.")
-              cat("\n================================================================================\n")
-            } else {
-
-              cat("\n\n================================================================================",
-                  "\n-------------------------------Archive(s)----------------------------------------\n")
-              print.data.frame(archives)
-              cat("\n================================================================================\n")
-            }
-          },
-
           archive = function(object) {
-
             # Get archive directory
             dirs <- nlpStudio$getDirectories()
             private$..path <- dirs$archives
@@ -221,10 +131,10 @@ Archive <- R6::R6Class(
             seqNum <- 1
             archives <- self$getArchives(objectName, type = "df")
             if (nrow(archives) > 0) {
-              archives <- subset(archives, objectName == objectName & as.Date(created) == today)
+              archives <- subset(archives, objectName == objectName & as.Date(archives$created) == today)
               if (nrow(archives) > 0) {
                 seqNum <- archives[which.max(archives$seqNum), archives$seqNum]
-                seqNum <- seqNum + 1
+                seqNum <- as.numeric(seqNum) + 1
               }
             }
 
@@ -236,14 +146,20 @@ Archive <- R6::R6Class(
 
             files <- list.files(path = o$metaData$path, all.files = TRUE, full.names = TRUE,
                                 recursive = TRUE, include.dirs = TRUE)
-            zip(archiveFile, files)
+
+            if (length(files) == 0) {
+              archiveFile <- ""
+            } else {
+              zip(archiveFile, files)
+            }
 
             # Add to list of archives
             archiveName <- paste0(objectName,"-",today,"-", seqNum)
             archiveFile <- paste0(archiveFile, ".zip")
+            private$..archives[[archiveName]]$objectName <- objectName
             private$..archives[[archiveName]]$archiveName <- archiveName
             private$..archives[[archiveName]]$archiveFile <- archiveFile
-            private$..archives[[archiveName]]$objectName <- objectName
+            private$..archives[[archiveName]]$numFiles <- length(files)
             private$..archives[[archiveName]]$seqNum <- seqNum
             private$..archives[[archiveName]]$object <- as.environment(as.list(object, all.names = TRUE))
             private$..archives[[archiveName]]$created <- Sys.time()
@@ -253,6 +169,121 @@ Archive <- R6::R6Class(
             nlpStudioCache$setCache(key = private$..name, value = self)
 
             invisible(self)
+          },
+
+          getArchives = function(objectName = "all", type = "list") {
+
+            # Actually not an object but a list containing the archived object.
+            getObject <- function(archives) {
+              return(archives)
+            }
+
+            getList <- function(archives) {
+              if (length(archives) == 0) {
+                archives <- list()
+              } else {
+                archives <- lapply(archives, function(a) {
+                  archives = list(
+                    objectName = a$objectName,
+                    archiveName = a$archiveName,
+                    archiveFile = a$archiveFile,
+                    numFiles = a$numFiles,
+                    seqNum = a$seqNum,
+                    created = a$created
+                  )
+                  archives
+                })
+              }
+              return(archives)
+            }
+
+            getDf <- function(archives) {
+
+              if (length(archives) == 0) {
+                archives <- data.frame()
+              } else {
+                archives <- rbindlist(lapply(archives, function(a) {
+                  archives = list(
+                    objectName = a$objectName,
+                    archiveName = a$archiveName,
+                    archiveFile = a$archiveFile,
+                    numFiles = a$numFiles,
+                    seqNum = a$seqNum,
+                    created = a$created
+                  )
+                  archives
+                }))
+              }
+
+              return(archives)
+            }
+
+            # Search for object in archive
+            archives <- self$searchArchives(objectName)
+
+            # Format archives
+            if (type == "object") {archives <- getObject(archives)}
+            else if (type == "list") {archives <- getList(archives)}
+            else if (type == "df") {archives <- getDf(archives)}
+            else {
+              v <- Validate0$new()
+              v$notify(cls = "Archive", method = "getArchives",
+                       fieldName = "type", value = type, level = "Warn",
+                       msg = paste("Invalid type requested.",
+                                   "Must be 'object', 'list', or 'df'.",
+                                   "Returning Archive in 'list' format.",
+                                   "See ?Archive for further assistance."),
+                       expect = NULL)
+              archives <- getList(archives)
+            }
+            return(archives)
+          },
+
+          printArchives = function(objectName = "all") {
+
+            archives <- self$getArchives(objectName, type = "df")
+
+            if (nrow(archives) == 0) {
+              cat("\n\n================================================================================",
+                  "\n-------------------------------Archive(s)----------------------------------------")
+              cat("\n                              No Archives.")
+              cat("\n================================================================================\n")
+            } else {
+
+              cat("\n\n================================================================================",
+                  "\n-------------------------------Archive(s)----------------------------------------\n")
+              print.data.frame(archives)
+              cat("\n================================================================================\n")
+            }
+          },
+
+          searchArchives = function(objectName) {
+
+            if (length(private$..archives) == 0) {
+              archives <- list()
+            } else if (objectName == "all") {
+              archives <- private$..archives
+            } else {
+              for (a in 1:length(private$..archives)) {
+                if (private$..archives[[a]]$objectName == objectName) {
+                  archives[[private$..archives[[a]]$archiveName]]$objectName <-
+                    private$..archives[[a]]$objectName
+                  archives[[private$..archives[[a]]$archiveName]]$archiveName <-
+                    private$..archives[[a]]$archiveName
+                  archives[[private$..archives[[a]]$archiveName]]$archiveFile <-
+                    private$..archives[[a]]$archiveFile
+                  archives[[private$..archives[[a]]$archiveName]]$numFiles <-
+                    private$..archives[[a]]$numFiles
+                  archives[[private$..archives[[a]]$archiveName]]$seqNum <-
+                    private$..archives[[a]]$seqNum
+                  archives[[private$..archives[[a]]$archiveName]]$created <-
+                    private$..archives[[a]]$created
+                } else {
+                  archives <- list()
+                }
+              }
+            }
+            return(archives)
           },
 
           restore = function(archiveName) {

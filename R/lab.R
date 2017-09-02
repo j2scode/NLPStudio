@@ -3,7 +3,7 @@
 #==============================================================================#
 #' Lab
 #'
-#' \code{Lab} Class environment where NLP happens.
+#' \code{Lab} Class that contains document collections and the environment in which NLP happens.
 #'
 #' The environment in which NLP happens. There are two groups of methods. The
 #' first group allows clients to instantiate, retrieve, print, enter, leave,
@@ -12,12 +12,14 @@
 #'
 #' @section Lab Methods:
 #' \describe{
-#'  \item{\code{new()}}{Creates an object of Lab Class}
+#'  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
+#'  \item{\code{desc}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
+#'  \item{\code{getParent(type = object)}}{Method that returns the parent object in object. list, or data frame format. The default is object format.}
 #'  \item{\code{getLab(type = "list")}}{Retrieves the meta data for the Lab, as well as a list of its document collections. The results can be returned in a variety of types (formats). Valid types are c("object", "list", "df"). The default is "list".}
 #'  \item{\code{printLab()}}{Prints the meta data for the Lab object as well as a list of document collections in data frame format.}
 #'  \item{\code{enterLab()}}{Sets a Lab object current in the NLPStudio.}
 #'  \item{\code{leaveLab()}}{Sets the current Lab object in the NLPStudio to "none" .}
-#'  \item{\code{desc}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
+#'  \item{\code{archiveLab}{Archives a Lab object.}
 #' }
 #'
 #' @section Document Methods:
@@ -68,7 +70,6 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      nlpStudioCache$setCache("nlpStudio", nlpStudio)
       nlpStudioCache$setCache(private$..name, self)
     }
   ),
@@ -226,8 +227,8 @@ Lab <- R6::R6Class(
       cat("\n                       Description:", lab$metaData$desc)
       cat("\n                            Parent:", lab$metaData$parentName)
       cat("\n                              Path:", lab$metaData$path)
-      cat("\n                     Date Modified:", lab$metaData$modified)
-      cat("\n                      Date Created:", lab$metaData$created)
+      cat("\n                     Date Modified:", format(lab$metaData$modified))
+      cat("\n                      Date Created:", format(lab$metaData$created))
       cat("\n================================================================================\n")
 
       cat("\n\n================================================================================")
@@ -242,10 +243,6 @@ Lab <- R6::R6Class(
 
     leaveLab = function() {
       nlpStudio$leaveLab(self)
-    },
-
-    addArchive = function(archiveFile) {
-      private$..archiveFile <- archiveFile
     },
 
     archiveLab = function() {
@@ -326,70 +323,69 @@ Lab <- R6::R6Class(
 
     },
 
-    removeDocument = function(name, purge = FALSE) {
+    removeDocument = function(document, purge = FALSE) {
 
-      # Get document
-      d <- get(name, envir = .GlobalEnv)
-
-      # Confirm parameter is a collection
-      classes <- c("DocumentCollection")
-      v <- ValidateClass$new()
-      if (v$validate(cls = "Lab", method = "removeDocument",
-                 fieldName = "name", value = name, level = "Error",
-                 msg = paste("The object named", name,
-                             "is not a valid DocumentCollection",
-                             "object.",
-                             "See ?DocumentCollection"),
-                 expect = classes) == FALSE) {
-        stop()
-      }
-
-
-      # Confirm document is not self
-      if (name == private$..name) {
+      # Confirm name parameter is not missing
+      if (missing(document)) {
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "removeDocument",
-                 fieldName = "name", value = name, level = "Error",
-                 msg = paste("The object named", name,
-                             "cannot remove itself. Remove operations must",
-                             "be performed by the parent object.",
-                             "Use the nlpStudio object to remove Labs.",
-                             "See ?NLPStudio"),
-                 expect = NULL)
+                 fieldName = "document", value = "", level = "Error",
+                 msg = paste("Document is missing with no default.",
+                             "See ?Lab for further assistance."),
+                 expect = TRUE)
         stop()
       }
 
-      # Archive
-      nlpArchives$archive(self)
-      nlpArchives$archive(d)
+      # Confirm document class
+      v <- ValidateClass$new()
+      if (v$validate(cls = "Lab", method = "removeDocument",
+                     fieldName = "document", value = document, level = "Error",
+                     msg = paste("Lab method is unable to remove document",
+                                 "of the", class(document), "class.",
+                                 "Lab methods can only remove DocumentCollection",
+                                 "objects.", "See ?Lab for further assistance."),
+                     expect = "DocumentCollection") == FALSE) {
+        stop()
+      }
+
+      # Obtain document meta data
+      documentInfo <- document$getDocument(type = "list")
+
+      # Confirm object is not self
+      if (private$..name == documentInfo$metaData$name) {
+        v <- Validate0$new()
+        v$notify(cls = "Lab", method = "removeDocument",
+                 fieldName = "document", value = documentInfo$metaData$name,
+                 level = "Error",
+                 msg = paste("Object unable to remove itself. Removal must",
+                             "be invoked from the parent object.",
+                             "See ?Lab for further assistance"),
+                 expect = NULL)
+          stop()
+      }
+
+      # Archive before removing document
+      nlpArchives$archive(document)
 
       # Remove collection from lab and update cache
-      private$..documents[[name]] <- NULL
+      private$..documents[[documentInfo$metaData$name]] <- NULL
       private$..modified <- Sys.time()
       nlpStudioCache$setCache(private$..name, self)
 
       if (purge == TRUE) {
 
-        # Get document information
-        d <- d$getDocument(format = "list")
-
         # Remove from disc
-        base::unlink(d$path)
+        base::unlink(documentInfo$metaData$path, recursive = TRUE)
 
         # Remove from global environment
-        rm(list = ls(envir = .GlobalEnv)[grep(name, ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-
-        # Remove from cache
-        cache <- nlpStudioCache$loadCache()
-        cache[[name]] <- NULL
-        nlpStudioCache$replaceCache(cache)
-        nlpStudioCache$saveCache()
+        rm(list = ls(envir = .GlobalEnv)[grep(documentInfo$metaData$name,
+                                              ls(envir = .GlobalEnv))],
+           envir = .GlobalEnv)
 
       }
 
       # Update Cache
       nlpStudioCache$setCache(private$..name, self)
-      nlpStudioCache$setCache("nlpStudio", nlpStudio)
 
       invisible(self)
 

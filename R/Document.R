@@ -149,7 +149,7 @@ Document <- R6::R6Class(
       private$..fileName <- fileName
       private$..name <- name
       if (!missing(parent)) {
-        p <- getParent(parent)
+        p <- self$getParent(parent)
         private$..parent <- parent
         private$..parentName <- p$name
         private$..path <- file.path(p$path, name)
@@ -197,7 +197,7 @@ Document <- R6::R6Class(
                                  modified = private$..modified,
                                  created = private$..created,
                                  stringsAsFactors = FALSE),
-          documents = data.frame(0)
+          documents = data.frame()
         )
         return(document)
       }

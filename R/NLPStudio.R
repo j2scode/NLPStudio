@@ -30,11 +30,14 @@
 #'  \item{\code{removeLab(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and cache.}
 #'  \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
 #'  \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
+#'  \item{\code{archiveLab(lab)}}{Archives a designated lab.}
+#'  \item{\code{restoreLab(lab)}}{Restores a designated lab from archive.}
 #'
 #'
 #' @param desc A character string containing the studio description
 #' @param enter A logical indicating whether to enter a lab and to set the lab current.
 #' @param lab An object of class 'Lab'.
+#' @param labName Character string indicating the name of Lab object.
 #' @param name A character string containing the studio name.
 #' @param type A character string indicating the format in which the 'get' methods return results.
 #'
@@ -301,32 +304,18 @@ NLPStudio <- R6::R6Class(
 
           },
 
-          removeLab = function(name, purge = FALSE) {
+          removeLab = function(lab, purge = FALSE) {
 
             # Confirm name parameter is not missing
-            if (missing(name)) {
+            if (missing(lab)) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "name", value = "", level = "Error",
-                       msg = paste("Name of lab is missing with no default.",
+                       fieldName = "lab", value = "", level = "Error",
+                       msg = paste("Lab is missing with no default.",
                                    "See ?NLPStudio for further assistance."),
                        expect = TRUE)
               stop()
             }
-
-            # Confirm lab exists
-            if (!exists(name, envir = .GlobalEnv)) {
-              v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "name", value = name, level = "Error",
-                       msg = paste("Lab does not exist.",
-                                   "See ?NLPStudio for further assistance."),
-                       expect = TRUE)
-              stop()
-            }
-
-            # Get Lab
-            lab <- get(name, envir = .GlobalEnv)
 
             # Confirm lab is a lab
             v <- ValidateClass$new()
@@ -344,7 +333,7 @@ NLPStudio <- R6::R6Class(
             if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
               v$notify(cls = "NLPStudio", method = "removeLab",
-                       fieldName = "name", value = name, level = "Error",
+                       fieldName = "lab", value = lab, level = "Error",
                        msg = "Unable to remove a current lab.  See ?NLPStudio",
                        expect = NULL)
               stop()
@@ -353,28 +342,30 @@ NLPStudio <- R6::R6Class(
             # Archive lab
             nlpArchives$archive(lab)
 
+            # Obtain lab meta data
+            labData <- lab$getLab(type = "list")
+
             # TODO: Cycle through collections, setting parent to "None"
 
             # Remove lab from nlpStudio and update the modified time.
-            private$..labs[[name]] <- NULL
+            private$..labs[[lab$metaData$name]] <- NULL
             private$..modified <- Sys.time()
             nlpStudioCache$setCache(private$..name, self)
 
             # Remove from  memory and disc if purge == TRUE
             if (purge == TRUE) {
 
-              # Get document information
-              lab <- lab$getLab(type = "list")
-
-              # Remove from disc
-              base::unlink(lab$metaData$path, recursive = TRUE)
+              base::unlink(labData$metaData$path, recursive = TRUE)
 
               # Remove from global environment
-              rm(list = ls(envir = .GlobalEnv)[grep(name,ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+              rm(list = ls(envir =
+                             .GlobalEnv)[grep(labData$metaData$name,
+                                              ls(envir = .GlobalEnv))],
+                 envir = .GlobalEnv)
 
               # Remove from cache
               cache <- nlpStudioCache$loadCache()
-              cache[[name]] <- NULL
+              cache[[labData$metaData$name]] <- NULL
               nlpStudioCache$replaceCache(cache)
               nlpStudioCache$saveCache()
             }

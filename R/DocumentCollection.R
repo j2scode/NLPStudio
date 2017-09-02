@@ -153,9 +153,6 @@ DocumentCollection <- R6::R6Class(
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
-      print("************path ****************\n")
-      print(private$..path)
-
       # Create Directory
       dir.create(private$..path)
 
@@ -232,8 +229,8 @@ DocumentCollection <- R6::R6Class(
       cat("\n                       Description:", d$metaData$desc)
       cat("\n                            Parent:", d$metaData$parentName)
       cat("\n                              Path:", d$metaData$path)
-      cat("\n                     Date Modified:", d$metaData$modified)
-      cat("\n                      Date Created:", d$metaData$created)
+      cat("\n                     Date Modified:", format(d$metaData$modified))
+      cat("\n                      Date Created:", format(d$metaData$created))
       cat("\n================================================================================\n")
 
       cat("\n\n================================================================================",
@@ -307,55 +304,42 @@ DocumentCollection <- R6::R6Class(
       return(documents)
     },
 
-    removeDocument = function(name, purge = FALSE) {
+    removeDocument = function(document, purge = FALSE) {
 
-      # Confirm name parameter is not missing
-      if (missing(name)) {
+      # Validate parameters
+      if (missing(document)) {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "removeDocument",
-                 fieldName = "name", value = "", level = "Error",
-                 msg = paste("Name of document is missing with no default.",
+                 fieldName = "document", value = "", level = "Error",
+                 msg = paste("Document is missing with no default.",
                              "See ?DocumentCollection for further assistance."),
                  expect = TRUE)
         stop()
       }
 
-      # Confirm document exists
-      if (!exists(name, envir = .GlobalEnv)) {
-        v <- Validate0$new()
-        v$notify(cls = "DocumentCollection", method = "removeDocument",
-                 fieldName = "name", value = name, level = "Error",
-                 msg = paste("Document does not exist.",
-                             "See ?DocumentCollection for further assistance."),
-                 expect = TRUE)
-        stop()
-      }
-
-      # Get document
-      d <- get(name, envir = .GlobalEnv)
-
-      # Confirm the document is a document or collection
-      classes <- c("Document", "DocumentCollection")
+      # Validate document class
       v <- ValidateClass$new()
       if (v$validate(cls = "DocumentCollection", method = "removeDocument",
-                 fieldName = "name", value = name, level = "Error",
-                 msg = paste("The object named", name,
-                             "is not a valid Document or DocumentCollection",
-                             "object.",
-                             "See ?DocumentCollection"),
-                 expect = classes) == FALSE) {
+               fieldName = "document", value = "", level = "Error",
+               msg = paste("Parameter is not a valid 'Document'",
+                           "or 'DocumentCollection'object.",
+                           "See ?DocumentCollection for further assistance."),
+               expect = c("Document", "DocumentCollection")) == FALSE) {
         stop()
       }
 
+      # Obtain document information
+      documentInfo <- document$getDocument(type = "list")
+
       # Confirm document is not self
-      if (name == private$..name) {
+      if (documentInfo$metaData$name == private$..name) {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "removeDocument",
                  fieldName = "name", value = name, level = "Error",
-                 msg = paste("The object named", name,
+                 msg = paste("Object", documentInfo$metaData$name,
                              "cannot remove itself. Remove operations must",
                              "be performed by the parent object.",
-                             "See ?DocumentCollection"),
+                             "See ?DocumentCollection and ?Lab for further assistance"),
                  expect = NULL)
         stop()
       }
@@ -365,34 +349,29 @@ DocumentCollection <- R6::R6Class(
       nlpArchives$archive(d)
 
       # Remove document from collection
-      private$..documents[[name]] <- NULL
+      private$..documents[[documentInfo$metaData$name]] <- NULL
       private$..modified <- Sys.time()
       nlpStudioCache$setCache(private$..name, self)
 
       # Remove from  memory and disc if purge == TRUE
       if (purge == TRUE) {
 
-        # Get document information
-        d <- d$getDocument(type = "list")
-
         # Remove from disc
-        file.remove(d$path)
+        base::unlink(documentInfo$metaData$path)
 
         # Remove from global environment
-        rm(list = ls(envir = .GlobalEnv)[grep(name,ls(envir = .GlobalEnv))], envir = .GlobalEnv)
+        rm(list = ls(envir = .GlobalEnv)[grep(documentInfo$metaData$name,
+                                              ls(envir = .GlobalEnv))],
+           envir = .GlobalEnv)
 
-        # Remove from cache
-        cache <- nlpStudioCache$loadCache()
-        cache[[name]] <- NULL
-        nlpStudioCache$replaceCache(cache)
-        nlpStudioCache$saveCache()
-
+        # Update Cache
+        nlpStudioCache$setCache(private$..name, self)
       }
     },
 
     addParent = function(parent) {
 
-      if (class(parent) %in% c("DocumentCollection", "Lab")) {
+      if (class(parent)[1] %in% c("DocumentCollection", "Lab")) {
         # Add parent
         private$..parent <- parent
 
