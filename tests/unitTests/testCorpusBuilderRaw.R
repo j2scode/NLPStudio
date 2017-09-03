@@ -11,7 +11,7 @@ testLab <- function() {
     rm(list = ls(envir = .GlobalEnv)[grep("finance", ls(envir = .GlobalEnv))], pos = ".GlobalEnv")
 
 
-    source("./tests/checkCache.r")
+    source("./tests/checkState.r")
     source("./tests/logTests.r")
   }
 
@@ -31,8 +31,8 @@ testLab <- function() {
     # stopifnot((Sys.time() - b$created) < 1)
     # stopifnot((Sys.time() - b$modified) < 1)
     #
-    # # Check cache
-    # stopifnot(checkCache("builder") == TRUE)
+    # # Check state
+    # stopifnot(checkState("builder") == TRUE)
     #
     # # Logit
     # logTests(cls = cls, mthd = "initiate", note = "Successfully instantiated CorpusBuilderRaw")
@@ -57,8 +57,8 @@ testLab <- function() {
     stopifnot((Sys.time() - b$collection$created) < 1)
     stopifnot((Sys.time() - b$collection$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "buildCollection", note = "Successfully instantiated collection")
@@ -100,10 +100,10 @@ testLab <- function() {
     stopifnot(s$desc == "Sports headlines")
     stopifnot(f$desc == "Financial Reports")
 
-    # Check cache
-    stopifnot(checkCache("news") == TRUE)
-    stopifnot(checkCache("sports") == TRUE)
-    stopifnot(checkCache("finance") == TRUE)
+    # Check state
+    stopifnot(checkState("news") == TRUE)
+    stopifnot(checkState("sports") == TRUE)
+    stopifnot(checkState("finance") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "buildDocument", note = "Successfully instantiated documents")
@@ -146,8 +146,8 @@ testLab <- function() {
     stopifnot(b$documents[[2]]$path == "brown")
     stopifnot(b$documents[[3]]$path == "brown")
 
-    # Check cache
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added document to collection")

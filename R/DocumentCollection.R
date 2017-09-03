@@ -156,9 +156,9 @@ DocumentCollection <- R6::R6Class(
       # Create Directory
       dir.create(private$..path)
 
-      # Assign the name to the object in the global environment and update cache
+      # Assign the name to the object in the global environment and update state
       assign(name, self, envir = .GlobalEnv)
-      nlpStudioCache$setCache(key = name, value = self)
+      nlpStudioState$setState(key = name, value = self)
       invisible(self)
     },
 
@@ -260,8 +260,8 @@ DocumentCollection <- R6::R6Class(
       # Update the parent of the document object
       document$addParent(self)
 
-      # Update cache
-      nlpStudioCache$setCache(key = private$..name, value = self)
+      # Update state
+      nlpStudioState$setState(key = private$..name, value = self)
     },
 
     getDocuments = function(type = "list") {
@@ -351,7 +351,7 @@ DocumentCollection <- R6::R6Class(
       # Remove document from collection
       private$..documents[[documentInfo$metaData$name]] <- NULL
       private$..modified <- Sys.time()
-      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioState$setState(private$..name, self)
 
       # Remove from  memory and disc if purge == TRUE
       if (purge == TRUE) {
@@ -364,8 +364,8 @@ DocumentCollection <- R6::R6Class(
                                               ls(envir = .GlobalEnv))],
            envir = .GlobalEnv)
 
-        # Update Cache
-        nlpStudioCache$setCache(private$..name, self)
+        # Update State
+        nlpStudioState$setState(private$..name, self)
       }
     },
 
@@ -382,8 +382,8 @@ DocumentCollection <- R6::R6Class(
         # Update path
         private$..path <- file.path(p$metaData$path, private$..name)
 
-        # Update cache
-        nlpStudioCache$setCache(private$..name, self)
+        # Update state
+        nlpStudioState$setState(private$..name, self)
 
       } else {
         v <- ValidateClass$new()

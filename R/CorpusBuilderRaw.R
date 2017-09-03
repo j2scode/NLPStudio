@@ -189,9 +189,9 @@ CorpusBuilderRaw <- R6::R6Class(
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
 
-      # Assign name in global environment, cache and return self
+      # Assign name in global environment, state and return self
       assign(name, self, .GlobalEnv)
-      nlpStudioCache$setCache(name, self)
+      nlpStudioState$setState(name, self)
       invisible(self)
     },
 
@@ -222,9 +222,9 @@ CorpusBuilderRaw <- R6::R6Class(
                                path = private$..corpusPath,
                                desc = private$..corpusDesc)
 
-      # Assign name in global environment, cache and return self
+      # Assign name in global environment, state and return self
       assign(private$..name, self, .GlobalEnv)
-      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioState$setState(private$..name, self)
       invisible(self)
 
     },
@@ -242,9 +242,9 @@ CorpusBuilderRaw <- R6::R6Class(
       private$..collection$documents[[name]] <-
         Document$new(name, fileName, private$..corpusPath, desc)
 
-      # Assign name in global environment, cache and return self
+      # Assign name in global environment, state and return self
       assign(private$..name, self, .GlobalEnv)
-      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioState$setState(private$..name, self)
       invisible(self)
     },
 

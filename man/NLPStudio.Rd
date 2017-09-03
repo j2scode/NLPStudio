@@ -9,13 +9,17 @@
 NLPStudio
 }
 \arguments{
-\item{name}{A character string containing the studio name}
-
 \item{desc}{A character string containing the studio description}
 
-\item{current}{A logical indicating whether to set the lab current.}
+\item{enter}{A logical indicating whether to enter a lab and to set the lab current.}
 
-\item{lab}{An object of class 'Lab'}
+\item{lab}{An object of class 'Lab'.}
+
+\item{labName}{Character string indicating the name of Lab object.}
+
+\item{name}{A character string containing the studio name.}
+
+\item{type}{A character string indicating the format in which the 'get' methods return results.}
 }
 \description{
 \code{NLPStudio} Class the creates and manages labs.
@@ -26,47 +30,59 @@ directory in which project data reside.  Multiple data labs can be created
 to house separate versions of the data for analysis. Note: This class is a
 singleton pattern. An NLPStudio object called nlpStudio is instantiated at
 load time.  Any subsequent initializations will return the single nlpStudio
-instance.
+instance. There are two sets of methods.  The first set enables clients to
+retrieve information about the NLPStudio object.  The second set allows
+clients to add, remove, enter, and leave labs.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{nlpStudio:}}{The name of the single NLPStudio object created at load time.}
+\item{\code{studioDirs}}{List containing the directories included in the NLPStudio.}
+
+\item{\code{labs}}{List containing the member lab objects}
+
+\item{\code{currentLab}}{An object of the Lab class. This is the currently active Lab object.}
+
+\item{\code{currentLabName}}{Character string containing the name of the current lab.}
+
+\item{\code{created}}{Datetime object indicating when the nlpStudio object was created.}
+
+\item{\code{modified}}{Datetime object indicating when the nlpStudio object was last modified.}
 }}
 
-\section{Methods}{
+\section{NLPStudio Object Methods}{
 
 \describe{
- \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded.}
- \item{\code{getStudio()}}{Retrieves current studio object, returns in list format and prints to console}
- \item{\code{addLab(lab, current)}}{Adds an existing lab to the NLPStudio object list of labs.  If current is set to TRUE, it is also assigned to the 'currentLab' variable.}
- \item{\code{removeLab()}}{Method which archives the lab and removes it from the global environment and from cache.}
- \item{\code{listlabs()}}{Returns a data frame of labs in the NLPStudio and prints them to console}
+ \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
+ \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}#'
+ \item{\code{getStudio(type = "list")}}{Returns the current NLPStudio in a variety of formats. Supported formats (types) include c("object", "list", "df"). The default type is "list".}
+ \item{\code{printStudio()}}{Prints the nlpStudio object and its member objects of the Lab class to the console in data frame format.}
 }
 }
 
-\section{Parameters}{
-
-}
-
-\section{Active Bindings}{
+\section{Lab Methods}{
 
 \describe{
- \item{\code{desc()}}{An active binding that gets and sets the NLPStudio description}
- \item{\code{current()}}{An active binding that gets and sets the current lab. With the exception of the cross-lab classes, all objects act on the current lab. }
+ \item{\code{getLabs(type = "list")}}{Returns the list of member labs in the nlpStudio object in a variety of formats(types).  Supported formats (types) include c("object", "list", "df"). The default type is "list".}
+ \item{\code{addLab(lab, enter = FALSE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
+ \item{\code{removeLab(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
+ \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
+ \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
+ \item{\code{archiveLab(lab)}}{Archives a designated lab.}
+ \item{\code{restoreLab(lab)}}{Restores a designated lab from archive.}
 }
 }
 
 \examples{
 \dontrun{
-nlpStudio$getStudio()
-nlpStudio$desc <- "Homer's NLPStudio"  # Changes the description of the studio
-nlpStudio$addLab("Lisa", current = FALSE)
-nlpStudio$addLab("Bart", current = TRUE)
+nlpStudio$getStudio() # Returns nlpStudio meta data in list format
+nlpStudio$addLab(Lisa, enter = FALSE) # Lisa must be an existing lab. See ?Lab.
+nlpStudio$addLab(Bart, enter = TRUE) # Bart must be an existing lab See ?Lab.
 nlpStudio$removeLab("Bart") # Fails: Cannot remove a current lab
-nlpStudio$currentLab <- "Lisa"
+nlpStudio$enterLab(Lisa)
 nlpStudio$removeLab("Bart") # Success!
-nlpStudio$listlabs()  # Renders a list of labs to console and to data frame
+nlpStudio$getStudio()  # Renders a list of meta data and member labs.
+nlpStudio$printStudio() # Prints meta data and member lab information in data frame format, to console.
 }
 
 }

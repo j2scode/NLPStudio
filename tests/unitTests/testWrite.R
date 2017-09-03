@@ -7,8 +7,8 @@ testWrite <- function() {
     csvPath <<- "./Labs/blue/oxford/raw/contractions.csv"
     rdataPath <<- "./Labs/blue/oxford/raw/quadgrams.Rdata"
 
-    # Source cache and log
-    source("./tests/checkCache.r")
+    # Source state and log
+    source("./tests/checkState.r")
     source("./tests/logTests.r")
   }
 

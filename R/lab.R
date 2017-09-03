@@ -13,26 +13,26 @@
 #' @section Lab Methods:
 #' \describe{
 #'  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
-#'  \item{\code{desc}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
+#'  \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
 #'  \item{\code{getParent(type = object)}}{Method that returns the parent object in object. list, or data frame format. The default is object format.}
 #'  \item{\code{getLab(type = "list")}}{Retrieves the meta data for the Lab, as well as a list of its document collections. The results can be returned in a variety of types (formats). Valid types are c("object", "list", "df"). The default is "list".}
 #'  \item{\code{printLab()}}{Prints the meta data for the Lab object as well as a list of document collections in data frame format.}
 #'  \item{\code{enterLab()}}{Sets a Lab object current in the NLPStudio.}
 #'  \item{\code{leaveLab()}}{Sets the current Lab object in the NLPStudio to "none" .}
-#'  \item{\code{archiveLab}{Archives a Lab object.}
+#'  \item{\code{archiveLab()}}{Archives a Lab object.}
 #' }
 #'
 #' @section Document Methods:
 #' \describe{
 #'  \item{\code{getDocuments(type = "list")}}{Returns a list of documents in a range of formats.  Valid types (formats) are c("object", "list", "df").  The default is "list".}
 #'  \item{\code{addDocument(document)}}{Adds a document to the Lab object's list of document collections.}
-#'  \item{\code{removeDocument(document, purge = FALSE)}}{Removes a document from the Lab object's list of document collections.  If the purge variable is set to TRUE, the Lab object is archived, the document is removed from the global environment, its directory is deleted, and it is removed from cache.}
+#'  \item{\code{removeDocument(document, purge = FALSE)}}{Removes a document from the Lab object's list of document collections.  If the purge variable is set to TRUE, the Lab object is archived, the document is removed from the global environment, its directory is deleted, and it is removed from state.}
 #' }
 #'
 #' @param desc A chararacter string containing the description of the Lab
 #' @param document An object of the DocumentCollection class to be added to the Lab object's list of document collections.
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
-#' @param purge A boolean variable.  Used in the removeDocument method. Indicates whether to purge a document from memory, disk, and cache.
+#' @param purge A boolean variable.  Used in the removeDocument method. Indicates whether to purge a document from memory, disk, and state.
 #' @param type A character string indicating the return format for the "get" methods.  Valid values are c("object", "list", "df")
 #'
 #' @field parent An object of class NLPStudio that contains the Lab object. This is always equal to the singleton object "nlpStudio".
@@ -70,7 +70,7 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioState$setState(private$..name, self)
     }
   ),
 
@@ -135,8 +135,8 @@ Lab <- R6::R6Class(
       # Add lab to NLPStudio
       nlpStudio$addLab(self)
 
-      # Update Cache
-      nlpStudioCache$setCache(name, self)
+      # Update State
+      nlpStudioState$setState(name, self)
 
       invisible(self)
     },
@@ -316,8 +316,8 @@ Lab <- R6::R6Class(
       # Add parent to document
       document$addParent(self)
 
-      # Update Cache
-      nlpStudioCache$setCache(private$..name, self)
+      # Update State
+      nlpStudioState$setState(private$..name, self)
 
       invisible(self)
 
@@ -367,10 +367,10 @@ Lab <- R6::R6Class(
       # Archive before removing document
       nlpArchives$archive(document)
 
-      # Remove collection from lab and update cache
+      # Remove collection from lab and update state
       private$..documents[[documentInfo$metaData$name]] <- NULL
       private$..modified <- Sys.time()
-      nlpStudioCache$setCache(private$..name, self)
+      nlpStudioState$setState(private$..name, self)
 
       if (purge == TRUE) {
 
@@ -384,8 +384,8 @@ Lab <- R6::R6Class(
 
       }
 
-      # Update Cache
-      nlpStudioCache$setCache(private$..name, self)
+      # Update State
+      nlpStudioState$setState(private$..name, self)
 
       invisible(self)
 

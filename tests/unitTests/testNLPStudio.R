@@ -6,8 +6,8 @@ testNLPStudio <- function() {
     if (exists("Development", envir = .GlobalEnv)) rm("Development", envir = .GlobalEnv)
     if (exists("Bart", envir = .GlobalEnv))rm("Bart", envir = .GlobalEnv)
 
-    # Source cache and log
-    source("./tests/testFunctions/checkCache.r")
+    # Source state and log
+    source("./tests/testFunctions/checkState.r")
     source("./tests/testFunctions/logTests.r")
     source("./tests/testFunctions/copyFiles.r")
 
@@ -51,8 +51,8 @@ testNLPStudio <- function() {
     studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio('object')", note = "Successfully returned object.")
@@ -73,8 +73,8 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$metaData$created) > 1)
     stopifnot((Sys.time() - studio$metaData$modified) > 1)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio('list')", note = "Successfully returned list")
@@ -96,8 +96,8 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$metaData$modified[1]) > 1)
     stopifnot(nrow(studio$labs) == 0)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio(type = 'df')", note = "Data frame returned successfully")
@@ -130,9 +130,9 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$metaData$created) > 1)
     stopifnot((Sys.time() - studio$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "addLab", note = "Development lab, entry = FALSE")
@@ -150,9 +150,9 @@ testNLPStudio <- function() {
     studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(type = 'object')", note = "Successfully returned object type")
@@ -178,9 +178,9 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$labs[[1]]$metaData$created) < 1)
     stopifnot((Sys.time() - studio$labs[[1]]$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(type = 'list')", note = "Successfully returned list type")
@@ -207,9 +207,9 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$labs$metaData$created[1]) < 1)
     stopifnot((Sys.time() - studio$labs$metaData$modified[1]) < 1)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(type = 'df')", note = "Successfully returned df type")
@@ -240,10 +240,10 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$metaData$created) > 1)
     stopifnot((Sys.time() - studio$metaData$modified) < 1.5)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
-    stopifnot(checkCache("Bart") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
+    stopifnot(checkState("Bart") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "addLab(enter = 'TRUE')", note = "Successfully added lab")
@@ -260,10 +260,10 @@ testNLPStudio <- function() {
     studio <<- nlpStudio$getStudio(type = "object")
     stopifnot(isTRUE(all.equal(studio, nlpStudio)))
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
-    stopifnot(checkCache("Bart") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
+    stopifnot(checkState("Bart") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio('object')", note = "Successfully returned nlpStudio object")
@@ -295,10 +295,10 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$labs[[2]]$created) < 5)
     stopifnot((Sys.time() - studio$labs[[2]]$modified) < 5)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache("Development") == TRUE)
-    stopifnot(checkCache("Bart") == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState("Development") == TRUE)
+    stopifnot(checkState("Bart") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio('list')", note = "Successfully returned nlpStudio list with two labs")
@@ -331,10 +331,10 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$labs$created[2]) < 5)
     stopifnot((Sys.time() - studio$labs$modified[2]) < 5)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache('Development') == TRUE)
-    stopifnot(checkCache('Bart') == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState('Development') == TRUE)
+    stopifnot(checkState('Bart') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getStudio('df')", note = "Successfully returned df type")
@@ -354,10 +354,10 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$created) > 1)
     stopifnot((Sys.time() - studio$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache('Development') == TRUE)
-    stopifnot(checkCache('Bart') == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState('Development') == TRUE)
+    stopifnot(checkState('Bart') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "enterLab", note = "Successfully notify user when entering a current lab")
@@ -372,10 +372,10 @@ testNLPStudio <- function() {
     studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(studio$metaData$currentLab == "Development")
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache('Development') == TRUE)
-    stopifnot(checkCache('Bart') == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState('Development') == TRUE)
+    stopifnot(checkState('Bart') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "enterLab", note = "Successfully change current lab and notify user of change")
@@ -394,10 +394,10 @@ testNLPStudio <- function() {
     studio <<- nlpStudio$getStudio(type = "list")
     stopifnot(studio$metaData$currentLab == "None")
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache('Development') == TRUE)
-    stopifnot(checkCache('Bart') == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState('Development') == TRUE)
+    stopifnot(checkState('Bart') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "leaveLab", note = "Successfully warned when attempting to leave a non-current lab. No change to current")
@@ -446,9 +446,9 @@ testNLPStudio <- function() {
     # Print archives
     nlpArchives$printArchives()
 
-    # Check cache
-    stopifnot(checkCache("nlpStudio") == TRUE)
-    stopifnot(checkCache('Development') == TRUE)
+    # Check state
+    stopifnot(checkState("nlpStudio") == TRUE)
+    stopifnot(checkState('Development') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "removeLab", note = "Tested validation and removal of lab")
@@ -493,8 +493,8 @@ test16()
 dirs <- nlpStudio$getDirectories()
 lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
 cls <- "NLPStudio"
-cacheFile <- "./NLPSTudio/StudioCache.Rdata"
-base::unlink(cacheFile)
+stateFile <- "./NLPSTudio/.State.Rdata"
+base::unlink(stateFile)
 
 devtools::load_all()
 testNLPStudio()

@@ -23,6 +23,8 @@ Document0
 
 \item{parent}{An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.}
 
+\item{path}{Character string containing the relative directory path to the document.}
+
 \item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
 
 \item{type}{= Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list".}
@@ -52,15 +54,19 @@ The following sections include:
 \section{Fields}{
 
 \describe{
+\item{\code{class}}{Character string indicating the class of the object. This field used to restore objects from archive.}
+
 \item{\code{created}}{A date time variable indicating the date / time the object was created.}
 
 \item{\code{documents}}{A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.}
 
 \item{\code{modified}}{A date time variable indicating the date / time the object was modified.}
 
+\item{\code{parentName}}{Character string indicating the name of the parent object.}
+
 \item{\code{parentTypes}}{A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection". They may be overwritten by subclasses.}
 
-\item{\code{path}}{Character string containing the relative directory path to the document. This is a concatenation of the parent's name (for Lab or DocumentCollection objects), or a file name for Document objects.}
+\item{\code{path}}{Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.}
 }}
 
 \section{Document0 Class Participants}{
@@ -119,7 +125,9 @@ the documents, and are:
  implemented in the Document and Collection subclasses }
  \item{\code{removeDocument(document)}}{Base method for removing documents from
  a collection. Specific behaviors implemented in the Collection composite class}
- \item{\code{addPath(path)}}{Base method for adding a path to a document.
+ \item{\code{addParent(path)}}{Base method for adding the parent object to a document.
+ Specific behaviors implemented in the Collection composite class}
+ \item{\code{getParent(path)}}{Base method for retrieving the parent object for a document.
  Specific behaviors implemented in the Collection composite class}
 }
 }

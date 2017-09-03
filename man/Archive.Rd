@@ -9,39 +9,62 @@
 Archive
 }
 \arguments{
-\item{object}{\describe{
- \item{object$name}{Character string with name of the object}
- \item{object$desc}{Character string with description of the object e.g. "development-environment-archive"}
- \item{object$path}{Character string containing the directory containing the object}
-}}
+\item{archiveName}{Character string containing the name of the archive for an object in name-YYYY-MM-DD-## format.}
+
+\item{object}{Object of the "Corpus", "Document", "DocumentCollection", or "Lab" class to be archived.}
+
+\item{objectName}{String containing the name of the object archived.}
+
+\item{type}{Character string indicating the format in which the getArchives method returns the archive information. Valid values are c("list" "df", "object"). The default is "list".}
 }
 \description{
-\code{Archive} Abstract class for archiving objects in the NLPStudio
+\code{Archive} Class for archiving and restoring objects in the NLPStudio
 }
 \details{
-This abstract class defines the methods used by the concrete classes for
-archiving objects in the NLPStudio
+\strong{Archive Class Overview:}
+
+The Archive class manages the process of archiving and restoring objects
+in the NLPStudio. An object of the Archive class is instantiated the first
+time the package is loaded. Thereafter, the object is saved and recovered
+from state at load time. The Archive object maintains a list of objects that
+were archived. The object files are compressed and stored in the
+Archives sub directory.
 }
-\section{Method}{
+\section{Fields}{
 
 \describe{
- \item{\code{new()}}{Creates an object of class Archive}
- \item{\code{archive(object)}}{Archives the object in the NLPStudio archive subdirectory }
+\item{\code{archiveFileName}}{Character string indicating the name of the archive containing the object's files.}
+
+\item{\code{created}}{Date/time object indicating the date and time the archive was created.}
+
+\item{\code{seq}}{Integer containing the sequence number for the archive of an object completed on a single day.}
+}}
+
+\section{Archive Class Collaborators}{
+
+The collaborators of the Archive class are:
+\itemize{
+ \item Lab: Class in which NLP takes place. The class contains objects of the DocumentCollection class.
+ \item Document0: Strategy class defining and encapsulating interfaces and algorithms for managing members of this composite class.
+ \item DocumentCollection: Composite class containing objects of the Document class.
+ \item Document: Leaf class of the Document objects.
+ }
+}
+
+\section{Archive Methods}{
+
+The archive methods are as follows:
+\itemize{
+ \item{\code{new()}}{Instantiates an object of the Archive class.  This object is instantiated the first time the package is loaded.}
+ \item{\code{archive(object)}}{Method that archives an object.  The object is stored in a list within the Archive object. The files are compressed and stored in the Archive subdirectory.}
+ \item{\code{getArchives(object, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the name parameter.}
+ \item{\code{printArchives(objectName = 'all')}}{Method for printing to console the meta data for a specific archive or a list of archives for the object matching the object name parameter. The default is to print all archives.}
+ \item{\code{searchArchives(objectName, type = "list")}}{Method for retrieving the meta data for a specific archive or a list of archives for the object matching the object name parameter.}
+ \item{\code{restoreArchive(archiveName)}}{Method for restoring an object from archive. It requires the archive name in the name-YYYY-MM-DD-## format, where ## is a sequence number.}
 }
 }
 
-\section{Parameters}{
-
-}
-
-\examples{
-\dontrun{
-a <- archive$new()
-a$archive0("development")
-}
-
-}
 \author{
-John James, \email{j2sdatalab@gmail.com}
+John James, \email{jjames@datasciencesalon.org}
 }
 \keyword{datasets}

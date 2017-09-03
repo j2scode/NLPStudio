@@ -13,8 +13,8 @@ testDocument <- function() {
       rm(list = ls(envir = .GlobalEnv)[grep("finance", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
     }
 
-    # Source cache and log
-    source("./tests/checkCache.r")
+    # Source state and log
+    source("./tests/checkState.r")
     source("./tests/logTests.r")
   }
 
@@ -61,10 +61,10 @@ testDocument <- function() {
     stopifnot((Sys.time() - f$modified) < 1)
     stopifnot((Sys.time() - f$created) < 1)
 
-    # Check Cache
-    stopifnot(checkCache('news') == TRUE)
-    stopifnot(checkCache('sports') == TRUE)
-    stopifnot(checkCache('finance') == TRUE)
+    # Check State
+    stopifnot(checkState('news') == TRUE)
+    stopifnot(checkState('sports') == TRUE)
+    stopifnot(checkState('finance') == TRUE)
 
 
     # Logit
@@ -138,8 +138,8 @@ testDocument <- function() {
     stopifnot(n$path == "./Labs/blue/oxford")
     stopifnot(n$created < n$modified)
 
-    # Check Cache
-    stopifnot(checkCache('news') == TRUE)
+    # Check State
+    stopifnot(checkState('news') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "path", note = "Blocked invalid path")
@@ -160,8 +160,8 @@ testDocument <- function() {
     content <<- news$readDocument(ReadBin$new())
     stopifnot(object.size(content) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
@@ -183,8 +183,8 @@ testDocument <- function() {
     content2 <<- news$readDocument(ReadBin$new())
     stopifnot(object.size(content2) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
@@ -206,8 +206,8 @@ testDocument <- function() {
     content <<- news$readDocument(ReadText$new())
     stopifnot(object.size(content) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
@@ -229,8 +229,8 @@ testDocument <- function() {
     content2 <<- news$readDocument(ReadText$new())
     stopifnot(object.size(content2) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
@@ -251,8 +251,8 @@ testDocument <- function() {
     content <<- news$readDocument(ReadCsv$new())
     stopifnot(object.size(content) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
@@ -274,8 +274,8 @@ testDocument <- function() {
     content2 <<- news$readDocument(ReadCsv$new())
     stopifnot(object.size(content2) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
@@ -297,8 +297,8 @@ testDocument <- function() {
     content <<- news$readDocument(ReadRdata$new())
     stopifnot(object.size(content) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
@@ -320,8 +320,8 @@ testDocument <- function() {
     content2 <<- news$readDocument(ReadRdata$new())
     stopifnot(object.size(content2) > 100000)
 
-    # Check Cache
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check State
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")

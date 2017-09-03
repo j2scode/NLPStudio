@@ -55,11 +55,19 @@ The following sections include:
 \section{Fields}{
 
 \describe{
+\item{\code{class}}{Character string indicating the class of the object. This field used to restore objects from archive.}
+
 \item{\code{created}}{A date time variable indicating the date / time the object was created.}
 
-\item{\code{documents}}{A list of objects of the Document class, maintained within the DocumentCollection class.}
+\item{\code{documents}}{A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.}
 
 \item{\code{modified}}{A date time variable indicating the date / time the object was modified.}
+
+\item{\code{parentName}}{Character string indicating the name of the parent object.}
+
+\item{\code{parentTypes}}{A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection".}
+
+\item{\code{path}}{Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.}
 }}
 
 \section{Document0 Class Participants}{

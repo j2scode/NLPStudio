@@ -158,7 +158,7 @@ Document <- R6::R6Class(
       private$..modified <- Sys.time()
 
       assign(name, self, envir = .GlobalEnv)
-      nlpStudioCache$setCache(key = name, value = self)
+      nlpStudioState$setState(key = name, value = self)
       invisible(self)
 
     },
@@ -287,8 +287,8 @@ Document <- R6::R6Class(
         # Update path
         private$..path <- file.path(p$metaData$path, private$..name)
 
-        # Update cache
-        nlpStudioCache$setCache(private$..name, self)
+        # Update state
+        nlpStudioState$setState(private$..name, self)
 
       } else {
         v <- ValidateClass$new()

@@ -20,8 +20,8 @@ testLab <- function() {
 
     if (dir.exists("./NLPStudio/Labs/blue") == TRUE) base::unlink("./NLPStudio/Labs/blue", recursive = TRUE)
 
-    # Source cache and log
-    source("./tests/testFunctions/checkCache.r")
+    # Source state and log
+    source("./tests/testFunctions/checkState.r")
     source("./tests/testFunctions/logTests.r")
     source("./tests/testFunctions/copyFiles.r")
   }
@@ -64,8 +64,8 @@ testLab <- function() {
     stopifnot(isTRUE(all.equal(lab, blue)))
     stopifnot("Lab" %in% class(blue))
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab('object')", note = "Successfully returned object.")
@@ -87,8 +87,8 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) > 1)
     stopifnot((Sys.time() - lab$metaData$modified) > 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned list")
@@ -109,8 +109,8 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$labDf$modified[1]) > 1)
     stopifnot(nrow(lab$documentsDf) == 0)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(format = 'df')", note = "Data frame returned successfully")
@@ -141,9 +141,9 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) > 1)
     stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "addDocument", note = "Created collection and added to lab")
@@ -169,9 +169,9 @@ testLab <- function() {
       stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
     }
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(format = 'object')", note = "Successfully returned object type")
@@ -195,9 +195,9 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$documents[[1]]$created) < 1.5)
     stopifnot((Sys.time() - lab$documents[[1]]$modified) < 1.5)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(format = 'list')", note = "Successfully returned list type with added collection")
@@ -222,9 +222,9 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$documentsDf$created[1]) < 1)
     stopifnot((Sys.time() - lab$documentsDf$modified[1]) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab(format = 'df')", note = "Successfully returned df type")
@@ -252,10 +252,10 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) > 1)
     stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
-    stopifnot(checkCache("oxford") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
+    stopifnot(checkState("oxford") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "addDocument(oxford)", note = "Successfully added 2nd collection")
@@ -280,10 +280,10 @@ testLab <- function() {
     }
     stopifnot(i == 2)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
-    stopifnot(checkCache("oxford") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
+    stopifnot(checkState("oxford") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab('object')", note = "Successfully returned blue object")
@@ -312,10 +312,10 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$documents[[2]]$created) < 2)
     stopifnot((Sys.time() - lab$documents[[2]]$modified) < 2)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
-    stopifnot(checkCache("oxford") == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
+    stopifnot(checkState("oxford") == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned blue list with two documents")
@@ -345,10 +345,10 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$documentsDf$created[2]) < 1)
     stopifnot((Sys.time() - lab$documentsDf$modified[2]) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache('brown') == TRUE)
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState('brown') == TRUE)
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "getLab('df')", note = "Successfully returned df type with 2 documents")
@@ -388,10 +388,10 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) > 1)
     stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    stopifnot(checkCache("brown") == TRUE)
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    stopifnot(checkState("brown") == TRUE)
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "removeLab", note = "Remove lab, purge = FALSE, tested")
@@ -447,10 +447,10 @@ testLab <- function() {
     stopifnot((Sys.time() - lab$metaData$created) > 1)
     stopifnot((Sys.time() - lab$metaData$modified) < 1)
 
-    # Check cache
-    stopifnot(checkCache("blue") == TRUE)
-    #stopifnot(checkCache("penn") == TRUE) # should fail, not existing in cache: success
-    stopifnot(checkCache('oxford') == TRUE)
+    # Check state
+    stopifnot(checkState("blue") == TRUE)
+    #stopifnot(checkState("penn") == TRUE) # should fail, not existing in state: success
+    stopifnot(checkState('oxford') == TRUE)
 
     # Logit
     logTests(cls = cls, mthd = "removeLab", note = "Remove lab, purge = TRUE, tested")

@@ -10,7 +10,7 @@
 #' The Archive class manages the process of archiving and restoring objects
 #' in the NLPStudio. An object of the Archive class is instantiated the first
 #' time the package is loaded. Thereafter, the object is saved and recovered
-#' from cache at load time. The Archive object maintains a list of objects that
+#' from state at load time. The Archive object maintains a list of objects that
 #' were archived. The object files are compressed and stored in the
 #' Archives sub directory.
 #'
@@ -77,8 +77,8 @@ Archive <- R6::R6Class(
             # Assign name in global environment
             assign(private$..name, self, envir = .GlobalEnv)
 
-            # Cache
-            nlpStudioCache$setCache(key = private$..name, value = self)
+            # State
+            nlpStudioState$setState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -164,9 +164,9 @@ Archive <- R6::R6Class(
             private$..archives[[archiveName]]$object <- as.environment(as.list(object, all.names = TRUE))
             private$..archives[[archiveName]]$created <- Sys.time()
 
-            # Note date modified and store in cache.
+            # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioCache$setCache(key = private$..name, value = self)
+            nlpStudioState$setState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -352,10 +352,10 @@ Archive <- R6::R6Class(
             # Create object
             assign(objectData$metaData$name, object, envir = .GlobalEnv)
 
-            # Note date modified and store in cache.
+            # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioCache$setCache(key = objectData$metaData$name, value = object)
-            nlpStudioCache$setCache(key = private$..name, value = self)
+            nlpStudioState$setState(key = objectData$metaData$name, value = object)
+            nlpStudioState$setState(key = private$..name, value = self)
 
             invisible(object)
           }
