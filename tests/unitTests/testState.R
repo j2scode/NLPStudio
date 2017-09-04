@@ -8,6 +8,8 @@ testState <- function() {
     if (dir.exists(archiveDir)) unlink(archiveDir, recursive = TRUE)
     if (dir.exists(labsDir)) unlink(labsDir, recursive = TRUE)
     if (file.exists(stateFile)) file.remove(stateFile)
+
+    nlpStudioState <<- StateManager$new()$getInstance()
   }
 
   # Test 0: Set and get state
@@ -42,7 +44,7 @@ testState <- function() {
     stopifnot(nlpStudioState$lsState() == character(0))
     rm(nlpStudioState, envir = .GlobalEnv)
 
-    nlpStudioState <<- StudioState$new()$getInstance()
+    nlpStudioState <<- StateManager$new()$getInstance()
     nlpStudioState$loadState()
     stopifnot(class(nlpStudioState$getState("Lab")) ==  "R6ClassGenerator")
     stopifnot(class(nlpStudioState$getState("swipe")) ==  "function")

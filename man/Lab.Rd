@@ -51,7 +51,7 @@ the contained documents, add a document, and remove a document.
 \describe{
  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
  \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
- \item{\code{getParent(type = object)}}{Method that returns the parent object in object. list, or data frame format. The default is object format.}
+ \item{\code{getName}}{Method that returns the name of the current object.}
  \item{\code{getLab(type = "list")}}{Retrieves the meta data for the Lab, as well as a list of its document collections. The results can be returned in a variety of types (formats). Valid types are c("object", "list", "df"). The default is "list".}
  \item{\code{printLab()}}{Prints the meta data for the Lab object as well as a list of document collections in data frame format.}
  \item{\code{enterLab()}}{Sets a Lab object current in the NLPStudio.}

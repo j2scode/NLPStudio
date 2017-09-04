@@ -50,6 +50,7 @@
 #' \itemize{
 #'  \item{\code{new(name, path, fileName, desc)}}{Method for instantiating
 #'  an object of the Document class.}
+#'  \item{\code{getName()}}{Method for retrieving the name of the current object.}
 #'  \item{\code{getDocument()}}{Method for retrieving the meta data for
 #'  a document. }
 #'  \item{\code{printDocument()}}{Method for printing the meta data for a
@@ -100,10 +101,6 @@ Document <- R6::R6Class(
   inherit = Document0,
   lock_objects = FALSE,
   lock_class = FALSE,
-
-  private = list(
-    ..class = "Document"
-  ),
 
   public = list(
 
@@ -163,59 +160,19 @@ Document <- R6::R6Class(
 
     },
 
-    getDocument = function(type = "list") {
+    getDocument = function() {
 
-      getObject <- function() {
-        return(self)
-      }
-
-      getList <- function() {
-        document <- list(
-          metaData = list(
-            name = private$..name,
-            class = private$..class,
-            parent = private$..parentName,
-            path = private$..path,
-            fileName = private$..fileName,
-            desc = private$..desc,
-            modified = private$..modified,
-            created = private$..created
-          ),
-          documents = list()
-        )
-        return(document)
-      }
-
-      getDf <- function() {
-        document = list(
-          metaData <- data.frame(name = private$..name,
-                                 class = private$..class,
-                                 parent = private$..parentName,
-                                 path = private$..path,
-                                 fileName = private$..fileName,
-                                 desc = private$..desc,
-                                 modified = private$..modified,
-                                 created = private$..created,
-                                 stringsAsFactors = FALSE),
-          documents = data.frame()
-        )
-        return(document)
-      }
-
-      if (format == "object") {document <- getObject()}
-      else if (format == "list") {document <- getList()}
-      else if (format == "df") {document <- getDf()}
-      else {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "getDocument",
-                 fieldName = "type", value = type, level = "Warn",
-                 msg = paste("Invalid type requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "Document returned in 'list' format.",
-                             "See ?Document"),
-                 expect = NULL)
-        document <- getList()
-      }
+      document <- list (
+        name = private$..name,
+        desc = private$..desc,
+        parent = private$..parent,
+        parentName = private$..parentName,
+        path = private$..path,
+        fileName = private$..fileName,
+        content = private$..content,
+        created = private$..created,
+        modified = private$..modified
+      )
       return(document)
     },
 

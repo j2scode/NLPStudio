@@ -14,7 +14,7 @@
 #' \describe{
 #'  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
 #'  \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
-#'  \item{\code{getParent(type = object)}}{Method that returns the parent object in object. list, or data frame format. The default is object format.}
+#'  \item{\code{getName}}{Method that returns the name of the current object.}
 #'  \item{\code{getLab(type = "list")}}{Retrieves the meta data for the Lab, as well as a list of its document collections. The results can be returned in a variety of types (formats). Valid types are c("object", "list", "df"). The default is "list".}
 #'  \item{\code{printLab()}}{Prints the meta data for the Lab object as well as a list of document collections in data frame format.}
 #'  \item{\code{enterLab()}}{Sets a Lab object current in the NLPStudio.}
@@ -50,7 +50,6 @@
 Lab <- R6::R6Class(
   classname = "Lab",
   private = list(
-    ..class = "Lab",
     ..name = character(0),
     ..desc = character(0),
     ..parent = character(0),
@@ -141,99 +140,57 @@ Lab <- R6::R6Class(
       invisible(self)
     },
 
-    getParent = function(type = "object") {
-
-      if (type == "object") {
-        private$..parent
-      } else if (type == "list") {
-        private$..parent(getStudio(type = "list"))
-      } else if (type == "df") {
-        private$..parent(getStudio(type = "df"))
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getLab",
-                 fieldName = "type", value = type, level = "Warn",
-                 msg = paste("Invalid format requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "Parent is returned in 'list' format",
-                             "See ?Lab"),
-                 expect = NULL)
-        private$..parent(getStudio(type = "list"))
-      }
-    },
-
     getLab = function(type = "list") {
 
-      getObject <- function() {
-        return(self)
-      }
-
-      getList <- function() {
-        lab = list(
-          metaData = list(
-            name = private$..name,
-            class = private$..class,
-            desc = private$..desc,
-            parentName = private$..parentName,
-            path = private$..path,
-            modified = private$..modified,
-            created = private$..created
-          ),
-          documents = self$getDocuments(type = "list")
-        )
-        return(lab)
-      }
-
-      getDf <- function() {
-        lab = list(
-          metaData = data.frame(name = private$..name,
-                                class = private$..class,
-                                desc = private$..desc,
-                                parentName = private$..parentName,
-                                path = private$..path,
-                                modified = private$..modified,
-                                created = private$..created,
-                                stringsAsFactors = FALSE),
-          documents = self$getDocuments(type = "df")
-        )
-        return(lab)
-      }
-
-      if (type == "object") {lab <- getObject()}
-      else if (type == "list") {lab <- getList()}
-      else if (type == "df") {lab <- getDf()}
+      if (type == "object") lab <- self
       else {
+        lab = list(
+          name = private$..name,
+          class = private$..class,
+          desc = private$..desc,
+          parentName = private$..parentName,
+          path = private$..path,
+          modified = private$..modified,
+          created = private$..created
+        )
+      }
+
+      if (type == "df") {
+        lab <- as.data.frame(lab)
+      }
+
+      if (!(type %in% c("object", "list", "df"))) {
+
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "getLab",
                  fieldName = "type", value = type, level = "Warn",
-                 msg = paste("Invalid format requested.",
+                 msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
-                             "Lab is returned in 'list' format",
+                             "Returning 'list' format.",
                              "See ?Lab"),
                  expect = NULL)
-        lab <- getList()
       }
-
       return(lab)
     },
 
     printLab = function() {
 
-      lab <- self$getLab(type = "df")
+      lab <- self$getLab(type = "list")
 
       cat("\n\n================================================================================",
           "\n--------------------------------------Lab----------------------------------------")
-      cat("\n                              Name:", lab$metaData$name)
-      cat("\n                       Description:", lab$metaData$desc)
-      cat("\n                            Parent:", lab$metaData$parentName)
-      cat("\n                              Path:", lab$metaData$path)
-      cat("\n                     Date Modified:", format(lab$metaData$modified))
-      cat("\n                      Date Created:", format(lab$metaData$created))
+      cat("\n                              Name:", lab$name)
+      cat("\n                       Description:", lab$desc)
+      cat("\n                            Parent:", lab$parentName)
+      cat("\n                              Path:", lab$path)
+      cat("\n                     Date Modified:", format(lab$modified))
+      cat("\n                      Date Created:", format(lab$created))
       cat("\n================================================================================\n")
 
+      documents <- self$getDocuments(type = "df")
       cat("\n\n================================================================================")
       cat("\n-------------------------Document Collections(s)--------------------------------\n")
-      print.data.frame(lab$documents)
+      print.data.frame(documents)
       cat("\n================================================================================\n")
     },
 
@@ -245,53 +202,30 @@ Lab <- R6::R6Class(
       nlpStudio$leaveLab(self)
     },
 
-    archiveLab = function() {
-
-      a <- Archive$new()
-      a$archive(self)
-
-    },
-
     #-------------------------------------------------------------------------#
     #                         Document Methods                                #
     #-------------------------------------------------------------------------#
 
     getDocuments = function(type = "list") {
 
-      getObject <- function() {
-        documents = lapply(private$..documents, function(d) d)
-        return(documents)
-      }
-
-      getList <- function() {
-        documents = lapply(private$..documents, function(d) {
-          document <- d$getDocument(type = "list")
-          document$metaData
-        })
-        return(documents)
-      }
-
-      getDf <- function() {
-        documents = rbindlist(lapply(private$..documents, function(d) {
-          document <- d$getDocument(type = "list")
-          document$metaData
-        }))
-        return(documents)
-      }
-
-      if (type == "object") {documents <- getObject() }
-      else if (type == "list") {documents <- getList() }
-      else if (type == "df") {documents <- getDf()}
+      if (type == "object") documents <- private$..documents
       else {
+        documents = lapply(private$..documents, function(d) {
+          d$getDocument(type = "list")
+        })
+      }
+
+      if (type == "df") documents <- as.data.frame(documents)
+
+      if (!(type %in% c("object", "list", "df"))) {
         v <- Validate0$new()
         v$notify(cls = "Lab", method = "getDocuments",
-                 fieldName = "format", value = format, level = "Warn",
+                 fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
                              "Documents returned in 'list' format.",
                              "See ?Lab"),
                  expect = NULL)
-        documents <- getList()
       }
       return(documents)
     },

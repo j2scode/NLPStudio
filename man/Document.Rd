@@ -98,6 +98,7 @@ The core methods for the Document class are as follows:
 \itemize{
  \item{\code{new(name, path, fileName, desc)}}{Method for instantiating
  an object of the Document class.}
+ \item{\code{getName()}}{Method for retrieving the name of the current object.}
  \item{\code{getDocument()}}{Method for retrieving the meta data for
  a document. }
  \item{\code{printDocument()}}{Method for printing the meta data for a

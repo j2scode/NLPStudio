@@ -417,7 +417,7 @@ testNLPStudio <- function() {
     #nlpStudio$removeLab("Development")# fail, can't remove current lab
 
     # Successfuly remove Bart
-    nlpStudio$removeLab("Bart", purge = TRUE)
+    nlpStudio$removeLab(Bart, purge = TRUE)
     stopifnot(exists("Bart") == FALSE)
     stopifnot(exists("Development") == TRUE)
 

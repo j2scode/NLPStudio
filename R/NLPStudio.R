@@ -77,7 +77,7 @@ NLPStudio <- R6::R6Class(
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
             studio = "./NLPStudio",
-            archives = "./NLPStudio/Snapshots",
+            snapshots = "./NLPStudio/Snapshots",
             labs = "./NLPStudio/Labs",
             log = "./NLPStudio/Log"
             ),
@@ -345,10 +345,8 @@ NLPStudio <- R6::R6Class(
             # Obtain lab meta data
             labData <- lab$getLab(type = "list")
 
-            # TODO: Cycle through collections, setting parent to "None"
-
             # Remove lab from nlpStudio and update the modified time.
-            private$..labs[[lab$metaData$name]] <- NULL
+            private$..labs[[labData$metaData$name]] <- NULL
             private$..modified <- Sys.time()
             nlpStudioState$setState(private$..name, self)
 
@@ -366,8 +364,6 @@ NLPStudio <- R6::R6Class(
               # Remove from state
               state <- nlpStudioState$loadState()
               state[[labData$metaData$name]] <- NULL
-              nlpStudioState$replaceState(state)
-              nlpStudioState$saveState()
             }
           },
 

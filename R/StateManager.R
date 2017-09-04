@@ -41,12 +41,7 @@ StateManager <- R6::R6Class(
         classname = "StateManager",
         private = list(
           ..state = character(0),
-          ..stateFile = "./NLPStudio/.State.Rdata",
-
-          saveState = function() {
-            nlpStudioState <- lapply(private$..state, function(c) c)
-            save(nlpStudioState, file = private$..stateFile)
-          }
+          ..stateFile = "./NLPStudio/.State.Rdata"
         ),
         public = list(
           initialize = function() private$..state <- new.env(parent = emptyenv()),
@@ -54,13 +49,18 @@ StateManager <- R6::R6Class(
 
           setState = function(key, value) {
             private$..state[[key]] <- value
-            private$saveState()
+            self$saveState()
           },
 
           loadState = function() {
             load(file = private$..stateFile)
             private$..state <- nlpStudioState
             return(nlpStudioState)
+          },
+
+          saveState = function() {
+            nlpStudioState <- lapply(private$..state, function(c) c)
+            save(nlpStudioState, file = private$..stateFile)
           },
 
           restoreState = function() {

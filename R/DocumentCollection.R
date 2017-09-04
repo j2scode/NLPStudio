@@ -53,6 +53,7 @@
 #'  an object of the Document and  DocumentCollection classes. File name is
 #'  only only required of objects of the Document class.
 #'  Specific behaviors implemented in the Collection subclasses }
+#'  \item{\code{getName()}}{Base method for retrieving the name of the current object.}
 #'  \item{\code{getDocument()}}{Base method for retrieving the meta data for
 #'  a document. Objects of the DocumentCollection class also return a
 #'  list of contained objects of the Document class. Specific behaviors
@@ -111,10 +112,6 @@ DocumentCollection <- R6::R6Class(
   classname = "DocumentCollection",
   inherit = Document0,
 
-  private = list(
-    ..class = "DocumentCollection"
-  ),
-
   public = list(
     #-------------------------------------------------------------------------#
     #                            Core Methods                                 #
@@ -164,47 +161,23 @@ DocumentCollection <- R6::R6Class(
 
     getDocument = function(type = "list") {
 
-      getObject <- function() {
-        document <- self
-        return(document)
-      }
-
-      getList <- function() {
-        document = list(
-          metaData = list(
-            name = private$..name,
-            class = private$..class,
-            parentName = private$..parentName,
-            path = private$..path,
-            desc = private$..desc,
-            modified = private$..modified,
-            created = private$..created
-          ),
-          documents = self$getDocuments(type = "list")
-        )
-        return(document)
-      }
-
-      getDf <- function() {
-        document = list(
-          metaData = data.frame(name = private$..name,
-                                class = private$..class,
-                                parentName = private$..parentName,
-                                path = private$..path,
-                                fileName = private$..fileName,
-                                desc = private$..desc,
-                                modified = private$..modified,
-                                created = private$..created,
-                                stringsAsFactors = FALSE),
-          documents = self$getDocuments(type = "df")
-        )
-        return(document)
-      }
-
-      if (type == "object") { document <- getObject() }
-      else if (type == "list") { document <- getList() }
-      else if (type == "df") { document <- getDf() }
+      if (type == "object") document <- self
       else {
+        document = list(
+          name = private$..name,
+          parentName = private$..parentName,
+          path = private$..path,
+          desc = private$..desc,
+          modified = private$..modified,
+          created = private$..created
+        )
+      }
+
+      if (type == "df") {
+        document <- as.data.frame(document)
+      }
+
+      if (!(type %in% c("object", "list", "df"))) {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "getDocument",
                  fieldName = "type", value = type, level = "Warn",
@@ -213,7 +186,6 @@ DocumentCollection <- R6::R6Class(
                              "Returning 'list' format.",
                              "See ?DocumentCollection"),
                  expect = NULL)
-        document <- getList()
       }
       return(document)
     },
@@ -221,27 +193,53 @@ DocumentCollection <- R6::R6Class(
 
     printDocument = function() {
 
-      d <- self$getDocument(type = "df")
+      d <- self$getDocument(type = "list")
 
       cat("\n\n================================================================================",
           "\n---------------------------Document Collection-----------------------------------")
-      cat("\n                              Name:", d$metaData$name)
-      cat("\n                       Description:", d$metaData$desc)
-      cat("\n                            Parent:", d$metaData$parentName)
-      cat("\n                              Path:", d$metaData$path)
-      cat("\n                     Date Modified:", format(d$metaData$modified))
-      cat("\n                      Date Created:", format(d$metaData$created))
+      cat("\n                              Name:", d$name)
+      cat("\n                       Description:", d$desc)
+      cat("\n                            Parent:", d$parentName)
+      cat("\n                              Path:", d$path)
+      cat("\n                     Date Modified:", format(d$modified))
+      cat("\n                      Date Created:", format(d$created))
       cat("\n================================================================================\n")
 
+      d <- getDocuments(type = "df")
       cat("\n\n================================================================================",
           "\n--------------------------------Documents----------------------------------------\n")
-      print.data.frame(d$documents)
+      print.data.frame(d)
       cat("\n#===============================================================================#\n\n")
     },
 
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
+
+    getDocuments = function(type = "list") {
+
+      if (type == "object") documents <- private$..documents
+      else {
+        documents = lapply(private$..documents, function(d) {
+          d$getDocument(type = "list")
+        })
+      }
+
+      if (type == "df") documents <- as.data.frame(documents)
+
+      if (!(type %in% c("object", "list", "df"))) {
+        v <- Validate0$new()
+        v$notify(cls = "DocumentCollection", method = "getdocuments",
+                 fieldName = "type", value = type, level = "Warn",
+                 msg = paste("Invalid type requested.",
+                             "Must be 'object', 'list', or 'df'.",
+                             "Returning 'list' format",
+                             "See ?DocumentCollection"),
+                 expect = NULL)
+      }
+      return(documents)
+    },
+
     addDocument = function(document) {
 
       # Validate document
@@ -262,46 +260,6 @@ DocumentCollection <- R6::R6Class(
 
       # Update state
       nlpStudioState$setState(key = private$..name, value = self)
-    },
-
-    getDocuments = function(type = "list") {
-
-      getObject <- function() {
-        documents = lapply(private$..documents, function(d) d)
-        return(documents)
-      }
-
-      getList <- function() {
-        documents = lapply(private$..documents, function(d) {
-          document <- d$getDocument(type = "list")
-          document$metaData
-        })
-        return(documents)
-      }
-
-      getDf <- function() {
-        documents = rbindlist(lapply(private$..documents, function(d) {
-          document <- d$getDocument(type = "list")
-          document$metaData
-        }))
-        return(documents)
-      }
-
-      if (type == "object") { documents <- getObject() }
-      else if (type == "list") { documents <- getList() }
-      else if (type == "df") { documents <- getDf() }
-      else {
-        v <- Validate0$new()
-        v$notify(cls = "DocumentCollection", method = "getdocuments",
-                 fieldName = "type", value = type, level = "Warn",
-                 msg = paste("Invalid type requested.",
-                             "Must be 'object', 'list', or 'df'.",
-                             "Returning 'list' format",
-                             "See ?DocumentCollection"),
-                 expect = NULL)
-        documents <- getList()
-      }
-      return(documents)
     },
 
     removeDocument = function(document, purge = FALSE) {

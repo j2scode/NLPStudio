@@ -52,6 +52,7 @@
 #'  an object of the Document and  DocumentCollection classes. File name is
 #'  only only required of objects of the Document class.
 #'  Specific behaviors implemented in the Collection subclasses }
+#'  \item{\code{getName()}}{Base method for retrieving the name of the current object.}
 #'  \item{\code{getDocument()}}{Base method for retrieving the meta data for
 #'  a document. Objects of the DocumentCollection class also return a
 #'  list of contained objects of the Document class. Specific behaviors
@@ -117,7 +118,6 @@ Document0 <- R6::R6Class(
   lock_class = FALSE,
 
   private = list(
-    ..class = "Document0",
     ..content = character(0),
     ..desc = character(0),
     ..fileName = character(0),
@@ -137,6 +137,7 @@ Document0 <- R6::R6Class(
 
     # Core Methods
     initialize = function() stop("Method is not available from Document0, an abstract class!"),
+    getName = function() private$..name,
     getDocument = function() stop("Method is not available from Document0, an abstract class!"),
     printDocument = function() stop("Method is not available from Document0, an abstract class!"),
 

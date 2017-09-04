@@ -250,7 +250,7 @@ testLab <- function() {
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
@@ -379,7 +379,7 @@ testLab <- function() {
     # Confirm document exists in archive
     archives <- nlpArchives$getArchives(type = "list")
     stopifnot(archives[[1]]$objectName == "oxford")
-    stopifnot(archives[[1]]$archiveName == "oxford-2017-09-02-1")
+    stopifnot(archives[[1]]$archiveName == "oxford-2017-09-03-1")
     stopifnot(archives[[1]]$seqNum == 1)
     stopifnot(archives[[1]]$numFiles == 4)
 
@@ -437,7 +437,7 @@ testLab <- function() {
     # Confirm Archived
     archives <- nlpArchives$getArchives(type = "list")
     stopifnot(archives[[2]]$objectName == "penn")
-    stopifnot(archives[[2]]$archiveName == "penn-2017-09-02-1")
+    stopifnot(archives[[2]]$archiveName == "penn-2017-09-03-1")
     stopifnot(archives[[2]]$numFiles == 4)
     stopifnot(archives[[2]]$seqNum == 1)
     stopifnot(as.Date(archives[[2]]$created) == as.Date(Sys.time()))
@@ -445,7 +445,7 @@ testLab <- function() {
     # Confirm date modified updated correctly
     lab <- blue$getLab(type = "list")
     stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
