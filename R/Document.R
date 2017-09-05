@@ -6,91 +6,45 @@
 #' \code{Document} Class for instantiating,returning and printing individual
 #' Document objects within objects of the DocumentCollection class.
 #'
-#' \strong{Document0 Class Overview:}
+#' \strong{Document Class Overview:}
 #'
-#' The Document0 family of classes is an implementation of the composite
-#' pattern documented in the book "Design Patterns: Elements of Reusable
+#' The Document class is component part of the Document0 composite class. This
+#' pattern is documented in the book "Design Patterns: Elements of Reusable
 #' Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 #' and John Vlissides (hence Gang of Four). This pattern allows composite
 #' and individual objects to be treated uniformly.
 #'
-#' The following sections include:
+#' \strong{Document Core Methods:}
+#' The core methods are as follows:
 #' \itemize{
-#'  \item Class Participants: Classes the comprise this composite pattern.
-#'  \item Class Collaborators: Classes which interact with the Document0 class.
-#'  \item Core Methods: Methods implemented by both individual and document
-#'  collections.
-#'  \item Composite Methods: Methods for managing child parent relationships.
-#'  \item Input / Output Methods: Methods for reading and writing documents.
+#'  \item{\code{new(name, fileName, desc)}}{Instantiates an object of the Document class. }
+#'  \item{\code{getDocument()}}{Returns the object and its meta data.}
+#'  \item{\code{accept(visitor)}}{Accepts a visitor and dispatches the visitor, passing 'self' as a parameter}
+#'  \item{\code{addContent(content)}}{Method for adding content to an object of the Document class.}
+#'  \item{\code{removeContent()}}{Method for removing content from an object of the Document class.}
+#' }
+#' \strong{Document Composite Methods:}
+#' The composite methods are not implemented for the Document class.
+#' \itemize{
+#'  \item{\code{addDocument(document)}}{Not implemented for the Document class.}
+#'  \item{\code{getDocuments()}}{Not implemented for the Document class.}
+#'  \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
+#'  \item{\code{getParent()}}{Returns the parent object.}
+#'  \item{\code{setParent(parent)}}{Sets the parent object.}
 #' }
 #'
-#'
-#' @section Document0 Class Participants:
-#' The participants of the Document0 class are:
+#'#' \strong{Document I/O Methods:}
+#' The following input/output methods are implemented for the Document class.
 #' \itemize{
-#'  \item Document0: This component class specifies an abstract interface
-#'  for all individual and composite document classes.
-#'  \item Document: This "leaf" class specifies the  interface forindividual
-#'  document objects.
-#'  \item DocumentCollection: The composite class specifies the interface
-#'  for the composite document objects.
-#'  }
-#'
-#' @section Document0 Class Collaborators:
-#' The collaborators of the Document0 class are:
-#' \itemize{
-#'  \item Lab: This class instantiates labs within NLPStudio which have the
-#'  responsibility of managing document objects.
-#'  \item CorpusBuilder0: A family of classes of the builder pattern,
-#'  responsibile for building varying representations of document collections.
-#'  }
-#'
-#' @section Document Core Methods:
-#' The core methods for the Document class are as follows:
-#' \itemize{
-#'  \item{\code{new(name, path, fileName, desc)}}{Method for instantiating
-#'  an object of the Document class.}
-#'  \item{\code{getName()}}{Method for retrieving the name of the current object.}
-#'  \item{\code{getDocument()}}{Method for retrieving the meta data for
-#'  a document. }
-#'  \item{\code{printDocument()}}{Method for printing the meta data for a
-#'  document to console.}
+#'  \item{\code{readDocument(format)}}{Reads the document in the format designated in the format parameter.}
+#'  \item{\code{writeDocument(format, content)}}{Writes the content to file in the format designated in the format parameter. }
 #' }
-#'
-#' @section Composite Methods:
-#' The composite methods implemented for this class:
-#' \itemize{
-#'  \item{\code{addDocument(document)}}{Returns the current object.}
-#'  \item{\code{getDocuments()}}{Returns the current object.}
-#'  \item{\code{removeDocument(document)}}{Not implemented for this class.}
-#'  \item{\code{addPath(path)}}{Adds a value to the path variable for an object of the Document class.}
-#' }
-#'
-#'
-#' @section Input/Output Methods:
-#' Methods for reading and writing individual document objects.
-#' \itemize{
-#'  \item{readDocument(what, how)}{Method for reading a document.}
-#'  \item{writeDocument(what, how)}{Method for writing a document.}
-#' }
-#'
 #' @param content A character vector or list containing text content for objects. Required for write methods.
 #' @param desc Character string containing the description of the document.
-#' @param document An object of the Document class.  Maintained as members of objects of the DocumentClass composite class.
 #' @param fileName Character string cointaining the file name for a document.  Required for objects of Document class.
-#' @param format  A character string indicating the document format to be read or written.  Valid values are c("bin", "text", "csv", "rdata"). Defaults to "text"
 #' @param name Character string indicating the name of the document. Required for all objects
 #' @param parent An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.
 #' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
-#' @param type = Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list".
-#'
-#' @field class Character string indicating the class of the object. This field used to restore objects from archive.
-#' @field created A date time variable indicating the date / time the object was created.
-#' @field documents A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.
-#' @field modified A date time variable indicating the date / time the object was modified.
-#' @field parentName Character string indicating the name of the parent object.
-#' @field parentTypes A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection". They may be overwritten by subclasses.
-#' @field path Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -107,54 +61,47 @@ Document <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                           Core Methods                                  #
     #-------------------------------------------------------------------------#
-    initialize = function(name, parent, fileName, desc = NULL) {
+    initialize = function(name, fileName, desc = NULL) {
 
       # Confirm required parameters are not missing.
       if (missing(name)) {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "initialize", fieldName = "name",
-                 value = "", level = "Error", msg = "Name is required.",
-                 expect = NULL)
-        stop()
-      }
-      if (missing(fileName)) {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "initialize", fieldName = "fileName",
-                 value = fileName, level = "Error", msg = "File name is required.",
+                 value = "", level = "Error",
+                 msg = paste("Name parameter is missing with no default.",
+                             "See ?Document for further assistance."),
                  expect = NULL)
         stop()
       }
 
-      # Validate non-missing parameters
+      if (missing(fileName)) {
+        v <- Validate0$new()
+        v$notify(cls = "Document", method = "initialize", fieldName = "fileName",
+                 value = fileName, level = "Error",
+                 msg = paste("File name parameter is missing with no default.",
+                             "See ?Document for further assistance."),
+                 expect = NULL)
+        stop()
+      }
+
+      # Validate name
       v <- ValidateName$new()
       if (v$validate(cls = "Document", method = "initialize",
                      value = name, expect = FALSE) == FALSE) {
         stop()
       }
 
-      if (!missing(parent)) {
-        v <- ValidatePath$new()
-       if (v$validate(cls = "Document", method = "initialize", fieldName = "path",
-                   value = path, level = "Error", msg = "",
-                   expect = private$..parentTypes) == FALSE) {
-         stop()
-       }
-      }
-
       # Instantiate variables
+      private$..name <- name
       private$..desc <- desc
       private$..fileName <- fileName
-      private$..name <- name
-      if (!missing(parent)) {
-        p <- self$getParent(parent)
-        private$..parent <- parent
-        private$..parentName <- p$name
-        private$..path <- file.path(p$path, name)
-      }
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
 
+      # Assign to object to name  in global environment
       assign(name, self, envir = .GlobalEnv)
+
+      # TODO: Implement setState through a visitor
       nlpStudioState$setState(key = name, value = self)
       invisible(self)
 
@@ -176,15 +123,16 @@ Document <- R6::R6Class(
       return(document)
     },
 
-    printDocument = function() {
+    accept = function(visitor) {
+      visitor$document(self)
+    },
 
-      d <- self$getDocument(type = "df")
+    addContent = function(content) {
+      private$..content <- content
+    },
 
-      cat("\n\n================================================================================",
-          "\nDocument:")
-      print.data.frame(d$documentDf)
-      cat("\n================================================================================\n")
-
+    removeContent = function() {
+      private$..content <- character(0)
     },
 
     #-------------------------------------------------------------------------#
@@ -231,18 +179,25 @@ Document <- R6::R6Class(
       stop()
     },
 
-    addParent = function(parent) {
+    getParent = function() {
+
+      p <- private$..parent$getDocument()
+
+      return(p)
+    },
+
+    setParent = function(parent) {
 
       if (class(parent) %in% c("DocumentCollection")) {
         # Add parent
         private$..parent <- parent
 
         # Add parent name
-        p <- getParent(format = "list")
-        private$..parentName <- p$metaData$name
+        p <- self$getParent()
+        private$..parentName <- p$name
 
         # Update path
-        private$..path <- file.path(p$metaData$path, private$..name)
+        private$..path <- file.path(p$path, private$..name)
 
         # Update state
         nlpStudioState$setState(private$..name, self)
@@ -254,18 +209,13 @@ Document <- R6::R6Class(
                  msg = paste("Unable to add parent object. Objects of the",
                              "Document class may only",
                              "have DocumentCollection",
-                             "objects as parents"),
+                             "objects as parents",
+                             "See ?Document for further assistance."),
                  expect = "DocumentCollection")
         stop()
       }
     },
 
-    getParent = function() {
-
-      p <- private$..parent$getDocument(format = "list")
-
-      return(p)
-    },
     #-------------------------------------------------------------------------#
     #                                  I/O                                    #
     #-------------------------------------------------------------------------#
@@ -284,9 +234,9 @@ Document <- R6::R6Class(
       } else {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "readDocument", fieldName = "format",
-                   level = "Error", value = format,
-                   msg = paste("Format,", format, ",is not a valid document format.",
-                               "See ?Document for assistance."))
+                 level = "Error", value = format,
+                 msg = paste("Format,", format, ",is not a valid document format.",
+                             "See ?Document for assistance."))
         stop()
       }
     },
@@ -296,19 +246,19 @@ Document <- R6::R6Class(
       if (missing(content)) {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "writeDocument", fieldName = "content",
-                   level = "Error", value = content,
-                   msg = paste("Unable to write content.",
-                               "Content variable is missing with no default.",
-                               "See ?Document for assistance."),
+                 level = "Error", value = content,
+                 msg = paste("Unable to write content.",
+                             "Content variable is missing with no default.",
+                             "See ?Document for assistance."),
                  expect = NULL)
         stop()
       } else {
         v <- ValidateNotEmpty$new()
         if (v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
-                   level = "Error", value = content,
-                   msg = paste("Unable to write content.  Content variable is empty.",
-                               "See ?Document for assistance."),
-                   expect = NULL) == FALSE) {
+                       level = "Error", value = content,
+                       msg = paste("Unable to write content.  Content variable is empty.",
+                                   "See ?Document for assistance."),
+                       expect = NULL) == FALSE) {
           stop()
         }
       }
