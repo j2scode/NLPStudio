@@ -32,16 +32,16 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Test Instantiation
-    # lab$metaData$new() # should fail, name is required: Success
+    # lab$new() # should fail, name is required: Success
     lab <<- Lab$new(name = "blue", "Blue Lab")
-    #lab$metaData$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
+    #lab$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
     stopifnot("Lab" %in% class(blue))
     stopifnot(dir.exists("./NLPStudio/Labs/blue"))
 
     # Confirm instantiation
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$metaData$created) < 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$created) < 1)
+    stopifnot((Sys.time() - lab$modified) < 1)
 
     # Confirm directory created
     stopifnot(dir.exists("./NLPStudio/Labs/blue"))
@@ -79,13 +79,13 @@ testLab <- function() {
 
     # Test getLab, list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$metaData$name == "blue")
-    stopifnot(lab$metaData$desc == "Blue Lab")
-    stopifnot(lab$metaData$parent == "nlpStudio")
-    stopifnot(lab$metaData$path == "./NLPStudio/Labs/blue")
+    stopifnot(lab$name == "blue")
+    stopifnot(lab$desc == "Blue Lab")
+    stopifnot(lab$parent == "nlpStudio")
+    stopifnot(lab$path == "./NLPStudio/Labs/blue")
     stopifnot(length(lab$documents) == 0)
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) > 1)
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) > 1)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
@@ -102,11 +102,11 @@ testLab <- function() {
 
     # Test getLab, data frame
     lab <<- blue$getLab(type = "df")
-    stopifnot(nrow(lab$metaData$labDf) == 1)
-    stopifnot(lab$metaData$labDf$name[1] == "blue")
-    stopifnot(lab$metaData$labDf$desc[1] == "Blue Lab")
-    stopifnot((Sys.time() - lab$metaData$labDf$created[1]) > 1)
-    stopifnot((Sys.time() - lab$metaData$labDf$modified[1]) > 1)
+    stopifnot(nrow(lab$labDf) == 1)
+    stopifnot(lab$labDf$name[1] == "blue")
+    stopifnot(lab$labDf$desc[1] == "Blue Lab")
+    stopifnot((Sys.time() - lab$labDf$created[1]) > 1)
+    stopifnot((Sys.time() - lab$labDf$modified[1]) > 1)
     stopifnot(nrow(lab$documentsDf) == 0)
 
     # Check state
@@ -124,7 +124,7 @@ testLab <- function() {
 
     # Get lab name, which is also the path for the collection
     lab <<- blue$getLab(type = "list")
-    path <- lab$metaData$name
+    path <- lab$name
 
     # Create and add collection
     DocumentCollection$new(name = "brown", parent = blue, desc = "Brown Corpus")
@@ -138,8 +138,8 @@ testLab <- function() {
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 1)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
@@ -184,10 +184,10 @@ testLab <- function() {
 
     # Test getLab list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$metaData$name == "blue")
-    stopifnot(lab$metaData$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
+    stopifnot(lab$name == "blue")
+    stopifnot(lab$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 1.5)
 
     stopifnot(nrow(lab$documents) == 1)
     stopifnot(lab$documents[[1]]$name == "brown")
@@ -211,10 +211,10 @@ testLab <- function() {
 
     # Test getLab df format
     lab <<- blue$getLab(type = "df")
-    stopifnot(lab$metaData$labDf$name == "blue")
-    stopifnot(lab$metaData$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
+    stopifnot(lab$labDf$name == "blue")
+    stopifnot(lab$labDf$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$labDf$created) > 1)
+    stopifnot((Sys.time() - lab$labDf$modified) < 1)
 
     stopifnot(nrow(lab$documentsDf) == 1)
     stopifnot(lab$documentsDf$name[1] == "brown")
@@ -238,7 +238,7 @@ testLab <- function() {
 
     # Get lab name, which is also the path for the collection
     lab <<- blue$getLab(type = "list")
-    path <- lab$metaData$name
+    path <- lab$name
 
     DocumentCollection$new(name = "oxford", parent = blue, desc = "Oxford Corpus")
     blue$addDocument(oxford)
@@ -249,8 +249,8 @@ testLab <- function() {
 
     # Confirm modified date updated
     lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 1.5)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
@@ -296,10 +296,10 @@ testLab <- function() {
 
     # Test getLab list format
     lab <<- blue$getLab(type = "list")
-    stopifnot(lab$metaData$name == "blue")
-    stopifnot(lab$metaData$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 2)
+    stopifnot(lab$name == "blue")
+    stopifnot(lab$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 2)
 
     stopifnot(length(lab$documents) == 2)
     stopifnot(lab$documents[[1]]$name == "brown")
@@ -329,10 +329,10 @@ testLab <- function() {
 
     # Test getLab df format
     lab <<- blue$getLab(type = "df")
-    stopifnot(lab$metaData$labDf$name == "blue")
-    stopifnot(lab$metaData$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$metaData$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$labDf$modified) < 1)
+    stopifnot(lab$labDf$name == "blue")
+    stopifnot(lab$labDf$desc == "Blue Lab")
+    stopifnot((Sys.time() - lab$labDf$created) > 1)
+    stopifnot((Sys.time() - lab$labDf$modified) < 1)
 
     stopifnot(nrow(lab$documentsDf) == 2)
     stopifnot(lab$documentsDf$name[1] == "brown")
@@ -385,8 +385,8 @@ testLab <- function() {
 
     # Confirm date modified updated correctly
     lab <- blue$getLab()
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1)
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 1)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)
@@ -404,7 +404,7 @@ testLab <- function() {
 
     # Create  new document
     lab <- blue$getLab(type = "list")
-    path <- lab$metaData$name
+    path <- lab$name
     DocumentCollection$new(name = "penn", parent = blue, desc = "Penn Corpus")
 
     # Add new document
@@ -444,8 +444,8 @@ testLab <- function() {
 
     # Confirm date modified updated correctly
     lab <- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$metaData$created) > 1)
-    stopifnot((Sys.time() - lab$metaData$modified) < 1.5)
+    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot((Sys.time() - lab$modified) < 1.5)
 
     # Check state
     stopifnot(checkState("blue") == TRUE)

@@ -73,9 +73,9 @@
 #'  implemented in the Document and Collection subclasses }
 #'  \item{\code{removeDocument(document)}}{Base method for removing documents from
 #'  a collection. Specific behaviors implemented in the Collection composite class}
-#'  \item{\code{getParent()}}{Base method for retrieving the parent object for a document.
+#'  \item{\code{getAncestor()}}{Base method for retrieving the parent object for a document.
 #'  Specific behaviors implemented in the Collection composite class}
-#'  \item{\code{setParent(parent)}}{Base method for adding the parent object to a document.
+#'  \item{\code{setAncestor(parent)}}{Base method for adding the parent object to a document.
 #'  Specific behaviors implemented in the Collection composite class}
 #' }
 #'
@@ -99,6 +99,7 @@ Document0 <- R6::R6Class(
 
   private = list(
     ..name = character(0),
+    ..class = character(0),
     ..desc = character(0),
     ..parent = character(0),
     ..parentName = character(0),
@@ -121,8 +122,8 @@ Document0 <- R6::R6Class(
     getDocuments = function() stop("Method is not available from Document0, an abstract class!"),
     addDocument = function(document) stop("Method is not available from Document0, an abstract class!"),
     removeDocument = function(document, purge = FALSE) stop("Method is not available from Document0, an abstract class!"),
-    getParent = function() stop("Method is not available from Document0, an abstract class!"),
-    setParent = function(parent) stop("Method is not available from Document0, an abstract class!"),
+    getAncestor = function() stop("Method is not available from Document0, an abstract class!"),
+    setAncestor = function(parent) stop("Method is not available from Document0, an abstract class!"),
 
     # IO Methods
     readDocument = function(format) stop("Method is not available from Document0, an abstract class!"),

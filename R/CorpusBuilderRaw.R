@@ -191,7 +191,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Assign name in global environment, state and return self
       assign(name, self, .GlobalEnv)
-      nlpStudioState$setState(name, self)
+      nlpStudioState$saveState(name, self)
       invisible(self)
     },
 
@@ -224,7 +224,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Assign name in global environment, state and return self
       assign(private$..name, self, .GlobalEnv)
-      nlpStudioState$setState(private$..name, self)
+      nlpStudioState$saveState(private$..name, self)
       invisible(self)
 
     },
@@ -244,7 +244,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Assign name in global environment, state and return self
       assign(private$..name, self, .GlobalEnv)
-      nlpStudioState$setState(private$..name, self)
+      nlpStudioState$saveState(private$..name, self)
       invisible(self)
     },
 

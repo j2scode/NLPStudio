@@ -19,7 +19,7 @@
 #' \itemize{
 #'  \item{\code{new(name, desc)}}{Method for instantiating an object of the
 #'  DocumentCollection classes.}
-#'  \item{\code{getDocument()}}{Method for retrieving the object and its
+#'  \item{\code{getObject()}}{Method for retrieving the object and its
 #'  meta data.}
 #'  \item{\code{accept(visitor)}}{Method for accepting a visitor.  It
 #'  dispatches the appropriate visitor, passing 'self' as a parameter.}
@@ -78,22 +78,33 @@ DocumentCollection <- R6::R6Class(
         stop()
       }
 
+      # Get orphan lab information
+      o <- orphanLab$getObject()
+
       # Instantiate variables
       private$..name <- name
+      private$..class <- "DocumentCollection"
       private$..desc <- desc
+      private$..parent <- orphanLab
+      private$..parentName <- o$name
+      private$..path <- file.path(o$path, name)
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
       # Assign the name to the object in the global environment and update state
       assign(name, self, envir = .GlobalEnv)
-      nlpStudioState$setState(key = name, value = self)
+
+      # Set state
+      nlpStudioState$saveState(key = name, value = self)
+
       invisible(self)
     },
 
-    getDocument = function() {
+    getObject = function() {
 
       document <- list(
         name = private$..name,
+        class = private$..class,
         desc = private$..desc,
         parent = private$..parent,
         parentName = private$..parentName,
@@ -102,27 +113,27 @@ DocumentCollection <- R6::R6Class(
         created = private$..created,
         modified = private$..modified
       )
-      return(document)
-    },
 
-    accept = function(visitor) {
-      visitor$documentCollection(self)
+      # Update State
+      nlpStudioState$saveState(private$..name, self)
+
+      return(document)
     },
 
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
 
-    getDocuments = function() {
+    getChildren = function() {
 
       documents <- lapply(private$..documents, function(d) {
-        d$getDocument()
+        d$getObject()
       })
 
       return(documents)
     },
 
-    addDocument = function(document) {
+    addChild = function(document) {
 
       # Validate document
       v <- ValidateClass$new()
@@ -134,17 +145,17 @@ DocumentCollection <- R6::R6Class(
       }
 
       # Add document to list of documents for collection
-      d <- document$getDocument()
+      d <- document$getObject()
       private$..documents[[d$name]] <- document
 
       # Update the parent of the document object
-      document$addParent(self)
+      document$setAncestor(self)
 
       # Update state
-      nlpStudioState$setState(key = private$..name, value = self)
+      nlpStudioState$saveState(d$name, document)
     },
 
-    removeDocument = function(document, purge = FALSE) {
+    removeChild = function(document, purge = FALSE) {
 
       # Validate parameters
       if (missing(document)) {
@@ -169,14 +180,14 @@ DocumentCollection <- R6::R6Class(
       }
 
       # Obtain document information
-      documentInfo <- document$getDocument()
+      d <- document$getObject()
 
       # Confirm document is not self
       if (documentInfo$name == private$..name) {
         v <- Validate0$new()
         v$notify(cls = "DocumentCollection", method = "removeDocument",
                  fieldName = "name", value = name, level = "Error",
-                 msg = paste("Object", documentInfo$name,
+                 msg = paste("Object", d$name,
                              "cannot remove itself. Remove operations must",
                              "be performed by the parent object.",
                              "See ?DocumentCollection and ?Lab for further assistance"),
@@ -184,69 +195,77 @@ DocumentCollection <- R6::R6Class(
         stop()
       }
 
-      # TODO: Take snapshot with visitor
-      # TODO: Create orphan directory
-      nlpArchives$archive(self)
-      nlpArchives$archive(d)
-
       # Remove document from collection
-      private$..documents[[documentInfo$metaData$name]] <- NULL
+      private$..documents[[d$name]] <- NULL
       private$..modified <- Sys.time()
-      nlpStudioState$setState(private$..name, self)
 
       # Remove from  memory and disc if purge == TRUE
       if (purge == TRUE) {
 
         # Remove from disc
-        base::unlink(documentInfo$metaData$path)
+        base::unlink(documentInfo$path)
 
         # Remove from global environment
-        rm(list = ls(envir = .GlobalEnv)[grep(documentInfo$metaData$name,
+        rm(list = ls(envir = .GlobalEnv)[grep(documentInfo$name,
                                               ls(envir = .GlobalEnv))],
            envir = .GlobalEnv)
 
-        # Update State
-        nlpStudioState$setState(private$..name, self)
+        # Update state
+
       }
+      # Update State
+      nlpStudioState$saveState(private$..name, self)
     },
 
-    addParent = function(parent) {
+    getAncestor = function() {
+
+      p <- private$..parent
+
+      return(p)
+    },
+
+    setAncestor = function(parent) {
+
+      oldParent <- self$getAncestor()
+      oldParent <- oldparent$getObject()
+      oldPath <- oldParent$path
 
       if (class(parent)[1] %in% c("DocumentCollection", "Lab")) {
         # Add parent
         private$..parent <- parent
 
         # Add parent name
-        p <- self$getParent()
-        private$..parentName <- p$metaData$name
-
-        # TODO: If any files exist, move them to the new path
+        p <- parent$getObject()
+        private$..parentName <- p$name
 
         # Update path
         private$..path <- file.path(p$path, private$..name)
 
+        # Move files to new collection
+        files <- list.files(path = oldPath, all.files = TRUE, full.names = TRUE,
+                            recursive = TRUE, include.dirs = TRUE)
+        if (length(files) != 0) {
+          file.copy(oldPath, private$..path)
+          base::unlink(oldPath)
+        }
+
         # Update state
-        nlpStudioState$setState(private$..name, self)
+        # Update State
+        nlpStudioState$saveState(private$..name, self)
+
 
       } else {
         v <- ValidateClass$new()
-        v$notify(cls = "DocumentCollection", method = "addParent",
+        v$notify(cls = "DocumentCollection", method = "setAncestor",
                  fieldName = "parent", level = "Error", value = parent,
                  msg = paste("Unable to add parent object. Objects of the",
                              "DocumentCollection class may only",
                              "have DocumentCollection or Lab",
-                             "objects as parents"),
+                             "objects as parents",
+                             "See ?DocumentCollection for further assistance."),
                  expect = "DocumentCollection")
         stop()
       }
-    },
-
-    getParent = function() {
-
-      if ("Lab" %in% class(private$..parent)[1]) p <- private$..parent$getLab(type = "list")
-      else p <- private$..parent$getDocument(type = "list")
-
-      return(p)
     },
 
     #-------------------------------------------------------------------------#
@@ -267,6 +286,21 @@ DocumentCollection <- R6::R6Class(
       lapply(private$..documents, function(d) {
         w$writeDocument(format, content)
       })
+    },
+
+    #-------------------------------------------------------------------------#
+    #                             Visitor Methods                             #
+    #-------------------------------------------------------------------------#
+    accept = function(visitor) {
+      visitor$visitDocumentCollection(self)
+    },
+
+    acceptArchive = function(visitor, stateId) {
+      visitor$visitDocumentCollection(stateId, self)
+    },
+
+    acceptRestore = function(visitor, stateId) {
+      visitor$visitDocumentCollection(stateId, self)
     }
   )
 )

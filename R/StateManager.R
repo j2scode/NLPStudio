@@ -3,33 +3,53 @@
 #==============================================================================#
 #' StateManager
 #'
-#' \code{StateManager} Class for storing the current state of all objects in
-#' NLPStudio.
+#' \code{StateManager} Class for managing persistence and states of objects
+#' within the NLPStudio package.
 #'
-#' NLPStudio objects may be inadvertaetly removed from the global environment.
-#' This class allows clients to restore the objects to its current state in
-#' the global environment. The current state of all objects is stored to
-#' file for persistence from session to session.
+#' \strong{StateManager Class Overview:}
+#' The StateManager class object provides overall management of object state
+#' within the NLPStudio package. It accepts a save or restore request from
+#' a client object, logs the request, dispatches the appropriate StateServer
+#' (and, if requested, StateArchiver) object(s). Once the request is fulfilled
+#' by the subclass(es), the object is returned to the StateManager.  The
+#' StateManager adds the object with a designated stateId to its inventory
+#' of states. A summary of the request is also stored for query and
+#' restore purposes.
+#'
+#' \strong{State Class Family  Overview:}
+#' The State family of classes is responsible for managing object persistence
+#' and an archive / restore capability within the NLPStudio objects.
+#'
+#' \strong(State Class Family Participants:)
+#' The participants of the family are as follows:
+#' \itemize{
+#'  \item StateManager: This class accepts save / restore requests from object
+#'  methods, logs the request and dispatches requests to the StateServer, and,
+#'  if the client requests that files be saved or restored, the StateArchiver
+#'  class.
+#'  \item StateServer: This class is responsible for saving and restoring
+#'  objects from and to existing objects.
+#'  \item StateArchiver: This class is responsible for archiving and
+#'  restoring any files associated with an object being saved or restored.
+#'  }
 #'
 #' @section Methods:
+#' The methods for the StateServer class are as follows:
 #' \describe{
-#'  \item{\code{initialize()}}{Creates the state environment.}
-#'  \item{\code{getState(key)}}{Retrieves object from state.}
-#'  \item{\code{setState(key, value)}}{Save a key value pair to the state environment.}
-#'  \item{\code{loadState()}}{Loads the state from file.}
-#'  \item{\code{saveState()}}{Restores items in state to the global environment.}
-#'  \item{\code{restoreState()}}{Purges the entire state.}
-#'  \item{\code{printState}}{Lists the names of the items in the state environment.}
-#'  \item{\code{purgeState}}{Lists the names of the items in the state environment.}
-#'  \item{\code{printState()}}{Prints the contents of the state environment.}
-#'  \item{\code{getInstance()}}{Returns the instance of the singleton StateManager class.}
+#'  \item{\code{getState(stateId)}}{Returns the object at the state designated by the stateId parameter.}
+#'  \item{\code{restoreState(stateId, files = FALSE)}}{Restores the object at the state designated by the stateId parameter to the global environment. If files is set TRUE, previously archived directories and files are restored. If the object is part of a composite, e.g. Document or DocumentCollection class object, and its parent does not exist, the files will be restored to an orphan object according to the class of the object, the files will be restored to the orphan object directory, and the parent will be changed accordingly. In this case the restored object may then be moved to another parent as required.}
+#'  \item{\code{saveState(object, files = FALSE)}}{Saves the current state of an object and dispatches a StateServer object to save the state to disk. If the files parameter is set to true, a VisitorArchive object will be instantiated to compress and save the  files associated with the object to an archive directory.}
 #' }
 #'
-#' @param key Character string containing the name of the object to retrieved or stored to state
-#' @param value The object to be stored to state
+#' @param object The object to be loaded or saved. Required parameter for the saveState method.
+#' @param stateId The unique identifier for the object and state. Required parameter for the restoreState method.
+#' @param files Logical indicating whether the files associated with an object should be archived.
+#'
+#' @return object The object to be returned from restoreState or the object passed to saveState.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family State Classes
 #' @export
 StateManager <- R6::R6Class(
   "SingletonContainer",
@@ -40,50 +60,130 @@ StateManager <- R6::R6Class(
       Class <<- R6::R6Class(
         classname = "StateManager",
         private = list(
-          ..state = character(0),
-          ..stateFile = "./NLPStudio/.State.Rdata"
+          ..name = "stateManager",
+          ..desc = "StateManager NLPStudio Object State Manager",
+          ..states = list(),
+          ..statesDf = data.frame(),
+          ..created = character(0),
+          ..modified = character(0),
+
+          getSeqNum = function(name) {
+            seqNum <- 1
+            if (nrow(subset(private$..statesDf,
+                            request == "Save" &
+                            as.Date(created) == as.Date(Sys.time()) &
+                            objectName == name)) > 0) {
+              seqNum <- private$..statesDf %>%
+                filter(request == "Save" &
+                         as.Date(created) == as.Date(Sys.time()) &
+                         objectName == name) %>%
+                summarise(max(seqNum))
+              seqNum <- seqNum + 1
+            }
+            return(seqNum)
+          }
         ),
+
         public = list(
-          initialize = function() private$..state <- new.env(parent = emptyenv()),
-          getState = function(key) unlist(private$..state[[key]]),
 
-          setState = function(key, value) {
-            private$..state[[key]] <- value
-            self$saveState()
+          initialize = function() {
+            private$..created <- Sys.time()
+            private$..modified <- Sys.time()
+            invisible(self)
           },
 
-          loadState = function() {
-            load(file = private$..stateFile)
-            private$..state <- nlpStudioState
-            return(nlpStudioState)
+          getInstance = function() invisible(self),
+
+          saveState = function(object, files = FALSE) {
+
+            # Validate
+            if (missing(object)) {
+              v <- Validate0$new()
+              v$notify(cls = "StateManager", method = "saveState",
+                       fieldName = "object", value = "", level = "Error",
+                       msg = paste("Object parameter is missing with no default.",
+                                   "See ?StateManager for further assistance."),
+                       expect = TRUE)
+              stop()
+            }
+
+            v <- ValidateClass$new()
+            if (v$validate(cls = "StateManager", method = "saveState",
+                           fieldName = "object", value = object, level = "Error",
+                           msg = paste("Object is not a valid 'R6' object",
+                                       "See ?StateServer for further assistance."),
+                           expect = "R6") == FALSE) {
+              stop()
+            }
+
+            # Set State and save to disk
+            o <- object$getObject()
+            seqNum <- private$getSeqNum(o$name)
+            stateId <- paste0(o$name,"-", as.Date(Sys.time()), "-", seqNum)
+            private$..states[[stateId]] <- object
+            stateServer <- StateServer$new()
+            stateServer$saveState(stateId, object)
+
+            # Archive files if requested
+            if (files != FALSE) {
+              visitorArchive <- VisitorArchive$new()
+              object$accept(visitorArchive)
+            }
+
+            # Log State Request
+            state <- data.frame(stateId = stateId,
+                                request = "Save",
+                                class = class(object)[1],
+                                objectName = o$name,
+                                seqNum = seqNum,
+                                files = files,
+                                created = Sys.time())
+            private$..statesDf <- rbind(private$..statesDf, state)
+
+            invisible(object)
+
           },
 
-          saveState = function() {
-            nlpStudioState <- lapply(private$..state, function(c) c)
-            save(nlpStudioState, file = private$..stateFile)
-          },
 
-          restoreState = function() {
-            objNames <- names(private$..state)
-            lapply(seq_along(private$..state), function(c) {
-              objName <- objNames[c]
-              assign(objName, private$..state[[c]], .GlobalEnv)
-            })
-          },
 
-          purgeState = function() {
-            private$..state <- new.env(parent = emptyenv())
-          },
+          restoreState = function(stateId, files = FALSE) {
 
-          printState = function() {
-            cat("\n\n############################### State #########################################\n")
-            print(lsState())
-            cat("\n\n############################### State #########################################\n")
-          },
+            # Validate
+            if (missing(stateId)) {
+              v <- Validate0$new()
+              v$notify(cls = "StateManager", method = "restoreState",
+                       fieldName = "stateId", value = "", level = "Error",
+                       msg = paste("StateId parameter is missing with no default.",
+                                   "See ?StateManager for further assistance."),
+                       expect = TRUE)
+              stop()
+            }
 
-          lsState = function() names(private$..state),
+            # Obtain object at designated state and meta data
+            object <- private$..states[[stateId]]
+            o <- object$getObject()
 
-          getInstance = function() invisible(self)
+            # Restore to global environment
+            assign(o$name, object, envir = .GlobalEnv)
+
+            # Restore files
+            if (files != FALSE) {
+              visitorRestore <- VisitorRestore$new()
+              object$accept(visitorRestore)
+            }
+
+            # Log Request
+            state <- data.frame(stateId = stateId,
+                                request = "Restore",
+                                class = class(object)[1],
+                                objectName = o$name,
+                                seqNum = 0,
+                                files = files,
+                                created = Sys.time())
+            private$..statesDf <- rbind(private$..statesDf, state)
+
+            invisible(object)
+          }
         )
       )
       super$initialize(...)

@@ -33,10 +33,8 @@ it operates.
 The participants of the Visitor class family are:
 \itemize{
  \item Visitor0: This class which specifies an abstract interface for all concrete visitors.
- \item VisitorGetObject: Visitor class responsible for retrieving objects and meta data on the objects from concrete elements.
+ \item VisitorOrphan: Visitor class responsible for moving an objects files to the orphan directory when the object has been removed from a lab or a collection.
  \item VisitorPrintObject: Visitor class responsible for printing object meta data to the console.
- \item VisitorSave: Visitor class responsible for saving snapshots of objects within an object hierarchy.
- \item VisitorRestore: Visitor class responsible for restoring snapshots of objects within an object hierarchy.
  }
 
 \strong{Visitor Class Family Collaborators:}
@@ -55,7 +53,7 @@ The methods are as follows:
 }
 }
 \seealso{
-Other Visitor classes: \code{\link{VisitorGetObject}}
+Other Visitor classes: \code{\link{VisitorOrphan}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

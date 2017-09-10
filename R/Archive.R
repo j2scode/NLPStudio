@@ -78,7 +78,7 @@ Archive <- R6::R6Class(
             assign(private$..name, self, envir = .GlobalEnv)
 
             # State
-            nlpStudioState$setState(key = private$..name, value = self)
+            nlpStudioState$saveState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -122,7 +122,7 @@ Archive <- R6::R6Class(
             } else {
               o <- object$getDocument(type = "list")
             }
-            objectName <- o$metaData$name
+            objectName <- o$name
 
             # Format date
             today <-  as.Date(as.POSIXct(Sys.time(), format = "%m/%d/%Y %H:%M:%S", tz = "EDT"))
@@ -144,7 +144,7 @@ Archive <- R6::R6Class(
                                             "-archive-", objectName,
                                             format(Sys.time(),'-%Y%m%d-%H%M%S')))
 
-            files <- list.files(path = o$metaData$path, all.files = TRUE, full.names = TRUE,
+            files <- list.files(path = o$path, all.files = TRUE, full.names = TRUE,
                                 recursive = TRUE, include.dirs = TRUE)
 
             if (length(files) == 0) {
@@ -166,7 +166,7 @@ Archive <- R6::R6Class(
 
             # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioState$setState(key = private$..name, value = self)
+            nlpStudioState$saveState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -333,11 +333,11 @@ Archive <- R6::R6Class(
 
             v <- ValidateExists$new()
             if (v$validate(cls = "Archive", method = "restore",
-                           fieldName = "parent", value = objectData$metaData$parentName,
+                           fieldName = "parent", value = objectData$parentName,
                            level = "Error",
                            msg = paste("Unable to restore object.
                                        Object parent does not exist.",
-                                       "Restore", objectData$metaData$parentName,
+                                       "Restore", objectData$parentName,
                                        ", then restore", objectName,
                                        "See ?Archive for further assistance."),
                            expect = NULL) == FALSE) {
@@ -345,17 +345,17 @@ Archive <- R6::R6Class(
             }
 
             # Restore files
-            unzip(zipfile = objectData$metaData$archiveFile, overwrite = FALSE,
-                  exdir = objectData$metaData$path, junkpaths = TRUE,
+            unzip(zipfile = objectData$archiveFile, overwrite = FALSE,
+                  exdir = objectData$path, junkpaths = TRUE,
                   files = NULL)
 
             # Create object
-            assign(objectData$metaData$name, object, envir = .GlobalEnv)
+            assign(objectData$name, object, envir = .GlobalEnv)
 
             # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioState$setState(key = objectData$metaData$name, value = object)
-            nlpStudioState$setState(key = private$..name, value = self)
+            nlpStudioState$saveState(key = objectData$name, value = object)
+            nlpStudioState$saveState(key = private$..name, value = self)
 
             invisible(object)
           }

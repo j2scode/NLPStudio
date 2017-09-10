@@ -9,7 +9,7 @@ testState <- function() {
     if (dir.exists(labsDir)) unlink(labsDir, recursive = TRUE)
     if (file.exists(stateFile)) file.remove(stateFile)
 
-    nlpStudioState <<- StateManager$new()$getInstance()
+    nlpStudioState <<- StateServer$new()$getInstance()
   }
 
   # Test 0: Set and get state
@@ -19,14 +19,14 @@ testState <- function() {
     cat(paste("\n",test,"Commencing\r"))
     swipe()
     if (length(nlpStudioState$lsState() > 0)) nlpStudioState$purgeState()
-    nlpStudioState$setState(key = "Lab", value = Lab)
-    nlpStudioState$setState(key = "swipe", value = swipe)
-    nlpStudioState$setState(key = "Singleton", value = Singleton)
+    nlpStudioState$saveState(key = "Lab", value = Lab)
+    nlpStudioState$saveState(key = "swipe", value = swipe)
+    nlpStudioState$saveState(key = "Singleton", value = Singleton)
 
 
-    stopifnot(class(nlpStudioState$getState("Lab")) == "R6ClassGenerator")
-    stopifnot(class(nlpStudioState$getState("swipe")) == "function")
-    stopifnot(class(nlpStudioState$getState("Singleton")) == "R6ClassGenerator")
+    stopifnot(class(nlpStudioState$restoreState("Lab")) == "R6ClassGenerator")
+    stopifnot(class(nlpStudioState$restoreState("swipe")) == "function")
+    stopifnot(class(nlpStudioState$restoreState("Singleton")) == "R6ClassGenerator")
     stopifnot(nlpStudioState$lsState() == c( "swipe", "Lab","Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
@@ -44,11 +44,11 @@ testState <- function() {
     stopifnot(nlpStudioState$lsState() == character(0))
     rm(nlpStudioState, envir = .GlobalEnv)
 
-    nlpStudioState <<- StateManager$new()$getInstance()
+    nlpStudioState <<- StateServer$new()$getInstance()
     nlpStudioState$loadState()
-    stopifnot(class(nlpStudioState$getState("Lab")) ==  "R6ClassGenerator")
-    stopifnot(class(nlpStudioState$getState("swipe")) ==  "function")
-    stopifnot(class(nlpStudioState$getState("Singleton")) ==  "R6ClassGenerator")
+    stopifnot(class(nlpStudioState$restoreState("Lab")) ==  "R6ClassGenerator")
+    stopifnot(class(nlpStudioState$restoreState("swipe")) ==  "function")
+    stopifnot(class(nlpStudioState$restoreState("Singleton")) ==  "R6ClassGenerator")
     stopifnot(nlpStudioState$lsState() == c("swipe", "Lab", "Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
@@ -84,7 +84,7 @@ testState <- function() {
     cat(paste("\n",test,"Commencing\r"))
 
     rm(swipe, envir = .GlobalEnv)
-    nlpStudioState$getState("swipe")
+    nlpStudioState$restoreState("swipe")
     stopifnot(class(swipe) ==  "function")
 
     cat(paste("\n",test,"Completed: Success!\n"))
@@ -99,9 +99,9 @@ testState <- function() {
     stateNames <<- nlpStudioState$lsState()
 
     key <- "stateNames"
-    nlpStudioState$setState(key, stateNames)
+    nlpStudioState$saveState(key, stateNames)
     rm(stateNames, envir = .GlobalEnv)
-    stateNames <<- nlpStudioState$getState(key)
+    stateNames <<- nlpStudioState$restoreState(key)
     stopifnot(class(stateNames) ==  "character")
 
     cat(paste("\n",test,"Completed: Success!\n"))

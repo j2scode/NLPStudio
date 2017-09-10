@@ -13,119 +13,53 @@ Document
 
 \item{desc}{Character string containing the description of the document.}
 
-\item{document}{An object of the Document class.  Maintained as members of objects of the DocumentClass composite class.}
-
 \item{fileName}{Character string cointaining the file name for a document.  Required for objects of Document class.}
-
-\item{format}{A character string indicating the document format to be read or written.  Valid values are c("bin", "text", "csv", "rdata"). Defaults to "text"}
 
 \item{name}{Character string indicating the name of the document. Required for all objects}
 
 \item{parent}{An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.}
 
 \item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
-
-\item{type}{= Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list".}
 }
 \description{
 \code{Document} Class for instantiating,returning and printing individual
 Document objects within objects of the DocumentCollection class.
 }
 \details{
-\strong{Document0 Class Overview:}
+\strong{Document Class Overview:}
 
-The Document0 family of classes is an implementation of the composite
-pattern documented in the book "Design Patterns: Elements of Reusable
+The Document class is component part of the Document0 composite class. This
+pattern is documented in the book "Design Patterns: Elements of Reusable
 Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 and John Vlissides (hence Gang of Four). This pattern allows composite
 and individual objects to be treated uniformly.
 
-The following sections include:
+\strong{Document Core Methods:}
+The core methods are as follows:
 \itemize{
- \item Class Participants: Classes the comprise this composite pattern.
- \item Class Collaborators: Classes which interact with the Document0 class.
- \item Core Methods: Methods implemented by both individual and document
- collections.
- \item Composite Methods: Methods for managing child parent relationships.
- \item Input / Output Methods: Methods for reading and writing documents.
+ \item{\code{new(name, fileName, desc)}}{Instantiates an object of the Document class. }
+ \item{\code{getDocument()}}{Returns the object and its meta data.}
+ \item{\code{accept(visitor)}}{Accepts a visitor and dispatches the visitor, passing 'self' as a parameter}
+ \item{\code{addContent(content)}}{Method for adding content to an object of the Document class.}
+ \item{\code{removeContent()}}{Method for removing content from an object of the Document class.}
 }
-}
-\section{Fields}{
-
-\describe{
-\item{\code{class}}{Character string indicating the class of the object. This field used to restore objects from archive.}
-
-\item{\code{created}}{A date time variable indicating the date / time the object was created.}
-
-\item{\code{documents}}{A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.}
-
-\item{\code{modified}}{A date time variable indicating the date / time the object was modified.}
-
-\item{\code{parentName}}{Character string indicating the name of the parent object.}
-
-\item{\code{parentTypes}}{A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection". They may be overwritten by subclasses.}
-
-\item{\code{path}}{Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.}
-}}
-
-\section{Document0 Class Participants}{
-
-The participants of the Document0 class are:
+\strong{Document Composite Methods:}
+The composite methods are not implemented for the Document class.
 \itemize{
- \item Document0: This component class specifies an abstract interface
- for all individual and composite document classes.
- \item Document: This "leaf" class specifies the  interface forindividual
- document objects.
- \item DocumentCollection: The composite class specifies the interface
- for the composite document objects.
- }
+ \item{\code{addDocument(document)}}{Not implemented for the Document class.}
+ \item{\code{getDocuments()}}{Not implemented for the Document class.}
+ \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
+ \item{\code{getParent()}}{Returns the parent object.}
+ \item{\code{setParent(parent)}}{Sets the parent object.}
 }
 
-\section{Document0 Class Collaborators}{
-
-The collaborators of the Document0 class are:
+#' \strong{Document I/O Methods:}
+The following input/output methods are implemented for the Document class.
 \itemize{
- \item Lab: This class instantiates labs within NLPStudio which have the
- responsibility of managing document objects.
- \item CorpusBuilder0: A family of classes of the builder pattern,
- responsibile for building varying representations of document collections.
- }
-}
-
-\section{Document Core Methods}{
-
-The core methods for the Document class are as follows:
-\itemize{
- \item{\code{new(name, path, fileName, desc)}}{Method for instantiating
- an object of the Document class.}
- \item{\code{getName()}}{Method for retrieving the name of the current object.}
- \item{\code{getDocument()}}{Method for retrieving the meta data for
- a document. }
- \item{\code{printDocument()}}{Method for printing the meta data for a
- document to console.}
+ \item{\code{readDocument(format)}}{Reads the document in the format designated in the format parameter.}
+ \item{\code{writeDocument(format, content)}}{Writes the content to file in the format designated in the format parameter. }
 }
 }
-
-\section{Composite Methods}{
-
-The composite methods implemented for this class:
-\itemize{
- \item{\code{addDocument(document)}}{Returns the current object.}
- \item{\code{getDocuments()}}{Returns the current object.}
- \item{\code{removeDocument(document)}}{Not implemented for this class.}
- \item{\code{addPath(path)}}{Adds a value to the path variable for an object of the Document class.}
-}
-}
-
-\section{Input/Output Methods}{
-
-Methods for reading and writing individual document objects.
-\itemize{
- \item{readDocument(what, how)}{Method for reading a document.}
- \item{writeDocument(what, how)}{Method for writing a document.}
-}
-}
-
 \seealso{
 Other Document classes: \code{\link{Document0}},
   \code{\link{DocumentCollection}}

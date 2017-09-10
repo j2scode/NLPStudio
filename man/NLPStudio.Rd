@@ -9,17 +9,9 @@
 NLPStudio
 }
 \arguments{
-\item{desc}{A character string containing the studio description}
-
 \item{enter}{A logical indicating whether to enter a lab and to set the lab current.}
 
 \item{lab}{An object of class 'Lab'.}
-
-\item{labName}{Character string indicating the name of Lab object.}
-
-\item{name}{A character string containing the studio name.}
-
-\item{type}{A character string indicating the format in which the 'get' methods return results.}
 }
 \description{
 \code{NLPStudio} Class the creates and manages labs.
@@ -34,55 +26,37 @@ instance. There are two sets of methods.  The first set enables clients to
 retrieve information about the NLPStudio object.  The second set allows
 clients to add, remove, enter, and leave labs.
 }
-\section{Fields}{
-
-\describe{
-\item{\code{studioDirs}}{List containing the directories included in the NLPStudio.}
-
-\item{\code{labs}}{List containing the member lab objects}
-
-\item{\code{currentLab}}{An object of the Lab class. This is the currently active Lab object.}
-
-\item{\code{currentLabName}}{Character string containing the name of the current lab.}
-
-\item{\code{created}}{Datetime object indicating when the nlpStudio object was created.}
-
-\item{\code{modified}}{Datetime object indicating when the nlpStudio object was last modified.}
-}}
-
 \section{NLPStudio Object Methods}{
 
 \describe{
  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
- \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}#'
- \item{\code{getStudio(type = "list")}}{Returns the current NLPStudio in a variety of formats. Supported formats (types) include c("object", "list", "df"). The default type is "list".}
- \item{\code{printStudio()}}{Prints the nlpStudio object and its member objects of the Lab class to the console in data frame format.}
+ \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
+ \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
 }
 }
 
 \section{Lab Methods}{
 
 \describe{
- \item{\code{getLabs(type = "list")}}{Returns the list of member labs in the nlpStudio object in a variety of formats(types).  Supported formats (types) include c("object", "list", "df"). The default type is "list".}
- \item{\code{addLab(lab, enter = FALSE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
- \item{\code{removeLab(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
+ \item{\code{getChildren()}}{Returns the list of member labs in the nlpStudio object.}
+ \item{\code{addChild(lab, enter = TRUE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
+ \item{\code{removeChild(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
  \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
  \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
- \item{\code{archiveLab(lab)}}{Archives a designated lab.}
- \item{\code{restoreLab(lab)}}{Restores a designated lab from archive.}
 }
 }
 
 \examples{
 \dontrun{
-nlpStudio$getStudio() # Returns nlpStudio meta data in list format
-nlpStudio$addLab(Lisa, enter = FALSE) # Lisa must be an existing lab. See ?Lab.
-nlpStudio$addLab(Bart, enter = TRUE) # Bart must be an existing lab See ?Lab.
-nlpStudio$removeLab("Bart") # Fails: Cannot remove a current lab
+nlpStudio$getObject() # Returns nlpStudio object and meta data in list format
+Lab$new(name = "List", desc = "Lisa Simpon's lab")
+Lab$new(name = "Bart", desc = "Bart Simpon's lab")
+nlpStudio$addChild(Lisa, enter = FALSE) # Adds lab without setting it current.
+nlpStudio$addChild(Bart, enter = TRUE) # Adds lab and sets it current.
+nlpStudio$removeChild("Bart") # Fails: Cannot remove a current lab
 nlpStudio$enterLab(Lisa)
-nlpStudio$removeLab("Bart") # Success!
-nlpStudio$getStudio()  # Renders a list of meta data and member labs.
-nlpStudio$printStudio() # Prints meta data and member lab information in data frame format, to console.
+nlpStudio$removeChild("Bart") # Success!
+nlpStudio$getChildren()
 }
 
 }

@@ -9,13 +9,13 @@
 Snap0
 }
 \arguments{
-\item{object}{An NLPStudio object to be saved}
+\item{object}{The object for which the snapshot is taken and saved to disk.}
 
-\item{snapName}{A character string containing the unique name / identifier for a particular snapshot of an object.}
+\item{snapshotName}{The name of a snapshot to be restored from disk.}
 }
 \description{
-\code{Snap0} Manages the process of saving and restoring snapshots of
-NLPStudio objects.
+\code{Snap0} Is an abstract class that manages the process of saving and
+restoring snapshots of NLPStudio objects.
 }
 \details{
 \strong{Snap0 Class Overview:}
@@ -36,21 +36,19 @@ The collaborators of the Snap0 class are:
 \strong{Snap Family of Classes Participants:}
 \itemize{
  \item Snap0: This class which manages and reports the saving and restoration of snapshots.
- \item SnapSave: Class which saves the snapshot to disk.
- \item SnapRestore: Class which restores a snapshot from disk.
+ \item SnapSave: Class which saves the snapshot of files associated with Lab objects to the lab snapshots directory disk.
+ \item SnapRestore: Class which restores snapshots associated with Lab objects from disk.
  }
-}
-\section{Methods}{
 
+\strong{Methods:}
 \describe{
  \item{\code{new()}}{Instantiates the Snap0 object. This singleton object is instantiated by the NLPStudio object at package load time.}
- \item{\code{saveSnap(object)}}{Instantiates a SnapSave object to carry out the client's save request.}
- \item{\code{restoreSnap(snapName)}}{Instantiates a SnapRestore object to carry out the client's restore request. The snapshotName variable identifies uniquely the specific snapshot to restore.}
- \item{\code{getSnaps(object)}}{Returns the list of snapshots for an object, list, or data frame formats. The objectName variable identifies the object for which snapshots should be reported.}
- \item{\code{printSnaps(object)}}{Prints a data frame of snapshots for a named object to the console. The objectName variable identifies the object for which snapshots should be reported.}
+ \item{\code{save(object)}}{Executes the save operation using the current saver method.}
+ \item{\code{restore(snapshotName)}}{Executes the restore operation using the current restorer method.}
+ \item{\code{accept(self)}}{Accepts the dispatch from a visitor and dispatches the appropriate visitor method, sending itself as a parameter.}
+ \item{\code{getSnapshots(object)}}{Returns a list of snapshots for a specific object.}
 }
 }
-
 \seealso{
 Other Snapshot classes: \code{\link{SnapSave}}
 }

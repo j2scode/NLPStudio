@@ -29,8 +29,8 @@
 #'  \item{\code{addDocument(document)}}{Not implemented for the Document class.}
 #'  \item{\code{getDocuments()}}{Not implemented for the Document class.}
 #'  \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
-#'  \item{\code{getParent()}}{Returns the parent object.}
-#'  \item{\code{setParent(parent)}}{Sets the parent object.}
+#'  \item{\code{getAncestor()}}{Returns the parent object.}
+#'  \item{\code{setAncestor(parent)}}{Sets the parent object.}
 #' }
 #'
 #'#' \strong{Document I/O Methods:}
@@ -91,9 +91,16 @@ Document <- R6::R6Class(
         stop()
       }
 
+      # Get orphan collection information
+      o <- orphanCollection$getObject()
+
       # Instantiate variables
       private$..name <- name
+      private$..class <- "Document"
       private$..desc <- desc
+      private$..parent <- orphanCollection
+      private$..parentName <- o$name
+      private$..path <- file.path(o$path, fileName)
       private$..fileName <- fileName
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
@@ -101,16 +108,15 @@ Document <- R6::R6Class(
       # Assign to object to name  in global environment
       assign(name, self, envir = .GlobalEnv)
 
-      # TODO: Implement setState through a visitor
-      nlpStudioState$setState(key = name, value = self)
       invisible(self)
 
     },
 
-    getDocument = function() {
+    getOjbect = function() {
 
       document <- list (
         name = private$..name,
+        class = private$..class,
         desc = private$..desc,
         parent = private$..parent,
         parentName = private$..parentName,
@@ -120,25 +126,18 @@ Document <- R6::R6Class(
         created = private$..created,
         modified = private$..modified
       )
+
+      # Update State
+      nlpStudioState$saveState(private$..name, self)
+
+
       return(document)
-    },
-
-    accept = function(visitor) {
-      visitor$document(self)
-    },
-
-    addContent = function(content) {
-      private$..content <- content
-    },
-
-    removeContent = function() {
-      private$..content <- character(0)
     },
 
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
-    addDocument = function(document) {
+    addChild = function(document) {
       v <- Validate0$new()
       v$notify(cls = "Document", method = "addDocument",
                 fieldName = "addDocument", value = "", level = "Warn",
@@ -148,7 +147,7 @@ Document <- R6::R6Class(
                 expect = NULL)
     },
 
-    getDocuments = function(type = "list") {
+    getChildren = function(type = "list") {
       v <- Validate0$new()
       v$notify(cls = "Document", method = "getDocuments", fieldName = "",
                level = "Warn", value = "",
@@ -159,7 +158,7 @@ Document <- R6::R6Class(
                expect = NULL)
     },
 
-    removeDocument = function(name, purge = FALSE) {
+    removeChild = function(name, purge = FALSE) {
       v$notify(cls = "Document", method = "removeDocument",
                fieldName = "removeDocument", value = "", level = "Error",
                msg = paste("The removeDocument method is not implemented for objects",
@@ -179,37 +178,47 @@ Document <- R6::R6Class(
       stop()
     },
 
-    getParent = function() {
+    getAncestor = function() {
 
-      p <- private$..parent$getDocument()
+      p <- private$..parent
 
       return(p)
     },
 
-    setParent = function(parent) {
+    setAncestor = function(parent) {
+
+      # Obtain old parent and path information
+      oldParent <- self$getAncestor()
+      oldParent <- oldparent$getObject()
+      oldPath <- oldParent$path
 
       if (class(parent) %in% c("DocumentCollection")) {
         # Add parent
         private$..parent <- parent
 
         # Add parent name
-        p <- self$getParent()
+        p <- parent$getObject()
         private$..parentName <- p$name
 
         # Update path
-        private$..path <- file.path(p$path, private$..name)
+        private$..path <- file.path(p$path, private$..fileName)
 
-        # Update state
-        nlpStudioState$setState(private$..name, self)
+        # Move file to new path
+        file.copy(oldPath, private$..path)
+        base::unlink(oldPath)
+
+        # Update State
+        nlpStudioState$saveState(private$..name, self)
+
 
       } else {
         v <- ValidateClass$new()
-        v$notify(cls = "Document", method = "addParent",
+        v$notify(cls = "Document", method = "setAncestor",
                  fieldName = "parent", level = "Error", value = parent,
                  msg = paste("Unable to add parent object. Objects of the",
                              "Document class may only",
                              "have DocumentCollection",
-                             "objects as parents",
+                             "objects as parents.",
                              "See ?Document for further assistance."),
                  expect = "DocumentCollection")
         stop()
@@ -230,7 +239,8 @@ Document <- R6::R6Class(
         if (format == "rdata") r <- ReadRdata$new()
         if (format == "Rdata") r <- ReadRdata$new()
         private$..content <- r$readData(private$..path)
-        return(private$..content)
+
+
       } else {
         v <- Validate0$new()
         v$notify(cls = "Document", method = "readDocument", fieldName = "format",
@@ -239,6 +249,11 @@ Document <- R6::R6Class(
                              "See ?Document for assistance."))
         stop()
       }
+      # Update state
+      # Update State
+      nlpStudioState$saveState(private$..name, self)
+
+      return(private$..content)
     },
 
     writeDocument = function(format = "text", content) {
@@ -281,6 +296,21 @@ Document <- R6::R6Class(
                              "See ?Document for assistance."))
         stop()
       }
+    },
+
+    #-------------------------------------------------------------------------#
+    #                           Visitor Methods                               #
+    #-------------------------------------------------------------------------#
+    accept = function(visitor) {
+      visitor$visitDocument(self)
+    },
+
+    acceptArchive = function(visitor, stateId) {
+      visitor$visitDocument(stateId, self)
+    },
+
+    acceptRestore = function(visitor, stateId) {
+      visitor$visitDocument(stateId, self)
     }
   )
 )

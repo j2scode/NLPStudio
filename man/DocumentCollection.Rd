@@ -9,112 +9,44 @@
 DocumentCollection
 }
 \arguments{
-\item{content}{A character vector or list containing text content for objects. Used in the I/O methods.}
-
 \item{desc}{Character string containing the description of the document.}
 
 \item{document}{An object of the Document class.  Used in DocumentClass composite methods}
-
-\item{fileName}{Character string cointaining the file name for a document.  Only required for objects of Document class.}
-
-\item{format}{A character string indicating the document format to be read or written.  Valid values are c("bin", "text", "csv", "rdata"). Defaults to "text"}
 
 \item{name}{Character string indicating the name of the document (required)}
 
 \item{parent}{The parent object for an object of the DocumentCollection class. Parents may be objects of the DocumentCollection or Lab classes.}
 
-\item{path}{Character string containing the relative directory path to the document.}
-
 \item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
-
-\item{type}{= Character string indicating the type of object to be returned from get methods.  Valid values are c("object", "list", "df"). Defaults to "list"}
 }
 \description{
 \code{DocumentCollection} Class for managing composite document collections
 in the NLPStudio
 }
 \details{
-\strong{Document0 Class Overview:}
+\strong{DocumentCollection Class Overview:}
 
-The Document0 family of classes is an implementation of the composite
-pattern documented in the book "Design Patterns: Elements of Reusable
-Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
-and John Vlissides (hence Gang of Four). This pattern allows composite
-and individual objects to be treated uniformly.
+The DocumentCollection class is the composite part of the Document0 composite
+class. This is an implementation of the composite pattern documented in the
+book "Design Patterns: Elements of Reusable Object-Oriented Software" by
+Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides (hence Gang of Four).
+This pattern allows composite and individual objects to be treated uniformly.
 
-The following sections include:
+\strong{DocumentCollection Core Methods:}
+The core methods are as follows:
 \itemize{
- \item Class Participants: Classes the comprise this composite pattern.
- \item Class Collaborators: Classes which interact with the Document0 class.
- \item Core Methods: Methods implemented by both individual and document
- collections.
- \item Composite Methods: Methods for managing child parent relationships.
- \item Input / Output Methods: Methods for reading and writing documents.
+ \item{\code{new(name, desc)}}{Method for instantiating an object of the
+ DocumentCollection classes.}
+ \item{\code{getObject()}}{Method for retrieving the object and its
+ meta data.}
+ \item{\code{accept(visitor)}}{Method for accepting a visitor.  It
+ dispatches the appropriate visitor, passing 'self' as a parameter.}
+ \item{\code{addContent(content)}}{Not implemented for the DocumentCollection
+ class.}
+ \item{\code{removeContent()}}{Not implemented for the DocumentCollection
+ class.}
 }
 }
-\section{Fields}{
-
-\describe{
-\item{\code{class}}{Character string indicating the class of the object. This field used to restore objects from archive.}
-
-\item{\code{created}}{A date time variable indicating the date / time the object was created.}
-
-\item{\code{documents}}{A list of contained objects of the Document or DocumentCollection classes, maintained within the DocumentCollection class.}
-
-\item{\code{modified}}{A date time variable indicating the date / time the object was modified.}
-
-\item{\code{parentName}}{Character string indicating the name of the parent object.}
-
-\item{\code{parentTypes}}{A list of valid types for parent objects.  These are initialized as "Lab", and "DocumentCollection".}
-
-\item{\code{path}}{Character string containing the relative directory path to the document. This is a concatenation of the parent's path and the object name.}
-}}
-
-\section{Document0 Class Participants}{
-
-The participants of the Document0 class are:
-\itemize{
- \item Document0: This component class specifies an abstract interface
- for all individual and composite document classes.
- \item Document: This "leaf" class specifies the  interface forindividual
- document objects.
- \item DocumentCollection: The composite class specifies the interface
- for the composite document objects.
- }
-}
-
-\section{Document0 Class Collaborators}{
-
-The collaborators of the Document0 class are:
-\itemize{
- \item Lab: This class instantiates labs within NLPStudio which have the
- responsibility of managing document objects.
- \item CorpusBuilder0: A family of classes of the builder pattern,
- responsibile for building varying representations of document collections.
- }
-}
-
-\section{DocumentCollection Core Methods}{
-
-The core methods are shared by both primative and composite objects and are
-as follows:
-\itemize{
- \item{\code{new(name, path, fileName, desc)}}{Base method for instantiating
- an object of the Document and  DocumentCollection classes. File name is
- only only required of objects of the Document class.
- Specific behaviors implemented in the Collection subclasses }
- \item{\code{getName()}}{Base method for retrieving the name of the current object.}
- \item{\code{getDocument()}}{Base method for retrieving the meta data for
- a document. Objects of the DocumentCollection class also return a
- list of contained objects of the Document class. Specific behaviors
- implemented in the Document and Collection subclasses }
- \item{\code{printDocument()}}{Base method for printing the meta data for a
- document to console. Objects of the DocumentCollection class also
- print a list of contained objects of the Document class. Specific behaviors
- implemented in the Document and Collection subclasses }
-}
-}
-
 \section{DocumentCollection Composite Methods}{
 
 The composite methods are used to manage parent / child relationshipos among

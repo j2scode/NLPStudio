@@ -19,10 +19,9 @@
 #' The participants of the Visitor class family are:
 #' \itemize{
 #'  \item Visitor0: This class which specifies an abstract interface for all concrete visitors.
-#'  \item VisitorGetObject: Visitor class responsible for retrieving objects and meta data on the objects from concrete elements.
-#'  \item VisitorPrintObject: Visitor class responsible for printing object meta data to the console.
-#'  \item VisitorSave: Visitor class responsible for saving snapshots of objects within an object hierarchy.
-#'  \item VisitorRestore: Visitor class responsible for restoring snapshots of objects within an object hierarchy.
+#'  \item VisitorArchive This class archives the files associated with a designated object.
+#'  \item VisitorRestore This class restores files associated with from archives the files associated with a designated object.
+#'  \item VisitorOrphan: Visitor class responsible for moving an object's files to the orphan directory when the object has been removed from a lab or a collection.
 #'  }
 #'
 #' \strong{Visitor Class Family Collaborators:}
@@ -36,7 +35,7 @@
 #' The methods are as follows:
 #' \itemize{
 #'  \item{\code{visitLab(lab)}}{Base method for visiting a object of the Lab class.}
-#'  \item{\code{visitCollection(collection)}}{Base method visiting a object of the DocumentCollection class.}
+#'  \item{\code{visitDocumentCollection(collection)}}{Base method visiting a object of the DocumentCollection class.}
 #'  \item{\code{visitDocument(document)}}{Base method visiting a object of the Document class.}
 #' }
 #'
@@ -46,7 +45,7 @@
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
-#' @family Visitor classes
+#' @family Visitor Classes
 #' @export
 Visitor0 <- R6::R6Class(
   classname = "Visitor0",
@@ -56,7 +55,7 @@ Visitor0 <- R6::R6Class(
   public = list(
 
     visitLab = function(lab) stop("Method is not available from Visitor0, an interface class!"),
-    visitCollection = function(collection) stop("Method is not available from Visitor0, an interface class!"),
+    visitDocumentCollection = function(collection) stop("Method is not available from Visitor0, an interface class!"),
     visitDocument = function(document) stop("Method is not available from Visitor0, an interface class!")
 
   )
