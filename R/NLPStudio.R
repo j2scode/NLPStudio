@@ -64,10 +64,10 @@ NLPStudio <- R6::R6Class(
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..studioDirs = list(
             studio = "./NLPStudio",
-            snapshots = "./NLPStudio/Snapshots",
-            snapLabs = "./NLPStudio/Snapshots/Labs",
-            snapCollections = "./NLPStudio/Snapshots/Collections",
-            snapDocuments = "./NLPStudio/Snapshots/Documents",
+            archives = "./NLPStudio/Archives",
+            archivesLabs = "./NLPStudio/Archives/Labs",
+            archivesCollections = "./NLPStudio/Archives/Collections",
+            archivesDocuments = "./NLPStudio/Archives/Documents",
             labs = "./NLPStudio/Labs",
             log = "./NLPStudio/Log"
             ),

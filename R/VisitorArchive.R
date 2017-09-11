@@ -55,14 +55,131 @@ VisitorArchive <- R6::R6Class(
   lock_objects = FALSE,
   lock_class = FALSE,
 
+  private = list(
+    ..stateId = character(0),
+    ..class = character(0),
+    ..objectName = character(0),
+    ..path = character(0),
+    ..fileName = character(0),
+    ..files = character(0),
+    ..requested = character(0),
+    ..completed = character(0),
+
+    archive = function(stateId, object, directory) {
+
+      # Validate Parameters
+      if (missing(stateId)) {
+        v <- Validate0$new()
+        v$notify(cls = "VisitorArchive", method = "archive",
+                 fieldName = "stateId", value = "", level = "Error",
+                 msg = paste("StateId is missing with no default.",
+                             "See ?VisitorArchive for further assistance."),
+                 expect = NULL)
+        stop()
+      }
+
+      if (missing(object)) {
+        v <- Validate0$new()
+        v$notify(cls = "VisitorArchive", method = "archive",
+                 fieldName = "object", value = "", level = "Error",
+                 msg = paste("Object is missing with no default.",
+                             "See ?VisitorArchive for further assistance."),
+                 expect = NULL)
+        stop()
+      }
+
+      v <- ValidateClass$new()
+      if (v$validate(cls = "VisitorArchive", method = "archive",
+                     fieldName = "object", value = object, level = "Error",
+                     msg = paste("The object variable is not a valid R6 object.",
+                                 "See ?VisitorArchive for further assistance."),
+                     expect = c("Lab", "DocumentCollection", "Document")) == FALSE) {
+        stop()
+      }
+
+      # Obtain object information
+      o <- object$getObject()
+
+      # Format object variables
+      private$..stateId <-  stateId
+      private$..class <-  class(lab)[1]
+      private$..objectName <-  o$name
+      private$..path <-  file.path(directory, o$name)
+      private$..fileName <- paste0(private$..stateId, "-", private$..class, "-class-object-files")
+      private$..files <- list.files(path = o$path, all.files = TRUE, full.names = TRUE,
+                                    recursive = TRUE, include.dirs = TRUE)
+      private$..requested <- Sys.time()
+
+      # Execute archive
+      if (length(private$..files) == 0) {
+        private$..path <- character(0)
+      } else {
+        zip(file.path(private$..path, private$..fileName), private$..files)
+      }
+
+      private$..completed <- Sys.time()
+    }
+  ),
+
   public = list(
 
     visitLab = function(stateId, lab) {
+
+      # Validate parameters
+      if (missing(stateId)) {
+        v <- Validate0$new()
+        v$notify(cls = "Archive", method = "archive",
+                 fieldName = "object", value = "", level = "Error",
+                 msg = paste("Object is missing with no default.",
+                             "See ?Archive for further assistance."),
+                 expect = NULL)
+        stop()
+      }
+
+      # Obtain directories
       dirs <- nlpStudio$getDirectories()
 
-    },
-    visitDocumentCollection = function(collection) {},
-    visitDocument = function(document) {}
+      # Call archive function
+      private$archive(stateId, lab, dirs$archivesLabs)
 
+      invisible(self)
+
+    },
+
+    visitDocumentCollection = function(stateId, collection) {
+
+      # Obtain directories
+      dirs <- nlpStudio$getDirectories()
+
+      # Call archive function
+      private$archive(stateId, collection, dirs$archivesCollections)
+
+      invisible(self)
+    },
+
+    visitDocument = function(stateId, document) {
+
+      # Obtain directories
+      dirs <- nlpStudio$getDirectories()
+
+      # Call archive function
+      private$archive(stateId, document, dirs$archivesDocuments)
+
+      invisible(self)
+    },
+
+    getArchive = function() {
+      a <- list(
+        stateId <- private$..stateId,
+        class = private$..class,
+        objectName = private$..objectName,
+        path = private$..path,
+        fileName = private$..fileName,
+        files = private$..files,
+        requested = private$..requested,
+        completed = private$..completed
+      )
+      return(a)
+    }
   )
 )
