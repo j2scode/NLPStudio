@@ -94,7 +94,11 @@ StateServer <- R6::R6Class(
       }
 
       # Prepare confirmation
+<<<<<<< HEAD
       state = list(
+=======
+      confirmation = list(
+>>>>>>> 616c633a5b8b451eb2dcd7e4168243db413342d6
         request = "Restore",
         stateId <- states[[stateId]]$stateId,
         class <- states[[stateId]]$class,
@@ -107,7 +111,11 @@ StateServer <- R6::R6Class(
         saved = states[[stateId]]$created,
         restored = Sys.time()
       )
+<<<<<<< HEAD
       return(state)
+=======
+      return(confirmation)
+>>>>>>> 616c633a5b8b451eb2dcd7e4168243db413342d6
     },
 
     saveState = function(stateId, object) {
