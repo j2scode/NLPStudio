@@ -62,23 +62,25 @@ StateManager <- R6::R6Class(
         private = list(
           ..name = "stateManager",
           ..desc = "StateManager NLPStudio Object State Manager",
-          ..states = list(),
-          ..statesDf = data.frame(),
+          ..log = list(),
+          ..receipts = list(),
           ..created = character(0),
           ..modified = character(0),
 
           getSeqNum = function(name) {
             seqNum <- 1
-            if (nrow(subset(private$..statesDf,
-                            request == "Save" &
-                            as.Date(created) == as.Date(Sys.time()) &
-                            objectName == name)) > 0) {
-              seqNum <- private$..statesDf %>%
-                filter(request == "Save" &
-                         as.Date(created) == as.Date(Sys.time()) &
-                         objectName == name) %>%
-                summarise(max(seqNum))
-              seqNum <- seqNum + 1
+            if (nrow(private$..log) > 0 ) {
+              if (nrow(subset(private$..log,
+                              request == "Save" &
+                              as.Date(created) == as.Date(Sys.time()) &
+                              objectName == name)) > 0) {
+                seqNum <- private$..log %>%
+                  filter(request == "Save" &
+                           as.Date(created) == as.Date(Sys.time()) &
+                           objectName == name) %>%
+                  summarise(max(seqNum))
+                seqNum <- seqNum + 1
+              }
             }
             return(seqNum)
           }
@@ -94,7 +96,7 @@ StateManager <- R6::R6Class(
 
           getInstance = function() invisible(self),
 
-          saveState = function(object, files = FALSE) {
+          saveState = function(object) {
 
             # Validate
             if (missing(object)) {
@@ -116,37 +118,42 @@ StateManager <- R6::R6Class(
               stop()
             }
 
-            # Set State and save to disk
+            # Obtain object information and format key variables
             o <- object$getObject()
             seqNum <- private$getSeqNum(o$name)
             stateId <- paste0(o$name,"-", as.Date(Sys.time()), "-", seqNum)
-            private$..states[[stateId]] <- object
-            stateServer <- StateServer$new()
-            stateServer$saveState(stateId, object)
 
-            # Archive files if requested
-            if (files != FALSE) {
-              visitorArchive <- VisitorArchive$new()
-              object$accept(visitorArchive)
-            }
+            # Archive the requested object and associated files
+            stateServer <- StateServer$new()
+            objectConfirmation <- stateServer$saveState(stateId, object)
+            visitorArchive <- VisitorArchive$new()
+            fileConfirmation <- object$accept(visitorArchive)
+
+            # Store receipts
+            private$..log[[stateId]] <- list(
+              objectConfirmation = objectConfirmation,
+              fileConfirmation = fileConfirmation
+            )
 
             # Log State Request
-            state <- data.frame(stateId = stateId,
-                                request = "Save",
+            logEntry <- data.frame(request = "Save",
+                                stateId = stateId,
                                 class = class(object)[1],
-                                objectName = o$name,
+                                name = o$name,
+                                desc = o$desc,
+                                parentName <- o$parentName,
+                                path <- o$path,
+                                fileName <- o$fileName,
                                 seqNum = seqNum,
-                                files = files,
-                                created = Sys.time())
-            private$..statesDf <- rbind(private$..statesDf, state)
+                                saved = Sys.time(),
+                                restored = character(0))
+            private$..log <- rbind(private$..log, logEntry)
 
-            invisible(object)
+            invisible(logEntry)
 
           },
 
-
-
-          restoreState = function(stateId, files = FALSE) {
+          restoreState = function(stateId) {
 
             # Validate
             if (missing(stateId)) {
@@ -159,30 +166,33 @@ StateManager <- R6::R6Class(
               stop()
             }
 
-            # Obtain object at designated state and meta data
-            object <- private$..states[[stateId]]
-            o <- object$getObject()
+            # Obtain object and files from state archive
+            stateServer <- StateServer$new()
+            objectConfirmation <- stateServer$restoreState(stateId)
+            visitorRestore <- VisitorRestore$new()
+            fileConfirmation <- object$accept(visitorRestore)
 
-            # Restore to global environment
-            assign(o$name, object, envir = .GlobalEnv)
+            # Store receipts
+            private$..log[[stateId]] <- list(
+              objectConfirmation = objectConfirmation,
+              fileConfirmation = fileConfirmation
+            )
 
-            # Restore files
-            if (files != FALSE) {
-              visitorRestore <- VisitorRestore$new()
-              object$accept(visitorRestore)
-            }
+            # Log State Request
+            logEntry <- data.frame(request = "Restore",
+                                   stateId = stateId,
+                                   class = class(object)[1],
+                                   name = o$name,
+                                   desc = o$desc,
+                                   parentName <- o$parentName,
+                                   path <- o$path,
+                                   fileName <- o$fileName,
+                                   seqNum = seqNum,
+                                   saved = fileConfirmation$saved,
+                                   restored = Sys.time())
+            private$..log <- rbind(private$..log, logEntry)
 
-            # Log Request
-            state <- data.frame(stateId = stateId,
-                                request = "Restore",
-                                class = class(object)[1],
-                                objectName = o$name,
-                                seqNum = 0,
-                                files = files,
-                                created = Sys.time())
-            private$..statesDf <- rbind(private$..statesDf, state)
-
-            invisible(object)
+            invisible(logEntry)
           }
         )
       )

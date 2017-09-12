@@ -99,7 +99,6 @@ Document0 <- R6::R6Class(
 
   private = list(
     ..name = character(0),
-    ..class = character(0),
     ..desc = character(0),
     ..parent = character(0),
     ..parentName = character(0),

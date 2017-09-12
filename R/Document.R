@@ -43,7 +43,7 @@
 #' @param desc Character string containing the description of the document.
 #' @param fileName Character string cointaining the file name for a document.  Required for objects of Document class.
 #' @param name Character string indicating the name of the document. Required for all objects
-#' @param parent An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.
+#' @param parent An object of the DocumentCollection class that represents the parent object. Required for input / output methods.
 #' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
 #'
 #' @docType class
@@ -98,7 +98,7 @@ Document <- R6::R6Class(
       private$..name <- name
       private$..class <- "Document"
       private$..desc <- desc
-      private$..parent <- orphanCollection
+      private$..parent <- OrphanCollection
       private$..parentName <- o$name
       private$..path <- file.path(o$path, fileName)
       private$..fileName <- fileName
@@ -126,10 +126,6 @@ Document <- R6::R6Class(
         created = private$..created,
         modified = private$..modified
       )
-
-      # Update State
-      nlpStudioState$saveState(private$..name, self)
-
 
       return(document)
     },
@@ -208,7 +204,7 @@ Document <- R6::R6Class(
         base::unlink(oldPath)
 
         # Update State
-        nlpStudioState$saveState(private$..name, self)
+        stateManager$saveState(self)
 
 
       } else {
@@ -251,7 +247,7 @@ Document <- R6::R6Class(
       }
       # Update state
       # Update State
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
 
       return(private$..content)
     },

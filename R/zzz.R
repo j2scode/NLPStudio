@@ -3,16 +3,18 @@
   # Instantiate Singleton Classes
   if (file.exists("./NLPStudio/.State.Rdata")) {
     welcomeMessage <- "#                      Welcome back to the NLPStudio (Beta)!                              #"
+    stateManager <<- StateManager$new()$getInstance()
+    stateManager$restoreState()
     nlpStudio <<- NLPStudio$new()$getInstance()
-    nlpStudioState <<- StateServer$new()$getInstance()
-    nlpStudioState$loadState()
    } else {
     welcomeMessage <- "#                         Welcome to the NLPStudio (Beta)!                                #"
+    stateManager <<- StateManager$new()$getInstance()
     nlpStudio <<- NLPStudio$new()$getInstance()
-    nlpStudioState <<- StateServer$new()$getInstance()
-    nlpStudioState$saveState("nlpStudio", nlpStudio)
-    nlpStudioState$saveState()
-    nlpStudioState$loadState()
+    Lab$new(name = "OrphanCollections", desc = "Lab for Orphan Document Collections")
+    DocumentCollection$new(name = "OrphanDocuments", desc = "Collection for Orphan Documents")
+    stateManager$saveState(OrphanCollections)
+    stateManager$saveState(OrphanDocuments)
+    stateManager$restoreState()
   }
 
   packageStartupMessage(paste0("#=========================================================================================#"))
@@ -29,7 +31,7 @@
   packageStartupMessage(paste0("#                for instantiating labs, which are the environments in which your data    #"))
   packageStartupMessage(paste0("#                analyses and workflows will reside.                                      #"))
   packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    nlpStudioState - This is an object of the StateServer class which is responsible    #"))
+  packageStartupMessage(paste0("#    stateManager - This is an object of the StateServer class which is responsible    #"))
   packageStartupMessage(paste0("#                for saving and restoring the current state of objects within NLPStudio.  #"))
   packageStartupMessage(paste0("#                                                                                         #"))
   packageStartupMessage(paste0("#    nlpSnapshots <- An object of the Snap0 class which is responsible for saving and     #"))
@@ -38,7 +40,7 @@
   packageStartupMessage(paste0("# In addition, there are a few labs that have been created to contain orphaned documents  #"))
   packageStartupMessage(paste0("# and collections and they are as follows:                                                #"))
   packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    orphanLab - An object of the Lab class that contains orphaned document collections   #"))
+  packageStartupMessage(paste0("#    OrphanCollections - An object of the Lab class that contains orphaned document collections   #"))
   packageStartupMessage(paste0("#    orphanCollection - An object of the DocumentCollection class that contains orphaned  #"))
   packageStartupMessage(paste0("#                documents.                                                               #"))
   packageStartupMessage(paste0("#                                                                                         #"))

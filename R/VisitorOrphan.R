@@ -63,14 +63,14 @@ VisitorOrphan <- R6::R6Class(
     visitDocumentCollection = function(collection) {
 
       # Create orphan directory if it doesn't already exist
-      dirs <- nlpStudio$getDirectories()
-      if (!dir.exists(dirs$orphanLab)) {
-        dir.create(dirs$orphanLab)
+      dirs <- nlpStudio$getPaths()
+      if (!dir.exists(dirs$OrphanCollections)) {
+        dir.create(dirs$OrphanCollections)
       }
 
       # Move files to orphan directory and delete old delete.
       c <- collection$getObject
-      file.copy(c$path, dirs$orphanLab)
+      file.copy(c$path, dirs$OrphanCollections)
       base::unlink(c$path)
 
     },
@@ -78,7 +78,7 @@ VisitorOrphan <- R6::R6Class(
     visitDocument = function(document) {
 
       # Create orphan directory if it doesn't already exist
-      dirs <- nlpStudio$getDirectories()
+      dirs <- nlpStudio$getPaths()
       if (!dir.exists(dirs$orphanCollection)) {
         dir.create(dirs$orphanCollection)
       }

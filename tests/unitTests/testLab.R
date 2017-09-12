@@ -33,15 +33,20 @@ testLab <- function() {
 
     # Test Instantiation
     # lab$new() # should fail, name is required: Success
-    lab <<- Lab$new(name = "blue", "Blue Lab")
+    Lab$new(name = "blue", "Blue Lab")
     #lab$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
-    stopifnot("Lab" %in% class(blue))
-    stopifnot(dir.exists("./NLPStudio/Labs/blue"))
+
 
     # Confirm instantiation
-    lab <<- blue$getLab(type = "list")
-    stopifnot((Sys.time() - lab$created) < 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
+    b <- blue$getObject()
+    stopifnot("Lab" %in% class(blue))
+    stopifnot(b$name == "blue")
+    stopifnot(b$desc == "Blue Lab")
+    stopifnot(is.TRUE(all.equal(b$parent, nlpStudio)))
+    stopifnot(b$parentName == "nlpStudio")
+    stopifnot(b$path == "./NLPStudio/Labs/blue")
+    stopifnot((Sys.time() - b$created) < 1)
+    stopifnot((Sys.time() - b$modified) < 1)
 
     # Confirm directory created
     stopifnot(dir.exists("./NLPStudio/Labs/blue"))
@@ -53,81 +58,20 @@ testLab <- function() {
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
-  test1 = function() {
-    test <- "test1: getLab('object'), no documents"
+
+  test1 <- function() {
+    test <- "test1: Add Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    Sys.sleep(2)
+    # Get lab information
+    b <- blue$getObject()
 
-    # Test getLab object format
-    lab <<- blue$getLab(type = "object")
-    stopifnot(isTRUE(all.equal(lab, blue)))
-    stopifnot("Lab" %in% class(blue))
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-
-    # Logit
-    logTests(cls = cls, mthd = "getLab('object')", note = "Successfully returned object.")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test2 = function() {
-    test <- "test2: getLab('list'), no documents"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test getLab, list format
-    lab <<- blue$getLab(type = "list")
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot(lab$parent == "nlpStudio")
-    stopifnot(lab$path == "./NLPStudio/Labs/blue")
-    stopifnot(length(lab$documents) == 0)
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) > 1)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-
-    # Logit
-    logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned list")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test3 = function() {
-    test <- "test3: getLab('df') with no documents"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test getLab, data frame
-    lab <<- blue$getLab(type = "df")
-    stopifnot(nrow(lab$labDf) == 1)
-    stopifnot(lab$labDf$name[1] == "blue")
-    stopifnot(lab$labDf$desc[1] == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created[1]) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified[1]) > 1)
-    stopifnot(nrow(lab$documentsDf) == 0)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-
-    # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'df')", note = "Data frame returned successfully")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test4 <- function() {
-    test <- "test4: Add Collection"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Get lab name, which is also the path for the collection
-    lab <<- blue$getLab(type = "list")
-    path <- lab$name
-
-    # Create and add collection
+    # Create collection
     DocumentCollection$new(name = "brown", parent = blue, desc = "Brown Corpus")
+
+    # Verify Collection Instantiation
+
+
     stopifnot("DocumentCollection" %in% class(brown))
     stopifnot("Lab" %in% class(blue))
     blue$addDocument(brown)
@@ -137,7 +81,7 @@ testLab <- function() {
     stopifnot(dir.exists("./NLPStudio/Labs/blue/brown"))
 
     # Confirm modified date updated
-    lab <<- blue$getLab(type = "list")
+    lab <<- blue$getObject()
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 
@@ -156,15 +100,15 @@ testLab <- function() {
 
 
   test5 <- function() {
-    test <- "test5: getLab('object') with Collection"
+    test <- "test5: getObject('object') with Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    lab <<- blue$getLab(type = "object")
+    lab <<- blue$getObject()
     stopifnot(isTRUE(all.equal(lab, blue)))
     stopifnot("Lab" %in% class(blue))
 
     # Check existence of documents
-    documents <- blue$getDocuments(type = "object")
+    documents <- blue$getDocuments()
     for (i in length(documents)) {
       stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
     }
@@ -174,16 +118,16 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'object')", note = "Successfully returned object type")
+    logTests(cls = cls, mthd = "getObject(format = 'object')", note = "Successfully returned object type")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
   test6 <- function() {
-    test <- "test6: getLab('list') with Collection"
+    test <- "test6: getObject('list') with Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getLab list format
-    lab <<- blue$getLab(type = "list")
+    # Test getObject list format
+    lab <<- blue$getObject()
     stopifnot(lab$name == "blue")
     stopifnot(lab$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$created) > 1)
@@ -200,17 +144,17 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'list')", note = "Successfully returned list type with added collection")
+    logTests(cls = cls, mthd = "getObject(format = 'list')", note = "Successfully returned list type with added collection")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
   test7 <- function() {
-    test <- "test7: getLab('df') with Collection"
+    test <- "test7: getObject('df') with Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getLab df format
-    lab <<- blue$getLab(type = "df")
+    # Test getObject df format
+    lab <<- blue$getObject()
     stopifnot(lab$labDf$name == "blue")
     stopifnot(lab$labDf$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$labDf$created) > 1)
@@ -227,7 +171,7 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab(format = 'df')", note = "Successfully returned df type")
+    logTests(cls = cls, mthd = "getObject(format = 'df')", note = "Successfully returned df type")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -237,7 +181,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Get lab name, which is also the path for the collection
-    lab <<- blue$getLab(type = "list")
+    lab <<- blue$getObject()
     path <- lab$name
 
     DocumentCollection$new(name = "oxford", parent = blue, desc = "Oxford Corpus")
@@ -248,7 +192,7 @@ testLab <- function() {
     stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
 
     # Confirm modified date updated
-    lab <<- blue$getLab(type = "list")
+    lab <<- blue$getObject()
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1.5)
 
@@ -267,14 +211,14 @@ testLab <- function() {
 
 
   test9 <- function() {
-    test <- "test9: getLab('object') with two documents"
+    test <- "test9: getObject('object') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
-    lab <<- blue$getLab(type = "object")
+    lab <<- blue$getObject()
     stopifnot(isTRUE(all.equal(lab, blue)))
 
     # Check existence of documents
-    documents <- blue$getDocuments(type = "object")
+    documents <- blue$getDocuments()
     for (i in length(documents)) {
       stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
     }
@@ -286,16 +230,16 @@ testLab <- function() {
     stopifnot(checkState("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab('object')", note = "Successfully returned blue object")
+    logTests(cls = cls, mthd = "getObject('object')", note = "Successfully returned blue object")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
   test10 <- function() {
-    test <- "test10: getLab('list') with two documents"
+    test <- "test10: getObject('list') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getLab list format
-    lab <<- blue$getLab(type = "list")
+    # Test getObject list format
+    lab <<- blue$getObject()
     stopifnot(lab$name == "blue")
     stopifnot(lab$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$created) > 1)
@@ -318,17 +262,17 @@ testLab <- function() {
     stopifnot(checkState("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab('list')", note = "Successfully returned blue list with two documents")
+    logTests(cls = cls, mthd = "getObject('list')", note = "Successfully returned blue list with two documents")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
   test11 <- function() {
-    test <- "test11: getLab('df') with two documents"
+    test <- "test11: getObject('df') with two documents"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getLab df format
-    lab <<- blue$getLab(type = "df")
+    # Test getObject df format
+    lab <<- blue$getObject()
     stopifnot(lab$labDf$name == "blue")
     stopifnot(lab$labDf$desc == "Blue Lab")
     stopifnot((Sys.time() - lab$labDf$created) > 1)
@@ -351,7 +295,7 @@ testLab <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getLab('df')", note = "Successfully returned df type with 2 documents")
+    logTests(cls = cls, mthd = "getObject('df')", note = "Successfully returned df type with 2 documents")
     logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -365,7 +309,7 @@ testLab <- function() {
 
     # Successfuly remove oxford from collection list
     blue$removeDocument(oxford, purge = FALSE)
-    documents <<- blue$getDocuments(type = "list")
+    documents <<- blue$getDocuments()
     for (d in 1:length(documents)) {
       stopifnot(!isTRUE(all.equal(documents[[d]]$name, "oxford")))
     }
@@ -377,14 +321,14 @@ testLab <- function() {
     stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
 
     # Confirm document exists in archive
-    archives <- nlpArchives$getArchives(type = "list")
+    archives <- nlpArchives$getArchives()
     stopifnot(archives[[1]]$objectName == "oxford")
     stopifnot(archives[[1]]$archiveName == "oxford-2017-09-03-1")
     stopifnot(archives[[1]]$seqNum == 1)
     stopifnot(archives[[1]]$numFiles == 4)
 
     # Confirm date modified updated correctly
-    lab <- blue$getLab()
+    lab <- blue$getObject()
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1)
 
@@ -403,7 +347,7 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Create  new document
-    lab <- blue$getLab(type = "list")
+    lab <- blue$getObject()
     path <- lab$name
     DocumentCollection$new(name = "penn", parent = blue, desc = "Penn Corpus")
 
@@ -421,7 +365,7 @@ testLab <- function() {
     blue$removeDocument(penn, purge = TRUE)
 
     # Confirm document removed from lab
-    documents <<- blue$getDocuments(type = "list")
+    documents <<- blue$getDocuments()
     if (length(documents) > 0) {
       for (c in 1:length(documents)) {
         stopifnot(!isTRUE(all.equal(documents[[c]]$name, "penn")))
@@ -435,7 +379,7 @@ testLab <- function() {
     stopifnot(!dir.exists("./NLPStudio/Labs/blue/penn"))
 
     # Confirm Archived
-    archives <- nlpArchives$getArchives(type = "list")
+    archives <- nlpArchives$getArchives()
     stopifnot(archives[[2]]$objectName == "penn")
     stopifnot(archives[[2]]$archiveName == "penn-2017-09-03-1")
     stopifnot(archives[[2]]$numFiles == 4)
@@ -443,7 +387,7 @@ testLab <- function() {
     stopifnot(as.Date(archives[[2]]$created) == as.Date(Sys.time()))
 
     # Confirm date modified updated correctly
-    lab <- blue$getLab(type = "list")
+    lab <- blue$getObject()
     stopifnot((Sys.time() - lab$created) > 1)
     stopifnot((Sys.time() - lab$modified) < 1.5)
 

@@ -79,13 +79,12 @@ DocumentCollection <- R6::R6Class(
       }
 
       # Get orphan lab information
-      o <- orphanLab$getObject()
+      o <- OrphanCollections$getObject()
 
       # Instantiate variables
       private$..name <- name
-      private$..class <- "DocumentCollection"
       private$..desc <- desc
-      private$..parent <- orphanLab
+      private$..parent <- OrphanCollections
       private$..parentName <- o$name
       private$..path <- file.path(o$path, name)
       private$..created <-Sys.time()
@@ -94,9 +93,6 @@ DocumentCollection <- R6::R6Class(
       # Assign the name to the object in the global environment and update state
       assign(name, self, envir = .GlobalEnv)
 
-      # Set state
-      nlpStudioState$saveState(key = name, value = self)
-
       invisible(self)
     },
 
@@ -104,7 +100,6 @@ DocumentCollection <- R6::R6Class(
 
       document <- list(
         name = private$..name,
-        class = private$..class,
         desc = private$..desc,
         parent = private$..parent,
         parentName = private$..parentName,
@@ -113,10 +108,6 @@ DocumentCollection <- R6::R6Class(
         created = private$..created,
         modified = private$..modified
       )
-
-      # Update State
-      nlpStudioState$saveState(private$..name, self)
-
       return(document)
     },
 
@@ -152,7 +143,7 @@ DocumentCollection <- R6::R6Class(
       document$setAncestor(self)
 
       # Update state
-      nlpStudioState$saveState(d$name, document)
+      stateManager$saveState(d$name, document)
     },
 
     removeChild = function(document, purge = FALSE) {
@@ -214,7 +205,7 @@ DocumentCollection <- R6::R6Class(
 
       }
       # Update State
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
     },
 
     getAncestor = function() {
@@ -251,7 +242,7 @@ DocumentCollection <- R6::R6Class(
 
         # Update state
         # Update State
-        nlpStudioState$saveState(private$..name, self)
+        stateManager$saveState(self)
 
 
       } else {

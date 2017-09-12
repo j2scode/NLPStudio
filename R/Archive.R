@@ -78,7 +78,7 @@ Archive <- R6::R6Class(
             assign(private$..name, self, envir = .GlobalEnv)
 
             # State
-            nlpStudioState$saveState(key = private$..name, value = self)
+            stateManager$saveState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -89,7 +89,7 @@ Archive <- R6::R6Class(
 
           archive = function(object) {
             # Get archive directory
-            dirs <- nlpStudio$getDirectories()
+            dirs <- nlpStudio$getPaths()
             private$..path <- dirs$archives
 
             # Validate parameter
@@ -166,7 +166,7 @@ Archive <- R6::R6Class(
 
             # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioState$saveState(key = private$..name, value = self)
+            stateManager$saveState(key = private$..name, value = self)
 
             invisible(self)
           },
@@ -354,8 +354,8 @@ Archive <- R6::R6Class(
 
             # Note date modified and store in state.
             private$..modified <- Sys.time()
-            nlpStudioState$saveState(key = objectData$name, value = object)
-            nlpStudioState$saveState(key = private$..name, value = self)
+            stateManager$saveState(key = objectData$name, value = object)
+            stateManager$saveState(key = private$..name, value = self)
 
             invisible(object)
           }

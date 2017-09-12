@@ -125,19 +125,8 @@ VisitorArchive <- R6::R6Class(
 
     visitLab = function(stateId, lab) {
 
-      # Validate parameters
-      if (missing(stateId)) {
-        v <- Validate0$new()
-        v$notify(cls = "Archive", method = "archive",
-                 fieldName = "object", value = "", level = "Error",
-                 msg = paste("Object is missing with no default.",
-                             "See ?Archive for further assistance."),
-                 expect = NULL)
-        stop()
-      }
-
       # Obtain directories
-      dirs <- nlpStudio$getDirectories()
+      dirs <- nlpStudio$getPaths()
 
       # Call archive function
       private$archive(stateId, lab, dirs$archivesLabs)
@@ -149,7 +138,7 @@ VisitorArchive <- R6::R6Class(
     visitDocumentCollection = function(stateId, collection) {
 
       # Obtain directories
-      dirs <- nlpStudio$getDirectories()
+      dirs <- nlpStudio$getPaths()
 
       # Call archive function
       private$archive(stateId, collection, dirs$archivesCollections)
@@ -160,7 +149,7 @@ VisitorArchive <- R6::R6Class(
     visitDocument = function(stateId, document) {
 
       # Obtain directories
-      dirs <- nlpStudio$getDirectories()
+      dirs <- nlpStudio$getPaths()
 
       # Call archive function
       private$archive(stateId, document, dirs$archivesDocuments)

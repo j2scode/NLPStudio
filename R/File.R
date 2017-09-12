@@ -61,7 +61,7 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
     }
   ),
 
@@ -74,7 +74,7 @@ Lab <- R6::R6Class(
     initialize = function(name, desc = NULL) {
 
       # Load directories
-      private$..directories <- nlpStudio$getDirectories()
+      private$..directories <- nlpStudio$getPaths()
 
       # Validate Name
       v <- ValidateName$new()
@@ -127,7 +127,7 @@ Lab <- R6::R6Class(
       nlpStudio$addLab(self)
 
       # Update State
-      nlpStudioState$saveState(name, self)
+      stateManager$saveState(name, self)
 
       invisible(self)
     },
@@ -243,7 +243,7 @@ Lab <- R6::R6Class(
       document$setAncestor(self)
 
       # Update State
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
 
       invisible(self)
 
@@ -296,7 +296,7 @@ Lab <- R6::R6Class(
       # Remove collection from lab and update state
       private$..documents[[documentInfo$name]] <- NULL
       private$..modified <- Sys.time()
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
 
       if (purge == TRUE) {
 
@@ -311,7 +311,7 @@ Lab <- R6::R6Class(
       }
 
       # Update State
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
 
       invisible(self)
 

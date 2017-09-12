@@ -60,10 +60,10 @@ NLPStudio <- R6::R6Class(
         classname = "NLPStudio",
         private = list(
           ..name = "nlpStudio",
-          ..class = "NLPStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
-          ..studioDirs = list(
+          ..paths = list(
             studio = "./NLPStudio",
+            stateFile = "./NLPStudio/.State.Rdata",
             archives = "./NLPStudio/Archives",
             archivesLabs = "./NLPStudio/Archives/Labs",
             archivesCollections = "./NLPStudio/Archives/Collections",
@@ -93,7 +93,7 @@ NLPStudio <- R6::R6Class(
             on.exit(options(opt))
 
             # Create NLPStudio folders
-            lapply(private$..studioDirs, function(d) {
+            lapply(private$..paths, function(d) {
               if (!dir.exists(d)) {
                 suppressWarnings(dir.create(d))
               }
@@ -107,8 +107,8 @@ NLPStudio <- R6::R6Class(
             private$..created <- Sys.time()
 
             # Initialize Logger
-            if (!dir.exists(private$..studioDirs$log)) {
-              dir.create(private$..studioDirs$log)
+            if (!dir.exists(private$..paths$log)) {
+              dir.create(private$..paths$log)
               futile.logger::flog.threshold(INFO)
               futile.logger::flog.logger("green", INFO, appender=appender.tee('./log/green.log'))
               futile.logger::flog.logger("green", Info, appender=appender.tee('./log/green.log'))
@@ -134,7 +134,6 @@ NLPStudio <- R6::R6Class(
 
             studio = list(
               name = private$..name,
-              class = private$..class,
               desc = private$..desc,
               labs = private$..labs,
               currentLab = private$..currentLab,
@@ -144,7 +143,7 @@ NLPStudio <- R6::R6Class(
               )
 
             # Update State
-            nlpStudioState$saveState(private$..name, self)
+            stateManager$saveState(self)
 
             return(studio)
           },
@@ -209,7 +208,7 @@ NLPStudio <- R6::R6Class(
             private$..modified <- Sys.time()
 
             # Update State
-            nlpStudioState$saveState(l$name, lab)
+            stateManager$saveState(l$name, lab)
 
             invisible(self)
 
@@ -254,8 +253,8 @@ NLPStudio <- R6::R6Class(
             l <- lab$getObject()
 
             # Snapshot self and lab
-            Snap0$save(self)
-            Snap0$save(lab)
+            stateManager$saveState(self)
+            stateManager$saveState(lab)
 
             # Delete files and directory
             base::unlink(l$path)
@@ -271,7 +270,7 @@ NLPStudio <- R6::R6Class(
             private$..modified <- Sys.time()
 
             # Save state
-            nlpStudioState$saveState(private$..name, self)
+            stateManager$saveState(self)
 
           },
 
@@ -302,7 +301,7 @@ NLPStudio <- R6::R6Class(
 
 
             # Update State
-            nlpStudioState$saveState(l$name, lab)
+            stateManager$saveState(l$name, lab)
 
             invisible(self)
 
@@ -327,14 +326,14 @@ NLPStudio <- R6::R6Class(
             }
 
             # Save state
-            nlpStudioState$saveState(l$name, lab)
+            stateManager$saveState(l$name, lab)
 
             invisible(self)
 
           },
 
-          getDirectories = function() {
-            private$..studioDirs
+          getPaths = function() {
+            private$..paths
           },
 
           #-------------------------------------------------------------------#
