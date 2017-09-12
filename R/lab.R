@@ -41,11 +41,10 @@ Lab <- R6::R6Class(
   private = list(
     ..name = character(0),
     ..desc = character(0),
-    ..class = "Lab",
     ..parent = character(0),
     ..parentName = "nlpStudio",
     ..path = character(0),
-    ..documents = list(),
+    ..collections = list(),
     ..modified = "None",
     ..created = "None"
   ),
@@ -58,7 +57,7 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
     }
   ),
 
@@ -71,7 +70,7 @@ Lab <- R6::R6Class(
     initialize = function(name, desc = NULL) {
 
       # Load directories
-      dirs <- nlpStudio$getDirectories()
+      dirs <- nlpStudio$getPaths()
 
       # Validate Name
       v <- ValidateName$new()
@@ -107,7 +106,6 @@ Lab <- R6::R6Class(
       # Instantiate variables
       private$..name <- name
       if (is.null(desc)) { desc <- paste(name, "Lab") }
-      private$..class <- "Lab"
       private$..desc <- desc
       private$..parent <- nlpStudio
       private$..parentName <- "nlpStudio"
@@ -139,16 +137,14 @@ Lab <- R6::R6Class(
 
       lab = list(
         name = private$..name,
-        class = private$..class,
+        desc = private$..desc,
         parent = private$..parent,
         parentName = private$..parentName,
         path = private$..path,
+        documents = private$..collections,
         modified = private$..modified,
         created = private$..created
       )
-
-      # Update state
-      nlpStudioState$saveState(private$..name, self)
 
       return(lab)
     },
@@ -159,7 +155,7 @@ Lab <- R6::R6Class(
 
     getChildren = function() {
 
-      documents = lapply(private$..documents, function(d) {
+      documents = lapply(private$..collections, function(d) {
         d$getObject()
       })
 
@@ -193,7 +189,7 @@ Lab <- R6::R6Class(
 
       # Add collection to list of collections
       d <- document$getObject()
-      private$..documents[[d$name]] <- document
+      private$..collections[[d$name]] <- document
 
       # Add parent to document
       document$setAncestor(self)
@@ -202,7 +198,8 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Update State
-      nlpStudioState$saveState(d$name, document)
+      stateManager$saveState(self)
+      stateManager$saveState(document)
 
       invisible(self)
 
@@ -250,18 +247,18 @@ Lab <- R6::R6Class(
       }
 
       # Archive before removing document
-      Snap0$save(self)
-      Snap0$save(document)
+      stateManager$saveState(self)
+      stateManager$saveState(document)
 
       # Move files to orphan directory
       File$orphan(document)
 
       # Remove collection from lab and update modified time
-      private$..documents[[d$name]] <- NULL
+      private$..collections[[d$name]] <- NULL
       private$..modified <- Sys.time()
 
       # Update State
-      nlpStudioState$saveState(private$..name, self)
+      stateManager$saveState(self)
 
       invisible(self)
 

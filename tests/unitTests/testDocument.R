@@ -29,34 +29,41 @@ testDocument <- function() {
 
     # Successful Instantiation, no path
     Document$new(name = "news", fileName = "en_US.news.txt",
-                 desc = "News of the World") # No path, can update when adding to collection
+                 desc = "News of the World")
     Document$new(name = "sports", fileName = "sports.txt",
-                 path = "./Labs/blue/oxford", desc = "Sports Headlines") # Validates path
+                 desc = "Sports Headlines")
     Document$new(name = "finance", fileName = "finance.txt",
-                 path = "./Labs/blue/oxford", desc = "Finance Reports") # Validates path
+                 desc = "Finance Reports")
 
-    # Validate Instantiation
-    n <- news$getDocument(type = "list")
-    s <- sports$getDocument(type = "list")
-    f <- finance$getDocument(type = "list")
+    # Obtain document information
+    n <- news$getObject()
+    s <- sports$getObject()
+    f <- finance$getObject()
 
+    # Validate instantiation and getObject
     stopifnot(n$name == "news")
     stopifnot(n$desc == "News of the World")
-    stopifnot(is.null(n$path))
+    stopifnot(is.TRUE(all.equal(n$parent, orphanCollection)))
+    stopifnot(n$parentName == "orphanCollection")
+    stopifnot(n$path == "./NLPStudio/Labs/OrphanCollection/news")
     stopifnot(n$fileName == "news.txt")
     stopifnot((Sys.time() - n$modified) < 1)
     stopifnot((Sys.time() - n$created) < 1)
 
     stopifnot(s$name == "sports")
     stopifnot(s$desc == "Sports Headlines")
-    stopifnot(s$path == "./Labs/blue/oxford")
+    stopifnot(is.TRUE(all.equal(n$parent, orphanCollection)))
+    stopifnot(n$parentName == "orphanCollection")
+    stopifnot(n$path == "./NLPStudio/Labs/OrphanCollection/sports")
     stopifnot(s$fileName == "sports.txt")
     stopifnot((Sys.time() - s$modified) < 1)
     stopifnot((Sys.time() - s$created) < 1)
 
     stopifnot(f$name == "financials")
     stopifnot(f$desc == "Finance Reports")
-    stopifnot(f$path == "./Labs/blue/oxford")
+    stopifnot(is.TRUE(all.equal(n$parent, orphanCollection)))
+    stopifnot(n$parentName == "orphanCollection")
+    stopifnot(n$path == "./NLPStudio/Labs/OrphanCollection/financials")
     stopifnot(f$fileName == "finance.txt")
     stopifnot((Sys.time() - f$modified) < 1)
     stopifnot((Sys.time() - f$created) < 1)
@@ -69,81 +76,8 @@ testDocument <- function() {
 
     # Logit
     logTests(cls = cls, mthd = "initiate", note = "Blocked invalid document variables")
-    logTests(cls = cls, mthd = "initiate", note = "Created document w/o path")
-    logTests(cls = cls, mthd = "getDocument", note = "Tested list type")
-    logTests(cls = cls, mthd = "initiate", note = "Created document with path")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test1 <- function() {
-    test <- "test1: Test getDocument"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test object
-    n <- news$getDocument(type = "object")
-    s <- sports$getDocument(type = "object")
-    f <- finance$getDocument(type = "object")
-
-    stopifnot(isTRUE(all.equal(news, n)))
-    stopifnot(isTRUE(all.equal(sports, s)))
-    stopifnot(isTRUE(all.equal(finance, f)))
-
-    # Test Data frame
-    n <- news$getDocument(type = "df")
-    s <- sports$getDocument(type = "df")
-    f <- finance$getDocument(type = "df")
-
-    stopifnot(n$name[1] == "news")
-    stopifnot(n$desc[1] == "News of the World")
-    stopifnot(is.null(n$path[1]))
-    stopifnot(n$fileName[1] == "news.txt")
-    stopifnot((Sys.time() - n$modified[1]) < 1)
-    stopifnot((Sys.time() - n$created[1]) < 1)
-
-    stopifnot(s$name[1] == "sports")
-    stopifnot(s$desc[1] == "Sports Headlines")
-    stopifnot(s$path[1] == "./Labs/blue/oxford")
-    stopifnot(s$fileName[1] == "sports.txt")
-    stopifnot((Sys.time() - s$modified[1]) < 1)
-    stopifnot((Sys.time() - s$created[1]) < 1)
-
-    stopifnot(f$name[1] == "financials")
-    stopifnot(f$desc[1] == "Finance Reports")
-    stopifnot(f$path[1] == "./Labs/blue/oxford")
-    stopifnot(f$fileName[3] == "finance.txt")
-    stopifnot((Sys.time() - f$modified[1]) < 1)
-    stopifnot((Sys.time() - f$created[1]) < 1)
-
-
-    # Logit
-    logTests(cls = cls, mthd = "getDocument", note = "Tested object type")
-    logTests(cls = cls, mthd = "getDocument", note = "Tested data frame type")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test2 <- function() {
-    test <- "test2: Add path"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Validation
-    news$path <- "./Labs/blue/dada" # should fail, invalid path
-    news$path <- "./Labs/blue/oxford" # Update missing
-
-    # Get document
-    n <- news$getDocument(type = "list")
-
-    # Verify
-    stopifnot(n$path == "./Labs/blue/oxford")
-    stopifnot(n$created < n$modified)
-
-    # Check State
-    stopifnot(checkState('news') == TRUE)
-
-    # Logit
-    logTests(cls = cls, mthd = "path", note = "Blocked invalid path")
-    logTests(cls = cls, mthd = "path", note = "Updated the path with valid value")
+    logTests(cls = cls, mthd = "initiate", note = "Successfully created 3 Documents and assigned to orphan collection.")
+    logTests(cls = cls, mthd = "getObject", note = "Successfully obtained document information.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }

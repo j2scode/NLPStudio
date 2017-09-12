@@ -31,7 +31,8 @@
 #' @section Methods:
 #' The methods for the StateServer class are as follows:
 #' \describe{
-#'  \item{\code{loadState(stateId = NULL)}}{Loads an object with state, designated by the stateId parameter, from file and returns the object to the StateManager object. If the stateId is not provided, the default is to load the most current versions of all objects and return a list of the objects to the StateManager object.}
+#' \item{\code{getState(stateId )}}{Retrieves the setState object for a designated state, given its stateId.}
+#'  \item{\code{restoreState(stateId = NULL)}}{Restores an object or objects to a prior state.   an object with state, designated by the stateId parameter, from file and returns the object to the StateManager object. If the stateId is not provided, the default is to load the most current versions of all objects and return a list of the objects to the StateManager object.}
 #'  \item{\code{saveState(object, stateId)}}{Saves an object to disk with the designated stateId.  Both parameters, object and stateId are required.  The method returns the object saved to the StateManager object.}
 #' }
 #'
@@ -47,24 +48,69 @@
 StateServer <- R6::R6Class(
   classname = "StateServer",
   lock_objects = FALSE,
-  private = list(
-    ..stateFile = "./NLPStudio/.State.Rdata"
-  ),
   public = list(
 
-    loadState = function(stateId = NULL) {
+    restoreState = function(stateId) {
 
-      load(file = private$..stateFile)
+      # Validate parameter
 
-      if (is.null(stateId)) {
-        states <- lapply(seq_along(state), function(s) { state[[s]] })
-      } else {
-        states <- states[[stateId]]
+      if (missing(stateId)) {
+        v <- Validate0$new()
+        v$notify(cls = "StateServer", method = "restoreState",
+                 fieldName = "stateId", value = "", level = "Error",
+                 msg = paste("StateId parameter is missing with no default.",
+                             "See ?StateServer for further assistance."),
+                 expect = TRUE)
+        stop()
       }
-      return(states)
+
+      # Validate existence of state archive file
+      p <- nlpStudio$getPaths()
+      if (!file.exists(p$stateFile)) {
+
+        v <- Validate0$new()
+        v$notify(cls = "StateServer", method = "restoreState",
+                 fieldName = "stateFile", value = p$stateFile, level = "Error",
+                 msg = paste("Unable to restore objects. The package state",
+                             "archive file", p$stateFile, "is missing.",
+                             "See ?StateServer for further assistance."),
+                 expect = TRUE)
+        stop()
+      }
+
+      # Load states archive file
+      states <- loadRDS(file = p$stateFile)
+
+      # Confirm state with designated stateId exists.
+      if (!exists(states[[stateId]])) {
+        v <- Validate0$new()
+        v$notify(cls = "StateServer", method = "restoreState",
+                 fieldName = "stateId", value = stateId, level = "Error",
+                 msg = paste("Unable to restore stateId:", stateId,
+                             "State not found",
+                             "See ?StateServer for further assistance."),
+                 expect = TRUE)
+        stop()
+      }
+
+      # Prepare confirmation
+      state = list(
+        request = "Restore",
+        stateId <- states[[stateId]]$stateId,
+        class <- states[[stateId]]$class,
+        name <- states[[stateId]]$name,
+        desc <- states[[stateId]]$desc,
+        object <- states[[stateId]]$object,
+        parentName <- states[[stateId]]$parentName,
+        path <- states[[stateId]]$path,
+        fileName <- states[[stateId]]$fileName,
+        saved = states[[stateId]]$created,
+        restored = Sys.time()
+      )
+      return(state)
     },
 
-    saveState = function(object, stateId) {
+    saveState = function(stateId, object) {
 
       # Validation
       if (missing(object)) {
@@ -97,11 +143,31 @@ StateServer <- R6::R6Class(
         stop()
       }
 
+      # Obtain path and object information
+      p <- nlpStudio$getPaths()
+      o <- object$getObject()
+
+      # Format state order for saving
+      state <- list(
+        request = "Save",
+        stateId = stateId,
+        class = class(object)[1],
+        name = o$name,
+        desc = o$desc,
+        object = object,
+        parentName = o$parentName,
+        path = o$path,
+        fileName = o$fileName,
+        saved = Sys.time(),
+        restored = character(0)
+      )
+
       # Retrieve current list of saved objects, append the list, and save
-      states <- self$loadState()
-      states[[stateId]] <- object
-      save(states, file = private$..stateFile)
-      invisible(object)
+      states <- base::readRDS(file = p$stateFile)
+      states[[stateId]] <- order
+      base::saveRDS(states, file = p$stateFile)
+
+      return(state)
     }
   )
 )

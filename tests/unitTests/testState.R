@@ -9,7 +9,7 @@ testState <- function() {
     if (dir.exists(labsDir)) unlink(labsDir, recursive = TRUE)
     if (file.exists(stateFile)) file.remove(stateFile)
 
-    nlpStudioState <<- StateServer$new()$getInstance()
+    stateManager <<- StateServer$new()$getInstance()
   }
 
   # Test 0: Set and get state
@@ -18,16 +18,16 @@ testState <- function() {
     test <- "Test0"
     cat(paste("\n",test,"Commencing\r"))
     swipe()
-    if (length(nlpStudioState$lsState() > 0)) nlpStudioState$purgeState()
-    nlpStudioState$saveState(key = "Lab", value = Lab)
-    nlpStudioState$saveState(key = "swipe", value = swipe)
-    nlpStudioState$saveState(key = "Singleton", value = Singleton)
+    if (length(stateManager$lsState() > 0)) stateManager$purgeState()
+    stateManager$saveState(key = "Lab", value = Lab)
+    stateManager$saveState(key = "swipe", value = swipe)
+    stateManager$saveState(key = "Singleton", value = Singleton)
 
 
-    stopifnot(class(nlpStudioState$restoreState("Lab")) == "R6ClassGenerator")
-    stopifnot(class(nlpStudioState$restoreState("swipe")) == "function")
-    stopifnot(class(nlpStudioState$restoreState("Singleton")) == "R6ClassGenerator")
-    stopifnot(nlpStudioState$lsState() == c( "swipe", "Lab","Singleton"))
+    stopifnot(class(stateManager$restoreState("Lab")) == "R6ClassGenerator")
+    stopifnot(class(stateManager$restoreState("swipe")) == "function")
+    stopifnot(class(stateManager$restoreState("Singleton")) == "R6ClassGenerator")
+    stopifnot(stateManager$lsState() == c( "swipe", "Lab","Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
   }
@@ -39,17 +39,17 @@ testState <- function() {
     test <- "Test1"
     cat(paste("\n",test,"Commencing\r"))
 
-    nlpStudioState$saveState()
-    nlpStudioState$purgeState()
-    stopifnot(nlpStudioState$lsState() == character(0))
-    rm(nlpStudioState, envir = .GlobalEnv)
+    stateManager$saveState()
+    stateManager$purgeState()
+    stopifnot(stateManager$lsState() == character(0))
+    rm(stateManager, envir = .GlobalEnv)
 
-    nlpStudioState <<- StateServer$new()$getInstance()
-    nlpStudioState$loadState()
-    stopifnot(class(nlpStudioState$restoreState("Lab")) ==  "R6ClassGenerator")
-    stopifnot(class(nlpStudioState$restoreState("swipe")) ==  "function")
-    stopifnot(class(nlpStudioState$restoreState("Singleton")) ==  "R6ClassGenerator")
-    stopifnot(nlpStudioState$lsState() == c("swipe", "Lab", "Singleton"))
+    stateManager <<- StateServer$new()$getInstance()
+    stateManager$loadState()
+    stopifnot(class(stateManager$restoreState("Lab")) ==  "R6ClassGenerator")
+    stopifnot(class(stateManager$restoreState("swipe")) ==  "function")
+    stopifnot(class(stateManager$restoreState("Singleton")) ==  "R6ClassGenerator")
+    stopifnot(stateManager$lsState() == c("swipe", "Lab", "Singleton"))
 
     cat(paste("\n",test,"Completed: Success!\n"))
   }
@@ -64,7 +64,7 @@ testState <- function() {
     if (exists("swipe", envir = .GlobalEnv)) rm(swipe, envir = .GlobalEnv)
     if (exists("Singleton", envir = .GlobalEnv)) rm(Singleton, envir = .GlobalEnv)
 
-    nlpStudioState$restoreState()
+    stateManager$restoreState()
 
     stopifnot(exists("Lab"))
     stopifnot(exists("swipe"))
@@ -84,7 +84,7 @@ testState <- function() {
     cat(paste("\n",test,"Commencing\r"))
 
     rm(swipe, envir = .GlobalEnv)
-    nlpStudioState$restoreState("swipe")
+    stateManager$restoreState("swipe")
     stopifnot(class(swipe) ==  "function")
 
     cat(paste("\n",test,"Completed: Success!\n"))
@@ -96,12 +96,12 @@ testState <- function() {
     test <- "Test4"
     cat(paste("\n",test,"Commencing\r"))
 
-    stateNames <<- nlpStudioState$lsState()
+    stateNames <<- stateManager$lsState()
 
     key <- "stateNames"
-    nlpStudioState$saveState(key, stateNames)
+    stateManager$saveState(key, stateNames)
     rm(stateNames, envir = .GlobalEnv)
-    stateNames <<- nlpStudioState$restoreState(key)
+    stateNames <<- stateManager$restoreState(key)
     stopifnot(class(stateNames) ==  "character")
 
     cat(paste("\n",test,"Completed: Success!\n"))

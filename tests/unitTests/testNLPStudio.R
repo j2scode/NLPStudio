@@ -88,7 +88,7 @@ testNLPStudio <- function() {
     nlpStudio$addChild(Beats, enter = FALSE)
 
     # Confirm directory created
-    dirs <- nlpStudio$getDirectories()
+    dirs <- nlpStudio$getPaths()
     stopifnot(dir.exists(file.path(dirs$labs, "Beats")))
 
     # Confirm modified date updated
@@ -147,7 +147,7 @@ testNLPStudio <- function() {
     nlpStudio$addChild(Bart, enter = TRUE)
 
     # Confirm directory created
-    dirs <- nlpStudio$getDirectories()
+    dirs <- nlpStudio$getPaths()
     stopifnot(dir.exists(file.path(dirs$labs, "Bart")))
 
     # Copy test files over
@@ -346,7 +346,7 @@ test16()
 
 }
 
-dirs <- nlpStudio$getDirectories()
+dirs <- nlpStudio$getPaths()
 lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
 cls <- "NLPStudio"
 # stateFile <- "./NLPSTudio/.State.Rdata"
