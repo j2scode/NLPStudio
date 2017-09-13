@@ -65,9 +65,6 @@ NLPStudio <- R6::R6Class(
             studio = "./NLPStudio",
             stateFile = "./NLPStudio/.State.Rdata",
             archives = "./NLPStudio/Archives",
-            archivesLabs = "./NLPStudio/Archives/Labs",
-            archivesCollections = "./NLPStudio/Archives/Collections",
-            archivesDocuments = "./NLPStudio/Archives/Documents",
             labs = "./NLPStudio/Labs",
             log = "./NLPStudio/Log"
             ),
