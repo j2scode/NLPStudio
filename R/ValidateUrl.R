@@ -7,18 +7,19 @@
 #'
 #' \code{ValidateUrl} Class for validating website urls
 #'
-#' This class provide a methods for validating logicals.
+#' This class provide a methods for validating website urls
 #'
 #' @docType class
 #'
 #' @section Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of ValidateUrl class}
-#'  \item{\code{validate(object)}}{Method for validating logical}
+#'  \item{\code{validate(object)}}{Method for validating urls}
 #' }
 #'
-#' @return A logical TRUE if valid logical, FALSE otherwise
+#' @return A logical TRUE if valid url, FALSE otherwise
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateUrl <- R6::R6Class(
   "ValidateUrl",

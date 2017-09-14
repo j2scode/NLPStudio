@@ -18,8 +18,9 @@
 #' @param level Character string c("Error", "Warn", "Info)
 #' @param msg Character vector containing the message to be displayed if test fails
 #' @param expect Logical c(TRUE, FALSE) indicating expected outcome
-#' @inherit Validate0
+#'
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidatePath <- R6::R6Class(
   "ValidatePath",

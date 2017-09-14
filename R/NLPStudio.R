@@ -63,8 +63,8 @@ NLPStudio <- R6::R6Class(
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..paths = list(
             studio = "./NLPStudio",
-            stateFile = "./NLPStudio/.State.Rdata",
-            archives = "./NLPStudio/Archives",
+            states = "./NLPStudio/States",
+            stateFile = "./NLPStudio/States/.States.Rdata",
             labs = "./NLPStudio/Labs",
             log = "./NLPStudio/Log"
             ),

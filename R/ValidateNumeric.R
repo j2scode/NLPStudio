@@ -19,6 +19,7 @@
 #'
 #' @return A logical TRUE if valid numeric, FALSE otherwise
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateNumeric <- R6::R6Class(
   "ValidateNumeric",

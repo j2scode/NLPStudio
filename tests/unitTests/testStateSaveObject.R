@@ -1,4 +1,4 @@
-testStateServer <- function() {
+testStateObject <- function() {
 
   init <- function() {
 
@@ -13,32 +13,18 @@ testStateServer <- function() {
 
     # Create objects
     Document$new(name = "oxfordNews", fileName = "oxford-news.csv", desc = "Oxford News Register")
-    Document$new(name = "oxfordFinance", fileName = "oxford-finance.txt", desc = "Oxford Finance Register")
-    Document$new(name = "oxfordSports", fileName = "oxford-sports.Rdata", desc = "Oxford Sports Register")
     DocumentCollection$new(name = "oxford", "Oxford Collection")
-    DocumentCollection$new(name = "stanford", "Stanford Collection")
-    Lab$new(name = "Development", "Development Lab")
     Lab$new(name = "Caroline", desc = "Caroline's Lab")
-    cat(paste(test, " Objects Created\r"))
 
     # Confirm existence of objects
     stopifnot(exists("oxfordNews"))
-    stopifnot(exists("oxfordFinance"))
-    stopifnot(exists("oxfordSports"))
     stopifnot(exists("oxford"))
-    stopifnot(exists("stanford"))
-    stopifnot(exists("Development"))
     stopifnot(exists("Caroline"))
-    cat(paste(test, " Objects Confirmed\r"))
 
     # Add development lab relationships
     oxford$addChild(oxfordNews)
-    oxford$addChild(oxfordFinance)
-    oxford$addChild(oxfordSports)
-    Development$addChild(oxford)
-    nlpStudio$addChild(Development)
-    nlpStudio$addChild(Caroline)
-    copyFiles("./NLPStudio/Labs/Development")
+    Caroline$addChild(oxford)
+    nlpStudio$addChild(Carolne)
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -282,4 +268,4 @@ test3()
 
 }
 
-testStateServer()
+testStateObject()

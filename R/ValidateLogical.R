@@ -19,6 +19,7 @@
 #'
 #' @return A logical TRUE if valid logical, FALSE otherwise
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateLogical <- R6::R6Class(
   "ValidateLogical",

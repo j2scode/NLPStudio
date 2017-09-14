@@ -9,7 +9,7 @@
 #' \strong{StateManager Class Overview:}
 #' The StateManager class object provides overall management of object state
 #' within the NLPStudio package. It accepts a save or restore request from
-#' a client object, logs the request, dispatches the appropriate StateServer
+#' a client object, statess the request, dispatches the appropriate StateManager
 #' (and, if requested, StateArchiver) object(s). Once the request is fulfilled
 #' by the subclass(es), the object is returned to the StateManager.  The
 #' StateManager adds the object with a designated stateId to its inventory
@@ -24,26 +24,26 @@
 #' The participants of the family are as follows:
 #' \itemize{
 #'  \item StateManager: This class accepts save / restore requests from object
-#'  methods, logs the request and dispatches requests to the StateServer, and,
+#'  methods, statess the request and dispatches requests to the StateManager, and,
 #'  if the client requests that files be saved or restored, the StateArchiver
 #'  class.
-#'  \item StateServer: This class is responsible for saving and restoring
+#'  \item StateManager: This class is responsible for saving and restoring
 #'  objects from and to existing objects.
 #'  \item StateArchiver: This class is responsible for archiving and
 #'  restoring any files associated with an object being saved or restored.
 #'  }
 #'
 #' @section Methods:
-#' The methods for the StateServer class are as follows:
+#' The methods for the StateManager class are as follows:
 #' \describe{
 #'  \item{\code{getState(stateId)}}{Returns the object at the state designated by the stateId parameter.}
 #'  \item{\code{restoreState(stateId, files = FALSE)}}{Restores the object at the state designated by the stateId parameter to the global environment. If files is set TRUE, previously archived directories and files are restored. If the object is part of a composite, e.g. Document or DocumentCollection class object, and its parent does not exist, the files will be restored to an orphan object according to the class of the object, the files will be restored to the orphan object directory, and the parent will be changed accordingly. In this case the restored object may then be moved to another parent as required.}
-#'  \item{\code{saveState(object, files = FALSE)}}{Saves the current state of an object and dispatches a StateServer object to save the state to disk. If the files parameter is set to true, a VisitorArchive object will be instantiated to compress and save the  files associated with the object to an archive directory.}
+#'  \item{\code{saveState(object, files = FALSE)}}{Saves the current state of an object and dispatches a StateManager object to save the state to disk. If the files parameter is set to true, a VisitorArchive object will be instantiated to compress and save the  files associated with the object to an archive directory.}
 #' }
 #'
 #' @param object The object to be loaded or saved. Required parameter for the saveState method.
 #' @param stateId The unique identifier for the object and state. Required parameter for the restoreState method.
-#' @param files Logical indicating whether the files associated with an object should be archived.
+#' @param files statesical indicating whether the files associated with an object should be archived.
 #'
 #' @return object The object to be returned from restoreState or the object passed to saveState.
 #'
@@ -62,27 +62,78 @@ StateManager <- R6::R6Class(
         private = list(
           ..name = "stateManager",
           ..desc = "StateManager NLPStudio Object State Manager",
-          ..log = list(),
-          ..receipts = list(),
+          ..requests = list(),
+          ..states = list(),
+          ..query = list(
+            objectName = character(),
+            dateFrom = character(),
+            dateTo = character()
+          ),
+          ..stateClasses = character(0),
+          ..statesFile = character(0),
           ..created = character(0),
           ..modified = character(0),
 
-          getSeqNum = function(name) {
+          getConstants = function() {
+            constants <- Constants$new()
+            private$..statesFile <- constants$getStatesFile()
+            private$..stateClasses <- constants$getStateClasses()
+          },
+
+          validateObject = function(method, object) {
+
+            v <- ValidateClass$new()
+            if (v$validate(cls = "StateManager", method = method,
+                           fieldName = "class(object)", value = object, level = "Error",
+                           msg = paste("Object is not a serializable object",
+                                       "See ?StateManager for further assistance."),
+                           expect = private$..stateClasses) == FALSE) {
+              return(FALSE)
+            }
+          },
+
+          validateState = function(method, stateId) {
+
+            if (!exists(private$..states[[stateId]])) {
+              v <- Validate0$new()
+              v$notify(cls = "StateManager", method = method,
+                             fieldName = "stateId", value = stateId, level = "Error",
+                             msg = paste("State does not exist.",
+                                         "See ?StateManager for further assistance."),
+                             expect = TRUE)
+              return(FALSE)
+            }
+          },
+
+          assignStateId = function(name) {
             seqNum <- 1
-            if (nrow(private$..log) > 0 ) {
-              if (nrow(subset(private$..log,
-                              request == "Save" &
+            states <- as.data.frame(private$..states)
+
+            if (nrow(states) > 0 ) {
+              if (nrow(subset(states,
                               as.Date(created) == as.Date(Sys.time()) &
                               objectName == name)) > 0) {
-                seqNum <- private$..log %>%
-                  filter(request == "Save" &
-                           as.Date(created) == as.Date(Sys.time()) &
+                seqNum <- states %>%
+                  filter(as.Date(created) == as.Date(Sys.time()) &
                            objectName == name) %>%
                   summarise(max(seqNum))
                 seqNum <- seqNum + 1
               }
             }
-            return(seqNum)
+
+            stateId <- paste0(name,"-", as.Date(Sys.time()), "-", seqNum)
+            return(stateId)
+          },
+
+          parseDate <- function(method, date) {
+            v <- ValidateDate$new()
+            date <- v$validate(cls = "StateManager", method = method,
+                               fieldName = "date", value = date, level = "Error",
+                               msg = paste("Date parameter not recognized. The",
+                                           "recommended date format is 'YYYY-MM-DD'.",
+                                           "See ?StateManager for further assistance."),
+                               expect = TRUE)
+            return(date)
           }
         ),
 
@@ -96,103 +147,112 @@ StateManager <- R6::R6Class(
 
           getInstance = function() invisible(self),
 
-          saveState = function(object) {
+          #-------------------------------------------------------------------#
+          #                        State Query Methods                        #
+          #-------------------------------------------------------------------#
+          querySetObjectName = function(name) {
+            private$..query$object <- name
+          },
 
-            # Validate
-            if (missing(object)) {
-              v <- Validate0$new()
-              v$notify(cls = "StateManager", method = "saveState",
-                       fieldName = "object", value = "", level = "Error",
-                       msg = paste("Object parameter is missing with no default.",
-                                   "See ?StateManager for further assistance."),
-                       expect = TRUE)
-              stop()
+          querySetDateFrom = function(date) {
+
+            date <- private$parseDate(method = "querySetDateFrom", date)
+            if(date == FALSE) stop()
+            private$..query$dateFrom <- date
+
+          },
+
+          querySetDateTo = function(date) {
+
+            date <- private$parseDate(method = "querySetDateTo", date)
+            if (date == FALSE) stop()
+            private$..query$dateTo <- date
+
+          },
+
+          queryStates = function() {
+
+            states <- data.frame()
+
+            if (nrow(private$..states) > 0) {
+
+              # Filter by object name
+              if (length(private$..query$objectName) > 0) {
+                states <- subset(private$..states,
+                                 objectName == private$..query$objectName)
+              } else {
+                states <- private$..states
+              }
+
+              # Filter by from date
+              if (length(private$..query$dateFrom) > 0) {
+                states <- subset(states,
+                                 created >= private$..query$dateFrom)
+              }
+
+              # Filter by to date
+              if (length(private$..query$dateTo) > 0) {
+                states <- subset(states,
+                                 created <= private$..query$dateTo)
+              }
             }
+            return(states)
+          },
 
-            v <- ValidateClass$new()
-            if (v$validate(cls = "StateManager", method = "saveState",
-                           fieldName = "object", value = object, level = "Error",
-                           msg = paste("Object is not a valid 'R6' object",
-                                       "See ?StateServer for further assistance."),
-                           expect = "R6") == FALSE) {
-              stop()
-            }
+          #-------------------------------------------------------------------#
+          #                        saveState Method                           #
+          #-------------------------------------------------------------------#
+          saveState = function(object = NULL) {
 
-            # Obtain object information and format key variables
+            # Get constants and validate request
+            private$getConstants()
+            if (private$validateObject(method = "saveState", object) == FALSE) stop()
+
+            # Obtain object information and format stateId
             o <- object$getObject()
-            seqNum <- private$getSeqNum(o$name)
-            stateId <- paste0(o$name,"-", as.Date(Sys.time()), "-", seqNum)
+            stateId <- assignStateId(o$name)
 
-            # Archive the requested object and associated files
-            stateServer <- StateServer$new()
-            objectConfirmation <- stateServer$saveState(stateId, object)
-            visitorArchive <- VisitorArchive$new()
-            fileConfirmation <- object$accept(visitorArchive)
+            # Generate key
+            t <- Tools$new()
+            key <- t$makeRandomString()
 
-            # Store receipts
-            private$..log[[stateId]] <- list(
-              objectConfirmation = objectConfirmation,
-              fileConfirmation = fileConfirmation
-            )
+            # Create state object and dispatch save request
+            state <- State$new(key)
+            path <- state$saveState(key = key, stateId = stateId, object = object)
 
-            # Log State Request
-            logEntry <- data.frame(request = "Save",
-                                stateId = stateId,
-                                class = class(object)[1],
-                                name = o$name,
-                                desc = o$desc,
-                                parentName <- o$parentName,
-                                path <- o$path,
-                                fileName <- o$fileName,
-                                seqNum = seqNum,
-                                saved = Sys.time(),
-                                restored = character(0))
-            private$..log <- rbind(private$..log, logEntry)
+            #  Create log entry for new saved state
+            state <- list(
+              stateId = stateId,
+              objectName = o$name,
+              objectDesc = o$desc,
+              path = path,
+              created = Sys.time())
 
-            invisible(logEntry)
+            # Save state to memory list and to the serialized list on file
+            private$..states[[stateId]] <- state
+            statesFile <- readRDS(private$..statesFile)
+            statesFile[[stateId]] <- state
+            saveRDS(statesFile, file = private$..statesFile)
+
+            invisible(private$..states[[stateId]])
 
           },
 
           restoreState = function(stateId) {
 
-            # Validate
-            if (missing(stateId)) {
-              v <- Validate0$new()
-              v$notify(cls = "StateManager", method = "restoreState",
-                       fieldName = "stateId", value = "", level = "Error",
-                       msg = paste("StateId parameter is missing with no default.",
-                                   "See ?StateManager for further assistance."),
-                       expect = TRUE)
-              stop()
-            }
+            # Get constants and validate request
+            private$getConstants()
+            if (private$validateState(method = "restoreState", stateId) == FALSE) stop()
 
-            # Obtain object and files from state archive
-            stateServer <- StateServer$new()
-            objectConfirmation <- stateServer$restoreState(stateId)
-            visitorRestore <- VisitorRestore$new()
-            fileConfirmation <- object$accept(visitorRestore)
+            # Generate key
+            t <- Tools$new()
+            key <- t$makeRandomString()
 
-            # Store receipts
-            private$..log[[stateId]] <- list(
-              objectConfirmation = objectConfirmation,
-              fileConfirmation = fileConfirmation
-            )
+            # Create state object and dispatch restore request
+            state <- State$new(key)
+            object <- state$restoreState(key = key, stateId = stateId)
 
-            # Log State Request
-            logEntry <- data.frame(request = "Restore",
-                                   stateId = stateId,
-                                   class = class(object)[1],
-                                   name = o$name,
-                                   desc = o$desc,
-                                   parentName <- o$parentName,
-                                   path <- o$path,
-                                   fileName <- o$fileName,
-                                   seqNum = seqNum,
-                                   saved = fileConfirmation$saved,
-                                   restored = Sys.time())
-            private$..log <- rbind(private$..log, logEntry)
-
-            invisible(logEntry)
+            return(object)
           }
         )
       )

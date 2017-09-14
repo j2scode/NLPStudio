@@ -23,6 +23,7 @@
 #' @docType class
 #'
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateName <- R6::R6Class(
   "ValidateName",

@@ -15,6 +15,7 @@
 #'
 #' @return A logical  TRUE if the object exists, FALSE otherwise
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateExists <- R6::R6Class(
   "ValidateExists",

@@ -19,6 +19,7 @@
 #'
 #' @return a logical TRUE if not empty, FALSE otherwise
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 ValidateNotEmpty <- R6::R6Class(
   "ValidateNotEmpty",

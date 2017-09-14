@@ -40,6 +40,7 @@
 #' @return A logical, TRUE if outcome was expected, FALSE otherwise
 #'
 #' @author John James, \email{jjames@@datasciencesalon.org}
+#' @family Validation Classes
 #' @export
 Validate0 <- R6::R6Class(
   "Validate0",
