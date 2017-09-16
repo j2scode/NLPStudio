@@ -56,6 +56,17 @@ error handling according to its business rules.
 
 }
 
+\seealso{
+Other Validation Classes: \code{\link{ValidateClass}},
+  \code{\link{ValidateDate}}, \code{\link{ValidateExists}},
+  \code{\link{ValidateLogical}},
+  \code{\link{ValidateName}},
+  \code{\link{ValidateNoSpaces}},
+  \code{\link{ValidateNotEmpty}},
+  \code{\link{ValidateNumeric}},
+  \code{\link{ValidatePath}}, \code{\link{ValidateString}},
+  \code{\link{ValidateUrl}}
+}
 \author{
 John James, \email{jjames@datasciencesalon.org}
 }

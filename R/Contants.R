@@ -15,29 +15,42 @@
 #' @author John James, \email{jjames@@datasciencesalon.org}
 #' @export
 Constants <- R6::R6Class(
-  classname = "Contants",
+  classname = "Constants",
   lock_objects = TRUE,
   lock_class = TRUE,
 
   private = list(
+    ..constants = list(
+      stateClasses = c("File", "Document", "DocumentCollection", "Lab"),
+      autoSave = TRUE
+    ),
     ..paths = list(
       studio = "./NLPStudio",
       states = "./NLPStudio/States",
-      statesFile = "./NLPStudio/States/.States.Rdata",
       labs = "./NLPStudio/Labs",
       log = "./NLPStudio/Log"
       ),
-    ..stateClasses = c("File", "Document", "DocumentCollection", "Lab")
+    ..files = list(
+      statesFile = "./NLPStudio/States/.States.Rdata",
+      historyFile = "./NLPStudio/States/.History.Rdata"
+    )
   ),
 
   public = list(
 
+    # Constants
+    getStateClasses = function() private$..constants$stateClasses,
+    getAutoSave = function() private$..constants$autoSave,
+
+    # Paths
+    getPaths = function() private$..paths,
     getStudioPath = function() private$..paths$studio,
     getStatesPath = function() private$..paths$states,
-    getStatesFile = function() private$..paths$statesFile,
     getLabsPath = function() private$..paths$labs,
     getLogPath = function() private$..paths$log,
 
-    getStateClasses = function() private$..stateClasses
+    # Files
+    getStatesFile = function() private$..files$statesFile,
+    getHistoryFile = function() private$..files$historyFile
   )
 )

@@ -70,7 +70,7 @@ VisitorArchive <- R6::R6Class(
       # Validate Parameters
       if (missing(stateId)) {
         v <- Validate0$new()
-        v$notify(cls = "VisitorArchive", method = "archive",
+        v$notify(class = "VisitorArchive", method = "archive",
                  fieldName = "stateId", value = "", level = "Error",
                  msg = paste("StateId is missing with no default.",
                              "See ?VisitorArchive for further assistance."),
@@ -80,7 +80,7 @@ VisitorArchive <- R6::R6Class(
 
       if (missing(object)) {
         v <- Validate0$new()
-        v$notify(cls = "VisitorArchive", method = "archive",
+        v$notify(class = "VisitorArchive", method = "archive",
                  fieldName = "object", value = "", level = "Error",
                  msg = paste("Object is missing with no default.",
                              "See ?VisitorArchive for further assistance."),
@@ -89,7 +89,7 @@ VisitorArchive <- R6::R6Class(
       }
 
       v <- ValidateClass$new()
-      if (v$validate(cls = "VisitorArchive", method = "archive",
+      if (v$validate(class = "VisitorArchive", method = "archive",
                      fieldName = "object", value = object, level = "Error",
                      msg = paste("The object variable is not a valid R6 object.",
                                  "See ?VisitorArchive for further assistance."),

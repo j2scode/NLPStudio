@@ -21,14 +21,14 @@ ValidateExists <- R6::R6Class(
   "ValidateExists",
   inherit = Validate0,
   public = list(
-    validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
+    validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
       if (length(value) != 0 & !is.null(value)) {
         if (exists(value) & (expect == TRUE | expect == "TRUE")) {
           return(TRUE)
         } else if (!exists(value) & (expect == FALSE | expect == "FALSE")){
           return(TRUE)
         } else {
-          self$notify(cls, method, fieldName, value, level, msg, expect)
+          self$notify(class, method, fieldName, value, level, msg, expect)
           return(FALSE)
         }
       }

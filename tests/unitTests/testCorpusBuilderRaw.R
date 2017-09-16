@@ -2,9 +2,9 @@ testLab <- function() {
 
   init <- function() {
     rm(list = ls(envir = .GlobalEnv)[grep("builder", ls(envir = .GlobalEnv))], pos = ".GlobalEnv")
-    brown$removeDocument("news")
-    brown$removeDocument("sports")
-    brown$removeDocument("finance")
+    brown$removeChild("news")
+    brown$removeChild("sports")
+    brown$removeChild("finance")
     rm(list = ls(envir = .GlobalEnv)[grep("brown", ls(envir = .GlobalEnv))], pos = ".GlobalEnv")
     rm(list = ls(envir = .GlobalEnv)[grep("news", ls(envir = .GlobalEnv))], pos = ".GlobalEnv")
     rm(list = ls(envir = .GlobalEnv)[grep("sports", ls(envir = .GlobalEnv))], pos = ".GlobalEnv")
@@ -35,7 +35,7 @@ testLab <- function() {
     # stopifnot(checkState("builder") == TRUE)
     #
     # # Logit
-    # logTests(cls = cls, mthd = "initiate", note = "Successfully instantiated CorpusBuilderRaw")
+    # logTests(class = class, mthd = "initiate", note = "Successfully instantiated CorpusBuilderRaw")
 
     # Wrapup
     cat(paste("\n", test, " Completed: Success!\r"))
@@ -61,7 +61,7 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "buildCollection", note = "Successfully instantiated collection")
+    logTests(class = class, mthd = "buildCollection", note = "Successfully instantiated collection")
 
     # Wrapup
     cat(paste("\n", test, " Completed: Success!\r"))
@@ -106,7 +106,7 @@ testLab <- function() {
     stopifnot(checkState("finance") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "buildDocument", note = "Successfully instantiated documents")
+    logTests(class = class, mthd = "buildDocument", note = "Successfully instantiated documents")
 
     # Wrapup
     cat(paste("\n", test, " Completed: Success!\r"))
@@ -150,12 +150,12 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "addDocument", note = "Successfully added document to collection")
+    logTests(class = class, mthd = "addDocument", note = "Successfully added document to collection")
 
     cat(paste("\n", test, " Completed: Success!\r"))
   }
 
-cls <- "CorpusBuilderRaw"
+class <- "CorpusBuilderRaw"
 
 init()
 test0()

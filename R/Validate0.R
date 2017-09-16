@@ -24,12 +24,12 @@
 #' @section Public Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of Validate class}
-#'  \item{\code{validate(cls, method, fieldName, value, level, msg, expect)}}{Validation method overwritten by subclasses}
-#'  \item{\code{notify(cls, method, fieldName, value, level, msg, expect)}}{Renders a notification if outcome is not expected}
+#'  \item{\code{validate(class, method, fieldName, value, level, msg, expect)}}{Validation method overwritten by subclasses}
+#'  \item{\code{notify(class, method, fieldName, value, level, msg, expect)}}{Renders a notification if outcome is not expected}
 #' }
 #'
 #' @section Parameters:
-#' @param cls Character string containing the name of the invoking class
+#' @param class Character string containing the name of the invoking class
 #' @param method Character string containing the name of the invoking method
 #' @param fieldName Character string containing the name of the field to validate
 #' @param value The value of the field being validated
@@ -54,17 +54,17 @@ Validate0 <- R6::R6Class(
 
   #TODO: Have validation methods return false and place stop in calling methods.
   public = list(
-    validate = function(cls, method, fieldName, value, level, msg, expect = NULL)
+    validate = function(class, method, fieldName, value, level, msg, expect = NULL)
       stop("This method is not available"),
-    notify = function(cls, method, fieldName, value, level, msg, expect = NULL) {
+    notify = function(class, method, fieldName, value, level, msg, expect = NULL) {
 
-      if (exists("cls") & exists('method') & exists("value") &
+      if (exists("class") & exists('method') & exists("value") &
           exists("level") & exists("msg")) {
 
         level <- gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2",
                       level, perl = TRUE)
 
-        note <- paste0(level, " in class '", cls, "', method '", method,
+        note <- paste0(level, " in class '", class, "', method '", method,
                        "' with variable '", fieldName, "'. ", msg)
         switch(level,
                Info  = private$notifyInfo(note),
@@ -73,7 +73,7 @@ Validate0 <- R6::R6Class(
         )
       } else {
         note <- paste("The usage for the Validate0 class is",
-                      "validate(cls, method, fieldName, value, level,",
+                      "validate(class, method, fieldName, value, level,",
                       " and msg)")
         private$notifyError(note)
       }

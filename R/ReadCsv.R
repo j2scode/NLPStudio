@@ -33,7 +33,7 @@ ReadCsv <- R6::R6Class(
       # Validate parameters
       if (missing(path)) {
         v <- Validate0$new()
-        v$notify(cls = "ReadCsv", method = "readData", fieldName = "path",
+        v$notify(class = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is missing without a default",
                              "See ?ReadCsv for assistance."),
@@ -42,7 +42,7 @@ ReadCsv <- R6::R6Class(
       }
 
       v <- ValidateClass$new()
-      if (v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
+      if (v$validate(class = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is not a character string.",
                              "See ?ReadCsv for assistance."),
@@ -51,7 +51,7 @@ ReadCsv <- R6::R6Class(
       }
 
       v <- ValidatePath$new()
-      if (v$validate(cls = "ReadCsv", method = "readData", fieldName = "path",
+      if (v$validate(class = "ReadCsv", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path", path, "is invalid.",
                              "See ?ReadCsv for assistance."),

@@ -25,24 +25,24 @@ ValidateNoSpaces <- R6::R6Class(
   "ValidateNoSpaces",
   inherit = Validate0,
   public = list(
-    validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
+    validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
 
       if (exists('value')) {
         if (length(value) > 0) {
           if (grepl(pattern = "^\\S+\\s+", x = value, perl = TRUE)) {
-            self$notify(cls, method, fieldName, value, level, msg, expect)
+            self$notify(class, method, fieldName, value, level, msg, expect)
             return(FALSE)
           } else {
             return(TRUE)
           }
         } else {
           msg <- "Field is blank"
-          self$notify(cls, method, fieldName, value, level, msg, expect)
+          self$notify(class, method, fieldName, value, level, msg, expect)
           return(FALSE)
         }
       } else {
         msg <- "Field is blank"
-        self$notify(cls, method, fieldName, value, level, msg, expect)
+        self$notify(class, method, fieldName, value, level, msg, expect)
         return(FALSE)
       }
     }

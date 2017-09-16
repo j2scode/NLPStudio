@@ -15,7 +15,7 @@ testWrite <- function() {
   test0 <- function() {
     test <- "test0: Test WriteBin"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "WriteBin"
+    class = "WriteBin"
     mthd = "writeData"
 
     # Validation
@@ -33,7 +33,7 @@ testWrite <- function() {
     stopifnot(identical(binContent, c))
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "WriteBin tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "WriteBin tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -41,7 +41,7 @@ testWrite <- function() {
   test1 <- function() {
     test <- "test1: Test WriteText"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "WriteText"
+    class = "WriteText"
     mthd = "writeData"
 
     # Validation
@@ -60,7 +60,7 @@ testWrite <- function() {
 
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "WriteText tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "WriteText tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -68,7 +68,7 @@ testWrite <- function() {
   test2 <- function() {
     test <- "test2: Test WriteCsv"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "WriteCsv"
+    class = "WriteCsv"
     mthd = "writeData"
 
     # Validation
@@ -87,7 +87,7 @@ testWrite <- function() {
 
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "WriteCsv tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "WriteCsv tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -95,7 +95,7 @@ testWrite <- function() {
   test3 <- function() {
     test <- "test3: Test WriteRdata"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "WriteRdata"
+    class = "WriteRdata"
     mthd = "writeData"
 
     # Validation
@@ -115,7 +115,7 @@ testWrite <- function() {
 
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "WriteRdata tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "WriteRdata tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }

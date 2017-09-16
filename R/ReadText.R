@@ -32,7 +32,7 @@ ReadText <- R6::R6Class(
       # Validate parameters
       if (missing(path)) {
         v <- Validate0$new()
-        v$notify(cls = "ReadText", method = "readData", fieldName = "path",
+        v$notify(class = "ReadText", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is missing without a default",
                              "See ?ReadText for assistance."),
@@ -41,7 +41,7 @@ ReadText <- R6::R6Class(
       }
 
       v <- ValidateClass$new()
-      if (v$validate(cls = "ReadText", method = "readData", fieldName = "path",
+      if (v$validate(class = "ReadText", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is not a character string.",
                              "See ?ReadText for assistance."),
@@ -50,7 +50,7 @@ ReadText <- R6::R6Class(
       }
 
       v <- ValidatePath$new()
-      if (v$validate(cls = "ReadText", method = "readData", fieldName = "path",
+      if (v$validate(class = "ReadText", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path", path, "is invalid.",
                              "See ?ReadText for assistance."),

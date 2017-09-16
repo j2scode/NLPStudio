@@ -1,7 +1,7 @@
-logTests <- function(cls, mthd, note) {
+logTests <- function(class, mthd, note) {
 
   newPost <- data.frame(date = Sys.time(),
-                        class = cls,
+                        class = class,
                         method = mthd,
                         note = note)
   if (!exists("testLog")) {

@@ -25,6 +25,17 @@ This class provide a methods for validating character string is not empty
 }
 }
 
+\seealso{
+Other Validation Classes: \code{\link{Validate0}},
+  \code{\link{ValidateClass}}, \code{\link{ValidateDate}},
+  \code{\link{ValidateExists}},
+  \code{\link{ValidateLogical}},
+  \code{\link{ValidateName}},
+  \code{\link{ValidateNoSpaces}},
+  \code{\link{ValidateNumeric}},
+  \code{\link{ValidatePath}}, \code{\link{ValidateString}},
+  \code{\link{ValidateUrl}}
+}
 \author{
 John James, \email{jjames@datasciencesalon.org}
 }

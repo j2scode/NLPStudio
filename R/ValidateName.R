@@ -10,11 +10,11 @@
 #' @section Public Methods:
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of ValidateName class}
-#'  \item{\code{validate(cls, method, name, expect)}}{Validates the name variable}
+#'  \item{\code{validate(class, method, name, expect)}}{Validates the name variable}
 #' }
 #'
 #' @section Parameters:
-#' @param cls Character string containing the class invoking the validation.
+#' @param class Character string containing the class invoking the validation.
 #' @param method Character string containing the name of the invoking method
 #' @param name Character string containing the name variable
 #' @param expect Logical c(TRUE, FALSE) indicating expected outcome
@@ -30,12 +30,12 @@ ValidateName <- R6::R6Class(
   inherit = Validate0,
   public = list(
 
-    validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
+    validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
 
       # Validate name is not missing
       if (missing(value)) {
         v <- Validate0$new()
-        v$notify(cls = cls, method = method, fieldName = "name",
+        v$notify(class = class, method = method, fieldName = "name",
                  level = "Error", value = "",
                  msg = "Name is required", expect = NULL)
         return(FALSE)
@@ -43,7 +43,7 @@ ValidateName <- R6::R6Class(
 
       # Validation: Name is not empty
       v <- ValidateNotEmpty$new()
-      if (v$validate(cls = cls, method = method, fieldName = "name",
+      if (v$validate(class = class, method = method, fieldName = "name",
                      level = "Error", value = value,
                      msg = "Name must not be empty", expect = TRUE) == FALSE) {
         return(FALSE)
@@ -51,7 +51,7 @@ ValidateName <- R6::R6Class(
 
       # Validation: name is character class
       v <- ValidateClass$new()
-      if (v$validate(cls = cls, method = method, fieldName = "name",
+      if (v$validate(class = class, method = method, fieldName = "name",
                      level = "Error", value = class(value),
                      msg = "Name isn't a character class",
                      expect = "character") == FALSE) {
@@ -60,7 +60,7 @@ ValidateName <- R6::R6Class(
 
       # Validation: Name's existence is what is expected
       v <- ValidateExists$new()
-      if (v$validate(cls = cls, method = method, fieldName = "name",
+      if (v$validate(class = class, method = method, fieldName = "name",
                      level = "Error", value = value,
                      msg = "Name already exists",
                      expect = expect) == FALSE) {
@@ -69,7 +69,7 @@ ValidateName <- R6::R6Class(
 
       # Validation: No spaces
       v <- ValidateNoSpaces$new()
-      if (v$validate(cls = cls, method = method, fieldName = "name",
+      if (v$validate(class = class, method = method, fieldName = "name",
                      level = "Error", value = value,
                      msg = "Name must have no spaces",
                      expect = TRUE) == FALSE) {

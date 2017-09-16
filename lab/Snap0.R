@@ -87,7 +87,7 @@ Snap0 <- R6::R6Class(
             # Confirm object parameter is not missing
             if (missing(object)) {
               v <- Validate0$new()
-              v$notify(cls = "Snap0", method = "saveSnapshot",
+              v$notify(class = "Snap0", method = "saveSnapshot",
                        fieldName = "object", value = "", level = "Error",
                        msg = paste("Object is missing with no default.",
                                    "See ?Snap0 for further assistance."),

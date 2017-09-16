@@ -1,47 +1,46 @@
-testStateObject <- function() {
+testState <- function() {
 
-  init <- function() {
+  test0 <- function() {
 
-    test <- "init: Initialization"
-    cat(paste("\n\n\n",test, " Commencing\r"))
+    test <- "test0: Initialization"
+    cat(paste("\n",test, " Commencing\r"))
 
-    dirs <- nlpStudio$getPaths()
-    lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
-    base::unlink("./NLPStudio")
+    # Create Objects
+    Lab$new("alex", "Alex's Lab")
+    DocumentCollection$new("stanford", "Standford Collection")
+    Document$new("stanford-news", "Stanford News")
+    Document$new("stanford-finance", "Stanford Finance")
+    Document$new("stanford-sports", "Stanford Sports")
 
-    devtools::load_all()
+    # Create relationships
+    stanford$addChild(stanford-news)
+    alex$addChild(stanford)
 
-    # Create objects
-    Document$new(name = "oxfordNews", fileName = "oxford-news.csv", desc = "Oxford News Register")
-    DocumentCollection$new(name = "oxford", "Oxford Collection")
-    Lab$new(name = "Caroline", desc = "Caroline's Lab")
-
-    # Confirm existence of objects
-    stopifnot(exists("oxfordNews"))
-    stopifnot(exists("oxford"))
-    stopifnot(exists("Caroline"))
-
-    # Add development lab relationships
-    oxford$addChild(oxfordNews)
-    Caroline$addChild(oxford)
-    nlpStudio$addChild(Carolne)
+    # Create Files
+    copyFiles("stanford", "./")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
-  # Test 0: Test StateServer Validation
-  test0 <- function() {
-    test <- "test0: Validate Parameters"
+  test1 <- function() {
+    test <- "test1: Validate Parameters"
     cat(paste("\n",test, " Commencing\r"))
+
+    # Get Key
+    tools <- Tools$new()
+    key <- tools$makeRandomString()
+
+    # Validation
+    State
 
     # Test validation
     StateServer$saveState() # Fail, stateId missing
     StateServer$saveState(object = Development) # Fail, stateId missing
     StateServer$saveState("oxford-2017-09-12-1") # Fail,  object missing
-    StateServer$saveState("oxford-2017-09-12-1", cls) # Fail, object wrong class As Expected!
+    StateServer$saveState("oxford-2017-09-12-1", class) # Fail, object wrong class As Expected!
 
     # Logit
-    logTests(cls = "StateServer", mthd = "saveState", note = "Validation logic performs as expected")
+    logTests(class = "StateServer", mthd = "saveState", note = "Validation logic performs as expected")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -95,7 +94,7 @@ testStateObject <- function() {
     stopifnot(!dir.exists(b$path))
 
     # Logit
-    logTests(cls = "StateServer", mthd = "saveState", note = "Successfully compressed and saved files for the Lab objects.")
+    logTests(class = "StateServer", mthd = "saveState", note = "Successfully compressed and saved files for the Lab objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -138,7 +137,7 @@ testStateObject <- function() {
     stopifnot(file.exists(file.path(o$path, o$fileName)))
 
     # Logit
-    logTests(cls = "StateServer", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
+    logTests(class = "StateServer", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -255,12 +254,12 @@ testStateObject <- function() {
 
 
     # Logit
-    logTests(cls = "StateServer", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
+    logTests(class = "StateServer", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
-init()
+testInit()
 test0()
 test1()
 test2()
@@ -268,4 +267,4 @@ test3()
 
 }
 
-testStateObject()
+testState()

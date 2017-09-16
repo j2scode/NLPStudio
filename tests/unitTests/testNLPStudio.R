@@ -35,8 +35,8 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$modified) < 1)
 
     # Logit
-    logTests(cls = cls, mthd = "initiate", note = "Successfully created nlpStudio")
-    logTests(cls = cls, mthd = "initiate", note = "Create and modified dates initialized correctly")
+    logTests(class = class, mthd = "initiate", note = "Successfully created nlpStudio")
+    logTests(class = class, mthd = "initiate", note = "Create and modified dates initialized correctly")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -58,7 +58,7 @@ testNLPStudio <- function() {
     stopifnot(checkState("nlpStudio") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject('list')", note = "Successfully returned list")
+    logTests(class = class, mthd = "getObject('list')", note = "Successfully returned list")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -82,7 +82,7 @@ testNLPStudio <- function() {
     # Validation
     #nlpStudio$addChild() # fails, lab missing: success
     #nlpStudio$addChild(finfo,enter = FALSE) # fails, invalid class: success
-    #nlpStudio$addChild(Beats, enter = cls) # fails invalid logical
+    #nlpStudio$addChild(Beats, enter = class) # fails invalid logical
 
     # Successful attempt
     nlpStudio$addChild(Beats, enter = FALSE)
@@ -101,8 +101,8 @@ testNLPStudio <- function() {
     stopifnot(checkState("Beats") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "addChild", note = "Beats lab, entry = FALSE")
-    logTests(cls = cls, mthd = "addChild", note = "Date modified updated correctly")
+    logTests(class = class, mthd = "addChild", note = "Beats lab, entry = FALSE")
+    logTests(class = class, mthd = "addChild", note = "Date modified updated correctly")
 
 
     cat(paste("\n", test, " Completed: Success!\n"))
@@ -134,8 +134,8 @@ testNLPStudio <- function() {
     stopifnot(checkState("Beats") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject(type = 'list')", note = "Successfully returned list type")
-    logTests(cls = cls, mthd = "addChild", note = "Successfully added lab")
+    logTests(class = class, mthd = "getObject(type = 'list')", note = "Successfully returned list type")
+    logTests(class = class, mthd = "addChild", note = "Successfully added lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -168,8 +168,8 @@ testNLPStudio <- function() {
     stopifnot(checkState("Bart") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "addChild(enter = 'TRUE')", note = "Successfully added lab")
-    logTests(cls = cls, mthd = "addChild(enter = 'TRUE')", note = "Date modified updated correctly")
+    logTests(class = class, mthd = "addChild(enter = 'TRUE')", note = "Successfully added lab")
+    logTests(class = class, mthd = "addChild(enter = 'TRUE')", note = "Date modified updated correctly")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -207,8 +207,8 @@ testNLPStudio <- function() {
     stopifnot(checkState("Bart") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject('list')", note = "Successfully returned nlpStudio list with two labs")
-    logTests(cls = cls, mthd = "addChild", note = "Successfully added 2nd lab")
+    logTests(class = class, mthd = "getObject('list')", note = "Successfully returned nlpStudio list with two labs")
+    logTests(class = class, mthd = "addChild", note = "Successfully added 2nd lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -233,8 +233,8 @@ testNLPStudio <- function() {
     stopifnot(checkState('Bart') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "enterLab", note = "Successfully notify user when entering a current lab")
-    logTests(cls = cls, mthd = "enterLab", note = "Successfully change current lab and notify user of change")
+    logTests(class = class, mthd = "enterLab", note = "Successfully notify user when entering a current lab")
+    logTests(class = class, mthd = "enterLab", note = "Successfully change current lab and notify user of change")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -257,8 +257,8 @@ testNLPStudio <- function() {
     stopifnot(checkState('Bart') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "leaveLab", note = "Successfully warned when attempting to leave a non-current lab. No change to current")
-    logTests(cls = cls, mthd = "leaveLab", note = "Successfully leave current lab, changing currentLab to 'None'")
+    logTests(class = class, mthd = "leaveLab", note = "Successfully warned when attempting to leave a non-current lab. No change to current")
+    logTests(class = class, mthd = "leaveLab", note = "Successfully leave current lab, changing currentLab to 'None'")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -307,8 +307,8 @@ testNLPStudio <- function() {
     stopifnot(checkState('Beats') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "removeLab", note = "Tested validation and removal of lab")
-    logTests(cls = cls, mthd = "removeLab", note = "Tested archive of files and inventory of archives")
+    logTests(class = class, mthd = "removeLab", note = "Tested validation and removal of lab")
+    logTests(class = class, mthd = "removeLab", note = "Tested archive of files and inventory of archives")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -320,7 +320,7 @@ testNLPStudio <- function() {
     studio$printStudio()  # Should print studio and labs to console
 
     # Logit
-    logTests(cls = cls, mthd = "printStudio", note = "Tested printStudio")
+    logTests(class = class, mthd = "printStudio", note = "Tested printStudio")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -348,7 +348,7 @@ test16()
 
 dirs <- nlpStudio$getPaths()
 lapply(dirs, function(d) {base::unlink(d, recursive = TRUE)})
-cls <- "NLPStudio"
+class <- "NLPStudio"
 # stateFile <- "./NLPSTudio/.State.Rdata"
 # base::unlink(stateFile)
 

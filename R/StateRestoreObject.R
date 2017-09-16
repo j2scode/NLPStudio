@@ -52,7 +52,7 @@ StateRestoreObject <- R6::R6Class(
 
       if (stateManager$verifyRequestId(requestId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreObject", method = "restoreState",
+        v$notify(class = "StateRestoreObject", method = "restoreState",
                  fieldName = "requestId", value = requestId, level = "Error",
                  msg = paste("RequestId parameter was not verified by the StateManager.",
                              "See ?StateRestoreObject for further assistance."),
@@ -62,7 +62,7 @@ StateRestoreObject <- R6::R6Class(
 
       if (stateManager$verifyStateId(stateId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreObject", method = "restoreState",
+        v$notify(class = "StateRestoreObject", method = "restoreState",
                  fieldName = "stateId", value = stateId, level = "Error",
                  msg = paste("StateId parameter was not verified by the StateManager.",
                              "See ?StateRestoreObject for further assistance."),
@@ -88,7 +88,7 @@ StateRestoreObject <- R6::R6Class(
         return(states[[stateId]])
       } else {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreObject", method = "restoreState",
+        v$notify(class = "StateRestoreObject", method = "restoreState",
                  fieldName = "stateId", value = stateId, level = "Error",
                  msg = paste("StateId parameter invalid. State not found.",
                              "See ?StateRestoreObject for further assistance."),

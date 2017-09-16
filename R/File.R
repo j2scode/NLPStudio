@@ -3,7 +3,7 @@
 #==============================================================================#
 #' File
 #'
-#' \code{File} Class responsible for copy, moving and deleting files on disk
+#' \code{File} Abstract class
 #'
 #' This class is a wrapper for procedural copy, move, delete functions in R
 #'
@@ -18,13 +18,13 @@
 #' \describe{
 #'  \item{\code{getDocuments(type = "list")}}{Returns a list of documents in a range of formats.  Valid types (formats) are c("object", "list", "df").  The default is "list".}
 #'  \item{\code{addDocument(document)}}{Adds a document to the Lab object's list of document collections.}
-#'  \item{\code{removeDocument(document, purge = FALSE)}}{Removes a document from the Lab object's list of document collections.  If the purge variable is set to TRUE, the Lab object is archived, the document is removed from the global environment, its directory is deleted, and it is removed from state.}
+#'  \item{\code{removeChild(document, purge = FALSE)}}{Removes a document from the Lab object's list of document collections.  If the purge variable is set to TRUE, the Lab object is archived, the document is removed from the global environment, its directory is deleted, and it is removed from state.}
 #' }
 #'
 #' @param desc A chararacter string containing the description of the Lab
 #' @param document An object of the DocumentCollection class to be added to the Lab object's list of document collections.
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
-#' @param purge A boolean variable.  Used in the removeDocument method. Indicates whether to purge a document from memory, disk, and state.
+#' @param purge A boolean variable.  Used in the removeChild method. Indicates whether to purge a document from memory, disk, and state.
 #' @param type A character string indicating the return format for the "get" methods.  Valid values are c("object", "list", "df")
 #'
 #' @field parent An object of class NLPStudio that contains the Lab object. This is always equal to the singleton object "nlpStudio".
@@ -78,14 +78,14 @@ Lab <- R6::R6Class(
 
       # Validate Name
       v <- ValidateName$new()
-      if (v$validate(cls = "NLPStudio", method = "initialize", value = name,
+      if (v$validate(class = "NLPStudio", method = "initialize", value = name,
                      expect = FALSE) == FALSE) {
         stop()
       }
 
       # Confirm lab does not already exist
       v <- ValidateExists$new()
-      if (v$validate(cls = "Lab", method = "initialize",
+      if (v$validate(class = "Lab", method = "initialize",
                  fieldName = "name", value = name, level = "Error",
                  msg = paste("Cannot create lab because", name,
                              "already exists.",
@@ -96,7 +96,7 @@ Lab <- R6::R6Class(
 
       # Confirm directory does not exist
       v <- ValidatePath$new()
-      if (v$validate(cls = "Lab", method = "initialize",
+      if (v$validate(class = "Lab", method = "initialize",
                  fieldName = "name",
                  value = file.path(private$..directories$labs, name),
                  level = "Error",
@@ -154,7 +154,7 @@ Lab <- R6::R6Class(
       if (!(type %in% c("object", "list", "df"))) {
 
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getLab",
+        v$notify(class = "Lab", method = "getLab",
                  fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid type requested.",
                              "Must be 'object', 'list', or 'df'.",
@@ -211,7 +211,7 @@ Lab <- R6::R6Class(
 
       if (!(type %in% c("object", "list", "df"))) {
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "getDocuments",
+        v$notify(class = "Lab", method = "getDocuments",
                  fieldName = "type", value = type, level = "Warn",
                  msg = paste("Invalid format requested.",
                              "Must be 'object', 'list', or 'df'.",
@@ -226,7 +226,7 @@ Lab <- R6::R6Class(
 
       # Validater
       v <- ValidateClass$new()
-      if (v$validate(cls = "Lab", level = "Error", method = "addDocument",
+      if (v$validate(class = "Lab", level = "Error", method = "addDocument",
                    fieldName = "document", value = document,
                    msg = paste("Invalid class. DocumentCollection class expected",
                                class(document), "encountered."),
@@ -249,12 +249,12 @@ Lab <- R6::R6Class(
 
     },
 
-    removeDocument = function(document, purge = FALSE) {
+    removeChild = function(document, purge = FALSE) {
 
       # Confirm name parameter is not missing
       if (missing(document)) {
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "removeDocument",
+        v$notify(class = "Lab", method = "removeChild",
                  fieldName = "document", value = "", level = "Error",
                  msg = paste("Document is missing with no default.",
                              "See ?Lab for further assistance."),
@@ -264,7 +264,7 @@ Lab <- R6::R6Class(
 
       # Confirm document class
       v <- ValidateClass$new()
-      if (v$validate(cls = "Lab", method = "removeDocument",
+      if (v$validate(class = "Lab", method = "removeChild",
                      fieldName = "document", value = document, level = "Error",
                      msg = paste("Lab method is unable to remove document",
                                  "of the", class(document), "class.",
@@ -280,7 +280,7 @@ Lab <- R6::R6Class(
       # Confirm object is not self
       if (private$..name == documentInfo$name) {
         v <- Validate0$new()
-        v$notify(cls = "Lab", method = "removeDocument",
+        v$notify(class = "Lab", method = "removeChild",
                  fieldName = "document", value = documentInfo$name,
                  level = "Error",
                  msg = paste("Object unable to remove itself. Removal must",

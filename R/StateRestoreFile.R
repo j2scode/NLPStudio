@@ -51,7 +51,7 @@ StateRestoreFile <- R6::R6Class(
 
       if (stateManager$verifyRequestId(requestId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreFile", method = "restoreState",
+        v$notify(class = "StateRestoreFile", method = "restoreState",
                  fieldName = "requestId", value = requestId, level = "Error",
                  msg = paste("RequestId parameter was not verified by the StateManager.",
                              "See ?StateRestoreFile for further assistance."),
@@ -61,7 +61,7 @@ StateRestoreFile <- R6::R6Class(
 
       if (stateManager$verifyStateId(stateId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreFile", method = "restoreState",
+        v$notify(class = "StateRestoreFile", method = "restoreState",
                  fieldName = "stateId", value = stateId, level = "Error",
                  msg = paste("StateId parameter was not verified by the StateManager.",
                              "See ?StateRestoreFile for further assistance."),
@@ -71,7 +71,7 @@ StateRestoreFile <- R6::R6Class(
 
       if (!file.exists(path)) {
         v <- Validate0$new()
-        v$notify(cls = "StateRestoreFile", method = "restoreState",
+        v$notify(class = "StateRestoreFile", method = "restoreState",
                  fieldName = "path", value = path, level = "Error",
                  msg = paste("File does not exist.",
                              "See ?StateRestoreFile for further assistance."),

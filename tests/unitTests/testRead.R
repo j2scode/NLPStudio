@@ -15,7 +15,7 @@ testRead <- function() {
   test0 <- function() {
     test <- "test0: Test ReadBin"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "ReadBin"
+    class = "ReadBin"
     mthd = "readData"
 
     # Validation
@@ -28,7 +28,7 @@ testRead <- function() {
     stopifnot(object.size(binContent) > 100000)
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "ReadBin tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "ReadBin tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -36,7 +36,7 @@ testRead <- function() {
   test1 <- function() {
     test <- "test1: Test ReadText"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "ReadText"
+    class = "ReadText"
     mthd = "readData"
 
     # Validation
@@ -49,7 +49,7 @@ testRead <- function() {
     stopifnot(object.size(textContent) > 100000)
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "ReadText tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "ReadText tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -57,7 +57,7 @@ testRead <- function() {
   test2 <- function() {
     test <- "test2: Test ReadCsv"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "ReadCsv"
+    class = "ReadCsv"
     mthd = "readData"
 
     # Validation
@@ -70,7 +70,7 @@ testRead <- function() {
     stopifnot(object.size(csvContent) > 200)
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "ReadCsv tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "ReadCsv tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -78,7 +78,7 @@ testRead <- function() {
   test3 <- function() {
     test <- "test3: Test ReadRdata"
     cat(paste("\n",test, " Commencing\r"))
-    cls = "ReadRdata"
+    class = "ReadRdata"
     mthd = "readData"
 
     # Validation
@@ -91,7 +91,7 @@ testRead <- function() {
     stopifnot(object.size(rdataContent) > 1000)
 
     # Logit
-    logTests(cls = cls, mthd = mthd, note = "ReadRdata tested with appropriate validation")
+    logTests(class = class, mthd = mthd, note = "ReadRdata tested with appropriate validation")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }

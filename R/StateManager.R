@@ -44,8 +44,13 @@
 #' @param object The object to be loaded or saved. Required parameter for the saveState method.
 #' @param stateId The unique identifier for the object and state. Required parameter for the restoreState method.
 #' @param files statesical indicating whether the files associated with an object should be archived.
+#' @param dateFrom Character string containing a date in any ISO 8601 format, from which state records should be returned.
+#' @param dateTo Character string containing a date in any ISO 8601 format, from which state records should be returned.
+#' @param class Character string indicating the class for which state records should be returned.
+#' @param object Character string indicating the name of the object for which state records should be returned.
 #'
-#' @return object The object to be returned from restoreState or the object passed to saveState.
+#' @return stateId From the setState function, a character string with the stateId assigned by the stateManager
+#' @return object From the restoreState method the object returned from the state archive.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -62,13 +67,7 @@ StateManager <- R6::R6Class(
         private = list(
           ..name = "stateManager",
           ..desc = "StateManager NLPStudio Object State Manager",
-          ..requests = list(),
           ..states = list(),
-          ..query = list(
-            objectName = character(),
-            dateFrom = character(),
-            dateTo = character()
-          ),
           ..stateClasses = character(0),
           ..statesFile = character(0),
           ..created = character(0),
@@ -83,7 +82,7 @@ StateManager <- R6::R6Class(
           validateObject = function(method, object) {
 
             v <- ValidateClass$new()
-            if (v$validate(cls = "StateManager", method = method,
+            if (v$validate(class = "StateManager", method = method,
                            fieldName = "class(object)", value = object, level = "Error",
                            msg = paste("Object is not a serializable object",
                                        "See ?StateManager for further assistance."),
@@ -96,7 +95,7 @@ StateManager <- R6::R6Class(
 
             if (!exists(private$..states[[stateId]])) {
               v <- Validate0$new()
-              v$notify(cls = "StateManager", method = method,
+              v$notify(class = "StateManager", method = method,
                              fieldName = "stateId", value = stateId, level = "Error",
                              msg = paste("State does not exist.",
                                          "See ?StateManager for further assistance."),
@@ -125,21 +124,35 @@ StateManager <- R6::R6Class(
             return(stateId)
           },
 
-          parseDate <- function(method, date) {
-            v <- ValidateDate$new()
-            date <- v$validate(cls = "StateManager", method = method,
-                               fieldName = "date", value = date, level = "Error",
-                               msg = paste("Date parameter not recognized. The",
-                                           "recommended date format is 'YYYY-MM-DD'.",
-                                           "See ?StateManager for further assistance."),
-                               expect = TRUE)
-            return(date)
+          searchStates = function(dateFrom = NULL, dateTo = NULL, class = NULL,
+                               object = NULL)  {
+
+            states <- private$..states
+            tools <- Tools$new()
+
+            if (!is.null(dateFrom)) {
+              date <- tools$parseDate(dateFrom, class = "StateManager", method = "searchStates")
+              if(date == FALSE) stop()
+              states <- subset(states, date >= as.date(date))
+            }
+
+            if (!is.null(dateTo)) {
+              date <- tools$parseDate(dateTo, class = "StateManager", method = "searchStates")
+              if(date == FALSE) stop()
+              states <- subset(states, date <= as.date(date))
+            }
+
+            if (!is.null(class))  states <- subset(states, class == class)
+            if (!is.null(object)) states <- subset(states, object == object)
+
+            return(states)
           }
         ),
 
         public = list(
 
           initialize = function() {
+            private$getConstants()
             private$..created <- Sys.time()
             private$..modified <- Sys.time()
             invisible(self)
@@ -150,70 +163,26 @@ StateManager <- R6::R6Class(
           #-------------------------------------------------------------------#
           #                        State Query Methods                        #
           #-------------------------------------------------------------------#
-          querySetObjectName = function(name) {
-            private$..query$object <- name
-          },
 
-          querySetDateFrom = function(date) {
-
-            date <- private$parseDate(method = "querySetDateFrom", date)
-            if(date == FALSE) stop()
-            private$..query$dateFrom <- date
-
-          },
-
-          querySetDateTo = function(date) {
-
-            date <- private$parseDate(method = "querySetDateTo", date)
-            if (date == FALSE) stop()
-            private$..query$dateTo <- date
-
-          },
-
-          queryStates = function() {
-
-            states <- data.frame()
-
-            if (nrow(private$..states) > 0) {
-
-              # Filter by object name
-              if (length(private$..query$objectName) > 0) {
-                states <- subset(private$..states,
-                                 objectName == private$..query$objectName)
-              } else {
-                states <- private$..states
-              }
-
-              # Filter by from date
-              if (length(private$..query$dateFrom) > 0) {
-                states <- subset(states,
-                                 created >= private$..query$dateFrom)
-              }
-
-              # Filter by to date
-              if (length(private$..query$dateTo) > 0) {
-                states <- subset(states,
-                                 created <= private$..query$dateTo)
-              }
-            }
-            return(states)
-          },
+          getStates = function(...)  return(searchStates(...)),
 
           #-------------------------------------------------------------------#
           #                        saveState Method                           #
           #-------------------------------------------------------------------#
-          saveState = function(object = NULL) {
+          saveState = function(object, stateNote = NULL) {
 
-            # Get constants and validate request
-            private$getConstants()
+            # Get some tools
+            t <- Tools$new()
+
+            # Validate request
             if (private$validateObject(method = "saveState", object) == FALSE) stop()
 
             # Obtain object information and format stateId
             o <- object$getObject()
-            stateId <- assignStateId(o$name)
+            o$class <- class(object)[1]
+            stateId <- assignStateId(paste(o$class,"-",o$name))
 
             # Generate key
-            t <- Tools$new()
             key <- t$makeRandomString()
 
             # Create state object and dispatch save request
@@ -223,8 +192,10 @@ StateManager <- R6::R6Class(
             #  Create log entry for new saved state
             state <- list(
               stateId = stateId,
-              objectName = o$name,
-              objectDesc = o$desc,
+              class = o$class,
+              name = o$name,
+              desc = o$desc,
+              note = stateNote,
               path = path,
               created = Sys.time())
 
@@ -234,14 +205,13 @@ StateManager <- R6::R6Class(
             statesFile[[stateId]] <- state
             saveRDS(statesFile, file = private$..statesFile)
 
-            invisible(private$..states[[stateId]])
+            invisible(stateId)
 
           },
 
           restoreState = function(stateId) {
 
-            # Get constants and validate request
-            private$getConstants()
+            # Validate request
             if (private$validateState(method = "restoreState", stateId) == FALSE) stop()
 
             # Generate key

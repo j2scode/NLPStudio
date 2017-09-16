@@ -83,8 +83,8 @@ the contained documents, add a document, and remove a document.
  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
  \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
  \item{\code{getObject()}}{Retrieves the meta data for the Lab object.}
- \item{\code{getParent()}}{Retrieves the parent object for the Lab object.}
- \item{\code{setParent()}}{Sets the parent object for the Lab object.}
+ \item{\code{getAncestor()}}{Retrieves the parent object for the Lab object.}
+ \item{\code{setAncestor()}}{Sets the parent object for the Lab object.}
  \item{\code{accept(visitor)}}{Accepts a visitor and responds by dispatching the appropriate method, sending itself as a parameter.}
 }
 }

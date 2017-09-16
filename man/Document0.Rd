@@ -95,9 +95,9 @@ the documents, and are:
  implemented in the Document and Collection subclasses }
  \item{\code{removeDocument(document)}}{Base method for removing documents from
  a collection. Specific behaviors implemented in the Collection composite class}
- \item{\code{getParent()}}{Base method for retrieving the parent object for a document.
+ \item{\code{getAncestor()}}{Base method for retrieving the parent object for a document.
  Specific behaviors implemented in the Collection composite class}
- \item{\code{setParent(parent)}}{Base method for adding the parent object to a document.
+ \item{\code{setAncestor(parent)}}{Base method for adding the parent object to a document.
  Specific behaviors implemented in the Collection composite class}
 }
 }

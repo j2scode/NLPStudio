@@ -23,36 +23,22 @@ ValidatePath
 
 \item{expect}{Logical c(TRUE, FALSE) indicating expected outcome}
 }
-\value{
-A logical, TRUE if outcome was expected, FALSE otherwise
-}
 \description{
 \code{ValidatePath} Class for validating a file path
 
 This class provide a methods for validating file paths.
 }
-\section{Private Methods}{
-
-\describe{
- \item{\code{notifyInfo(note)}}{Renders a notification with level "info"}
- \item{\code{notifyWarn(note)}}{Renders a notification with level "warn"}
- \item{\code{notifyError(note)}}{Renders a notification with level "error", and stops processing}
+\seealso{
+Other Validation Classes: \code{\link{Validate0}},
+  \code{\link{ValidateClass}}, \code{\link{ValidateDate}},
+  \code{\link{ValidateExists}},
+  \code{\link{ValidateLogical}},
+  \code{\link{ValidateName}},
+  \code{\link{ValidateNoSpaces}},
+  \code{\link{ValidateNotEmpty}},
+  \code{\link{ValidateNumeric}},
+  \code{\link{ValidateString}}, \code{\link{ValidateUrl}}
 }
-}
-
-\section{Public Methods}{
-
-\describe{
- \item{\code{new()}}{Creates an object of Validate class}
- \item{\code{validate(cls, method, fieldName, value, level, msg, expect)}}{Validation method overwritten by subclasses}
- \item{\code{notify(cls, method, fieldName, value, level, msg, expect)}}{Renders a notification if outcome is not expected}
-}
-}
-
-\section{Parameters}{
-
-}
-
 \author{
 John James, \email{jjames@datasciencesalon.org}
 }

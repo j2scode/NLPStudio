@@ -34,7 +34,7 @@ WriteRdata <- R6::R6Class(
       # Validate parameters
       if (missing(name)) {
         v <- Validate0$new()
-        v$notify(cls = "WriteRdata", method = "writeData", fieldName = "name",
+        v$notify(class = "WriteRdata", method = "writeData", fieldName = "name",
                  level = "Error", value = "",
                  msg = paste("Unable to write document. Name is missing without a default",
                              "See ?WriteRdata for assistance."),
@@ -43,7 +43,7 @@ WriteRdata <- R6::R6Class(
 
       if (missing(path)) {
         v <- Validate0$new()
-        v$notify(cls = "WriteRdata", method = "writeData", fieldName = "path",
+        v$notify(class = "WriteRdata", method = "writeData", fieldName = "path",
                  level = "Error", value = "",
                  msg = paste("Unable to write document. Path is missing without a default",
                              "See ?WriteRdata for assistance."),
@@ -51,7 +51,7 @@ WriteRdata <- R6::R6Class(
         stop()
       }
       v <- ValidateName$new()
-      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "name",
+      if (v$validate(class = "WriteRdata", method = "writeData", fieldName = "name",
                  level = "Error", value = name,
                  msg = paste("Unable to write document. Name", name, "is invalid.",
                              "See ?WriteRdata for assistance."),
@@ -60,7 +60,7 @@ WriteRdata <- R6::R6Class(
       }
 
       v <- ValidateClass$new()
-      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
+      if (v$validate(class = "WriteRdata", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
                              "See ?WriteRdata for assistance."),
@@ -69,7 +69,7 @@ WriteRdata <- R6::R6Class(
       }
 
       v <- ValidatePath$new()
-      if (v$validate(cls = "WriteRdata", method = "writeData", fieldName = "path",
+      if (v$validate(class = "WriteRdata", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
                              "See ?WriteRdata for assistance."),
@@ -79,7 +79,7 @@ WriteRdata <- R6::R6Class(
 
       if (missing(content)) {
         v <- Validate0$new()
-        v$notify(cls = "WriteRdata", method = "writeData",
+        v$notify(class = "WriteRdata", method = "writeData",
                    fieldName = "content", value = "", level = "Error",
                    msg = paste("Unable to write content. Content is missing with no default",
                                "See ?WriteRdata for assistance."),
@@ -88,7 +88,7 @@ WriteRdata <- R6::R6Class(
       }
 
       v <- ValidateNotEmpty$new()
-      if (v$validate(cls = "WriteRdata", method = "writeData",
+      if (v$validate(class = "WriteRdata", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",
                              "See ?WriteRdata for assistance."),

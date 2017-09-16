@@ -52,8 +52,8 @@ testLab <- function() {
     stopifnot(dir.exists("./NLPStudio/Labs/blue"))
 
     # Logit
-    logTests(cls = cls, mthd = "initiate", note = "Successfully created lab")
-    logTests(cls = cls, mthd = "initiate", note = "Create and modified dates initialized correctly")
+    logTests(class = class, mthd = "initiate", note = "Successfully created lab")
+    logTests(class = class, mthd = "initiate", note = "Create and modified dates initialized correctly")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -90,9 +90,9 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "addDocument", note = "Created collection and added to lab")
-    logTests(cls = cls, mthd = "addDocument", note = "Date modified updated correctly")
-    logTests(cls = cls, mthd = "addDocument", note = "Directory created")
+    logTests(class = class, mthd = "addDocument", note = "Created collection and added to lab")
+    logTests(class = class, mthd = "addDocument", note = "Date modified updated correctly")
+    logTests(class = class, mthd = "addDocument", note = "Directory created")
 
 
     cat(paste("\n", test, " Completed: Success!\n"))
@@ -118,7 +118,7 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject(format = 'object')", note = "Successfully returned object type")
+    logTests(class = class, mthd = "getObject(format = 'object')", note = "Successfully returned object type")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -144,8 +144,8 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject(format = 'list')", note = "Successfully returned list type with added collection")
-    logTests(cls = cls, mthd = "addDocument", note = "Successfully added collection")
+    logTests(class = class, mthd = "getObject(format = 'list')", note = "Successfully returned list type with added collection")
+    logTests(class = class, mthd = "addDocument", note = "Successfully added collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -171,8 +171,8 @@ testLab <- function() {
     stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject(format = 'df')", note = "Successfully returned df type")
-    logTests(cls = cls, mthd = "addDocument", note = "Successfully added collection")
+    logTests(class = class, mthd = "getObject(format = 'df')", note = "Successfully returned df type")
+    logTests(class = class, mthd = "addDocument", note = "Successfully added collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -202,9 +202,9 @@ testLab <- function() {
     stopifnot(checkState("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "addDocument(oxford)", note = "Successfully added 2nd collection")
-    logTests(cls = cls, mthd = "addDocument(oxford)", note = "Date modified updated correctly")
-    logTests(cls = cls, mthd = "addDocument(oxford)", note = "Directory created")
+    logTests(class = class, mthd = "addDocument(oxford)", note = "Successfully added 2nd collection")
+    logTests(class = class, mthd = "addDocument(oxford)", note = "Date modified updated correctly")
+    logTests(class = class, mthd = "addDocument(oxford)", note = "Directory created")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -230,7 +230,7 @@ testLab <- function() {
     stopifnot(checkState("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject('object')", note = "Successfully returned blue object")
+    logTests(class = class, mthd = "getObject('object')", note = "Successfully returned blue object")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -262,8 +262,8 @@ testLab <- function() {
     stopifnot(checkState("oxford") == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject('list')", note = "Successfully returned blue list with two documents")
-    logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd collection")
+    logTests(class = class, mthd = "getObject('list')", note = "Successfully returned blue list with two documents")
+    logTests(class = class, mthd = "addDocument", note = "Successfully added 2nd collection")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -295,8 +295,8 @@ testLab <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "getObject('df')", note = "Successfully returned df type with 2 documents")
-    logTests(cls = cls, mthd = "addDocument", note = "Successfully added 2nd lab")
+    logTests(class = class, mthd = "getObject('df')", note = "Successfully returned df type with 2 documents")
+    logTests(class = class, mthd = "addDocument", note = "Successfully added 2nd lab")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -305,10 +305,10 @@ testLab <- function() {
     cat(paste("\n",test, " Commencing\r"))
 
     # Attempt to remove a non-existent collection ( a function): Success
-    # blue$removeDocument(logTests)
+    # blue$removeChild(logTests)
 
     # Successfuly remove oxford from collection list
-    blue$removeDocument(oxford, purge = FALSE)
+    blue$removeChild(oxford, purge = FALSE)
     documents <<- blue$getDocuments()
     for (d in 1:length(documents)) {
       stopifnot(!isTRUE(all.equal(documents[[d]]$name, "oxford")))
@@ -338,7 +338,7 @@ testLab <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "removeLab", note = "Remove lab, purge = FALSE, tested")
+    logTests(class = class, mthd = "removeLab", note = "Remove lab, purge = FALSE, tested")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -362,7 +362,7 @@ testLab <- function() {
     stopifnot(dir.exists("./NLPStudio/Labs/blue/penn"))
 
     # Remove document with a vengeance
-    blue$removeDocument(penn, purge = TRUE)
+    blue$removeChild(penn, purge = TRUE)
 
     # Confirm document removed from lab
     documents <<- blue$getDocuments()
@@ -397,7 +397,7 @@ testLab <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "removeLab", note = "Remove lab, purge = TRUE, tested")
+    logTests(class = class, mthd = "removeLab", note = "Remove lab, purge = TRUE, tested")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -419,7 +419,7 @@ testLab <- function() {
     blue$printLab()  # should show 2 documents
 
     # Logit
-    logTests(cls = cls, mthd = "printLab", note = "Print lab tested")
+    logTests(class = class, mthd = "printLab", note = "Print lab tested")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
@@ -442,7 +442,7 @@ testLab <- function() {
 
 }
 
-cls <- "Lab"
+class <- "Lab"
 
 devtools::load_all()
 testLab()

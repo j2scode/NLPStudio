@@ -17,7 +17,7 @@ Document
 
 \item{name}{Character string indicating the name of the document. Required for all objects}
 
-\item{parent}{An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.}
+\item{parent}{An object of the DocumentCollection class that represents the parent object. Required for input / output methods.}
 
 \item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
 }
@@ -49,8 +49,8 @@ The composite methods are not implemented for the Document class.
  \item{\code{addDocument(document)}}{Not implemented for the Document class.}
  \item{\code{getDocuments()}}{Not implemented for the Document class.}
  \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
- \item{\code{getParent()}}{Returns the parent object.}
- \item{\code{setParent(parent)}}{Sets the parent object.}
+ \item{\code{getAncestor()}}{Returns the parent object.}
+ \item{\code{setAncestor(parent)}}{Sets the parent object.}
 }
 
 #' \strong{Document I/O Methods:}

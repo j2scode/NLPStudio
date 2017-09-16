@@ -33,8 +33,9 @@ it operates.
 The participants of the Visitor class family are:
 \itemize{
  \item Visitor0: This class which specifies an abstract interface for all concrete visitors.
- \item VisitorOrphan: Visitor class responsible for moving an objects files to the orphan directory when the object has been removed from a lab or a collection.
- \item VisitorPrintObject: Visitor class responsible for printing object meta data to the console.
+ \item VisitorArchive This class archives the files associated with a designated object.
+ \item VisitorRestore This class restores files associated with from archives the files associated with a designated object.
+ \item VisitorOrphan: Visitor class responsible for moving an object's files to the orphan directory when the object has been removed from a lab or a collection.
  }
 
 \strong{Visitor Class Family Collaborators:}
@@ -48,12 +49,9 @@ The collaborators of the Visitor0 class are:
 The methods are as follows:
 \itemize{
  \item{\code{visitLab(lab)}}{Base method for visiting a object of the Lab class.}
- \item{\code{visitCollection(collection)}}{Base method visiting a object of the DocumentCollection class.}
+ \item{\code{visitDocumentCollection(collection)}}{Base method visiting a object of the DocumentCollection class.}
  \item{\code{visitDocument(document)}}{Base method visiting a object of the Document class.}
 }
-}
-\seealso{
-Other Visitor classes: \code{\link{VisitorOrphan}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

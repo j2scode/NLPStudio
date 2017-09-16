@@ -75,9 +75,9 @@ testDocument <- function() {
 
 
     # Logit
-    logTests(cls = cls, mthd = "initiate", note = "Blocked invalid document variables")
-    logTests(cls = cls, mthd = "initiate", note = "Successfully created 3 Documents and assigned to orphan collection.")
-    logTests(cls = cls, mthd = "getObject", note = "Successfully obtained document information.")
+    logTests(class = class, mthd = "initiate", note = "Blocked invalid document variables")
+    logTests(class = class, mthd = "initiate", note = "Successfully created 3 Documents and assigned to orphan collection.")
+    logTests(class = class, mthd = "getObject", note = "Successfully obtained document information.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -98,8 +98,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
-    logTests(cls = cls, mthd = "readDocument", note = "Successfully read document with ReadBin")
+    logTests(class = class, mthd = "readDocument", note = "Validated reader")
+    logTests(class = class, mthd = "readDocument", note = "Successfully read document with ReadBin")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -121,8 +121,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
-    logTests(cls = cls, mthd = "writeDocument", note = "Successfully wrote document with WriteBin")
+    logTests(class = class, mthd = "writeDocument", note = "Validated writer")
+    logTests(class = class, mthd = "writeDocument", note = "Successfully wrote document with WriteBin")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -144,8 +144,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
-    logTests(cls = cls, mthd = "readDocument", note = "Successfully read document with ReadText")
+    logTests(class = class, mthd = "readDocument", note = "Validated reader")
+    logTests(class = class, mthd = "readDocument", note = "Successfully read document with ReadText")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -167,8 +167,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
-    logTests(cls = cls, mthd = "writeDocument", note = "Successfully wrote document w/ WriteText")
+    logTests(class = class, mthd = "writeDocument", note = "Validated writer")
+    logTests(class = class, mthd = "writeDocument", note = "Successfully wrote document w/ WriteText")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -189,8 +189,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
-    logTests(cls = cls, mthd = "readDocument", note = "Successfully read document with ReadCsv")
+    logTests(class = class, mthd = "readDocument", note = "Validated reader")
+    logTests(class = class, mthd = "readDocument", note = "Successfully read document with ReadCsv")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -212,8 +212,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
-    logTests(cls = cls, mthd = "writeDocument", note = "Successfully wrote document w/ WriteCsv")
+    logTests(class = class, mthd = "writeDocument", note = "Validated writer")
+    logTests(class = class, mthd = "writeDocument", note = "Successfully wrote document w/ WriteCsv")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -235,8 +235,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "readDocument", note = "Validated reader")
-    logTests(cls = cls, mthd = "readDocument", note = "Successfully read document with ReadRdata")
+    logTests(class = class, mthd = "readDocument", note = "Validated reader")
+    logTests(class = class, mthd = "readDocument", note = "Successfully read document with ReadRdata")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -258,8 +258,8 @@ testDocument <- function() {
     stopifnot(checkState('oxford') == TRUE)
 
     # Logit
-    logTests(cls = cls, mthd = "writeDocument", note = "Validated writer")
-    logTests(cls = cls, mthd = "writeDocument", note = "Successfully wrote document w/ WriteRdata")
+    logTests(class = class, mthd = "writeDocument", note = "Validated writer")
+    logTests(class = class, mthd = "writeDocument", note = "Successfully wrote document w/ WriteRdata")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -274,7 +274,7 @@ testDocument <- function() {
 
 }
 
-cls <- "Document"
+class <- "Document"
 
 devtools::load_all()
 testDocument()

@@ -33,19 +33,8 @@ Classes and objects to perform primative tasks, any other composite tasks that a
 
 # Design 
 
-## File Manager
-Handles all file management. Common interface for the following classes
-1. Read
-2. Write
-3. Archive
-4. Restore
-5. Purge
-
-Change read/write to take document object.
-
 ## NLPStudio
 
-###
 1. Can't remove a current lab. Client must assign a new lab current.  
 
 ## Labs

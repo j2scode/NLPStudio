@@ -20,6 +20,7 @@
 #'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
 #'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
 #'  \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
+#'  \item{\code{getPath()}}{Returns the current path to the lab object.}
 #' }
 #'
 #' @section Lab Methods:
@@ -31,8 +32,8 @@
 #'  \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
 #' }
 #'
-#' @param enter A logical indicating whether to enter a lab and to set the lab current.
 #' @param lab An object of class 'Lab'.
+#' @param autoSave Logical indicating whether to automatically save the state of an object after any change is made.
 #'
 #' @docType class
 #' @examples
@@ -61,25 +62,39 @@ NLPStudio <- R6::R6Class(
         private = list(
           ..name = "nlpStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
-          ..paths = list(
-            studio = "./NLPStudio",
-            states = "./NLPStudio/States",
-            stateFile = "./NLPStudio/States/.States.Rdata",
-            labs = "./NLPStudio/Labs",
-            log = "./NLPStudio/Log"
-            ),
           ..labs = list(),
-          ..currentLab = "None",
-          ..currentLabName = "None",
           ..created = "None",
           ..modified = "None"
         ),
+
+        initLog = function() {
+
+          c <- Constants$new()
+          logPath <- c$getLogPath()
+          if (!dir.exists(logPath)) {
+            dir.create(logPath)
+            futile.logger::flog.threshold(INFO)
+            futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
+            futile.logger::flog.logger("green", Info, appender=appender.tee(file.path(logPath, "green.log")))
+            futile.logger::flog.logger("green", info, appender=appender.tee(file.path(logPath, "green.log")))
+            futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("yellow", Warn, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("yellow", warn, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("yellow", WARNING, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("yellow", Warning, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("yellow", warning, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
+            futile.logger::flog.logger("red", Error, appender=appender.tee(file.path(logPath, "red.log")))
+            futile.logger::flog.logger("red", error, appender=appender.tee(file.path(logPath, "red.log")))
+
+            futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
+          }
+        },
 
         public = list(
           #-------------------------------------------------------------------#
           #                       NLPStudio Methods                           #
           #-------------------------------------------------------------------#
-
           initialize = function() {
 
             name <- "nlpStudio"
@@ -90,42 +105,29 @@ NLPStudio <- R6::R6Class(
             on.exit(options(opt))
 
             # Create NLPStudio folders
-            lapply(private$..paths, function(d) {
-              if (!dir.exists(d)) {
-                suppressWarnings(dir.create(d))
-              }
+            c <- Constants$new()
+            p <- c$getPaths()
+            lapply(p, function(d) {
+              if (!dir.exists(d)) suppressWarnings(dir.create(d))
             })
+
+            # Initialize System Logger
+            private$initLog()
 
             # Create single instance of NLPStudio object
             private$..name <- name
             private$..desc <- desc
-            private$..currentLab <- "None"
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
 
-            # Initialize Logger
-            if (!dir.exists(private$..paths$log)) {
-              dir.create(private$..paths$log)
-              futile.logger::flog.threshold(INFO)
-              futile.logger::flog.logger("green", INFO, appender=appender.tee('./log/green.log'))
-              futile.logger::flog.logger("green", Info, appender=appender.tee('./log/green.log'))
-              futile.logger::flog.logger("green", info, appender=appender.tee('./log/green.log'))
-              futile.logger::flog.logger("yellow", WARN, appender=appender.tee('./log/yellow.log'))
-              futile.logger::flog.logger("yellow", Warn, appender=appender.tee('./log/yellow.log'))
-              futile.logger::flog.logger("yellow", warn, appender=appender.tee('./log/yellow.log'))
-              futile.logger::flog.logger("red", ERROR, appender=appender.tee('./log/red.log'))
-              futile.logger::flog.logger("red", Error, appender=appender.tee('./log/red.log'))
-              futile.logger::flog.logger("red", error, appender=appender.tee('./log/red.log'))
-
-              futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
-            }
+            # Log Event
+            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+                               method = "initializes", event = "nlpStudio Initialized")
 
             invisible(self)
           },
 
-          getInstance = function() {
-            invisible(self)
-          },
+          getInstance = function()  invisible(self),
 
           getObject = function() {
 
@@ -133,8 +135,6 @@ NLPStudio <- R6::R6Class(
               name = private$..name,
               desc = private$..desc,
               labs = private$..labs,
-              currentLab = private$..currentLab,
-              currentLabName = private$..currentLabName,
               modified = private$..modified,
               created = private$..created
               )
@@ -145,23 +145,22 @@ NLPStudio <- R6::R6Class(
             return(studio)
           },
 
+          getPath = function() {
+            c <- Constants$new()
+            return(file.path(c$getLabsPath, private$..name))
+          }
+
           #-------------------------------------------------------------------#
           #                           Lab Methods                             #
           #-------------------------------------------------------------------#
-          getChildren = function() {
+          getChildren = function() private$..labs
 
-            labs = lapply(private$..labs, function(l) {
-              lab <- l$getObject()
-            })
-            return(labs)
-          },
-
-          addChild = function(lab, enter = FALSE) {
+          addChild = function(lab) {
 
             # Validation
             if (missing(lab)) {
               v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "addChild",
+              v$notify(class = "NLPStudio", method = "addChild",
                          fieldName = "lab", value = "", level = "Error",
                          msg = paste("Unable to add lab.",
                                      "Variable lab is missing with no default.",
@@ -171,20 +170,11 @@ NLPStudio <- R6::R6Class(
             }
 
             v <- ValidateClass$new()
-            if (v$validate(cls = "NLPStudio", method = "addChild",
+            if (v$validate(class = "NLPStudio", method = "addChild",
                            fieldName = "lab", value = lab, level = "Error",
                            msg = paste("Object is not a valid 'Lab' type.",
                                        "Please see ?NLPStudio for further assistance."),
                            expect = "Lab") == FALSE) {
-              stop()
-            }
-
-            v <- ValidateLogical$new()
-            if (v$validate(cls = "NLPStudio", method = "addChild",
-                           fieldName = "enter", value = enter, level = "Error",
-                           msg = paste("Invalid logical,", enter, "must be TRUE or FALSE",
-                                       "Please see ?NLPStudio for further assistance."),
-                           expect = TRUE) == FALSE) {
               stop()
             }
 
@@ -195,17 +185,18 @@ NLPStudio <- R6::R6Class(
             # Add parent to lab
             lab$setAncestor(self)
 
-            # Update current lab
-            if (enter == TRUE) {
-              private$..currentLab <- lab
-              private$..currentLabName <- l$name
-            }
-
             # Update modified time
             private$..modified <- Sys.time()
 
             # Update State
-            stateManager$saveState(l$name, lab)
+            stateNote <- paste("Lab", l$name, "added to nlpStudio.")
+            stateManager$saveState(self, stateNote)
+
+            # Log Event
+            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+                               method = "addChild",
+                               event = paste("Added Lab,",
+                                             l$name, "to nlpStudio."))
 
             invisible(self)
 
@@ -216,7 +207,7 @@ NLPStudio <- R6::R6Class(
             # Confirm lab parameter is not missing
             if (missing(lab)) {
               v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "removeChild",
+              v$notify(class = "NLPStudio", method = "removeChild",
                        fieldName = "lab", value = "", level = "Error",
                        msg = paste("Lab is missing with no default.",
                                    "See ?NLPStudio for further assistance."),
@@ -226,7 +217,7 @@ NLPStudio <- R6::R6Class(
 
             # Confirm lab is a lab
             v <- ValidateClass$new()
-            if (v$validate(cls = "NLPStudio", method = "removeChild",
+            if (v$validate(class = "NLPStudio", method = "removeChild",
                            fieldName = "lab", value = lab, level = "Error",
                            msg = paste("Object is not a valid 'Lab' type.",
                                        "Encountered object of the",
@@ -239,7 +230,7 @@ NLPStudio <- R6::R6Class(
             # Confirm lab is not current
             if (isTRUE(all.equal(lab, private$..currentLab))) {
               v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "removeChild",
+              v$notify(class = "NLPStudio", method = "removeChild",
                        fieldName = "lab", value = lab, level = "Error",
                        msg = "Unable to remove a current lab.  See ?NLPStudio",
                        expect = NULL)
@@ -249,103 +240,31 @@ NLPStudio <- R6::R6Class(
             # Obtain lab meta data
             l <- lab$getObject()
 
-            # Snapshot self and lab
-            stateManager$saveState(self)
-            stateManager$saveState(lab)
+            # Save State
+            stateNote <- paste("Lab", l$name, "pending removal from nlpStudio.")
+            stateManager$saveState(self, stateNote)
+
+            # Set child ancester to NULL
+            lab$setAncestor(NULL)
 
             # Delete files and directory
-            base::unlink(l$path)
+            base::unlink(file.path(self$getPath(), l$name))
 
             # Remove lab from nlpStudio
             private$..labs[[l$name]] <- NULL
-
-            # Remove lab from global environment.
-            rm(list = ls(envir = .GlobalEnv)[grep(l$name,
-                                                  ls(envir = .GlobalEnv))])
 
             # Update modified time
             private$..modified <- Sys.time()
 
             # Save state
-            stateManager$saveState(self)
+            stateNote <- paste("Lab", l$name, "removed from nlpStudio.")
+            stateManager$saveState(self, stateNote)
 
-          },
+            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+                               method = "removeChild",
+                               event = paste("Removed Lab,",
+                                             l$name, "from nlpStudio."))
 
-          enterLab = function(lab) {
-
-            l <- lab$getObject()
-
-            if (isTRUE(all.equal(lab, private$..currentLab))) {
-              v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "enterLab",
-                       fieldName = "lab", value = l$name, level = "Info",
-                       msg = "Already entered lab.",
-                       expect = NULL)
-            } else {
-
-              if (!isTRUE(all.equal(private$..currentLab, "None"))) {
-                currentLab <- private$..currentLab$getObject()
-                v <- Validate0$new()
-                v$notify(cls = "NLPStudio", method = "enterLab",
-                         fieldName = "lab", value = l$name, level = "Info",
-                         msg = paste("Leaving", currentLab$name, ". Entering", l$name),
-                         expect = NULL)
-              }
-              private$..currentLab <- lab
-              private$..currentLabName <- l$name
-              private$..modified <- Sys.time()
-            }
-
-
-            # Update State
-            stateManager$saveState(l$name, lab)
-
-            invisible(self)
-
-          },
-
-          leaveLab = function(lab) {
-
-            l <- lab$getObject()
-            currentLab <- private$..currentLab$getObject()
-
-            if (!isTRUE(all.equal(lab, private$..currentLab))) {
-              v <- Validate0$new()
-              v$notify(cls = "NLPStudio", method = "leaveLab",
-                       fieldName = "lab", value = l$name, level = "Warn",
-                       msg = paste("Unable to leave lab", l$name,
-                                   ". Current lab is", currentLab$name, "."),
-                       expect = NULL)
-            } else {
-              private$..currentLab <- "None"
-              private$..currentLabName <- "None"
-              private$..modified <- Sys.time()
-            }
-
-            # Save state
-            stateManager$saveState(l$name, lab)
-
-            invisible(self)
-
-          },
-
-          getPaths = function() {
-            private$..paths
-          },
-
-          #-------------------------------------------------------------------#
-          #                           Visitor Methods                         #
-          #-------------------------------------------------------------------#
-          accept = function(visitor) {
-            visitor$visitNLPStudio(self)
-          },
-
-          acceptArchive = function(visitor, stateId) {
-            visitor$visitNLPStudio(stateId, self)
-          },
-
-          acceptRestore = function(visitor, stateId) {
-            visitor$visitNLPStudio(stateId, self)
           }
 
         )

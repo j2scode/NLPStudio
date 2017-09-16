@@ -95,7 +95,7 @@ Archive <- R6::R6Class(
             # Validate parameter
             if (missing(object)) {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "archive",
+              v$notify(class = "Archive", method = "archive",
                        fieldName = "object", value = "", level = "Error",
                        msg = paste("Object is missing with no default.",
                                    "See ?Archive for further assistance."),
@@ -104,10 +104,10 @@ Archive <- R6::R6Class(
             }
 
             # Validate class of parameter
-            cls <- class(object)[1]
-            if (!(cls %in% c("Lab", "Document", "DocumentCollection", "Corpus"))) {
+            class <- class(object)[1]
+            if (!(class %in% c("Lab", "Document", "DocumentCollection", "Corpus"))) {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "archive",
+              v$notify(class = "Archive", method = "archive",
                        fieldName = "object", value = "", level = "Error",
                        msg = paste("Object must be a 'Lab', 'Document',",
                                    "'DocumentCollection', or 'Corpus' object",
@@ -117,7 +117,7 @@ Archive <- R6::R6Class(
             }
 
             # Get object name
-            if (cls == "Lab") {
+            if (class == "Lab") {
               o <- object$getLab(type = "list")
             } else {
               o <- object$getDocument(type = "list")
@@ -140,7 +140,7 @@ Archive <- R6::R6Class(
 
             # Compress and Archive Files
             archiveFile <- file.path(private$..path,
-                                     paste0(sub('\\..*', '',cls), "-class-object",
+                                     paste0(sub('\\..*', '',class), "-class-object",
                                             "-archive-", objectName,
                                             format(Sys.time(),'-%Y%m%d-%H%M%S')))
 
@@ -227,7 +227,7 @@ Archive <- R6::R6Class(
             else if (type == "df") {archives <- getDf(archives)}
             else {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "getArchives",
+              v$notify(class = "Archive", method = "getArchives",
                        fieldName = "type", value = type, level = "Warn",
                        msg = paste("Invalid type requested.",
                                    "Must be 'object', 'list', or 'df'.",
@@ -291,7 +291,7 @@ Archive <- R6::R6Class(
             # Confirm object name is not missing
             if (missing(archiveName)) {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "restore",
+              v$notify(class = "Archive", method = "restore",
                        fieldName = "objectName", value = "", level = "Error",
                        msg = paste("The object name is a required field",
                                    "See ?Archive for further assistance."),
@@ -301,7 +301,7 @@ Archive <- R6::R6Class(
 
             # Confirm archiveName is a character string
             v <- ValidateClass$new()
-            if (v$validate(cls = "Archive", method = "restore",
+            if (v$validate(class = "Archive", method = "restore",
                      fieldName = "archiveName", value = archiveName, level = "Error",
                      msg = paste("The archiveName variable must be a character string.",
                                  "See ?Archive for further assistance."),
@@ -312,7 +312,7 @@ Archive <- R6::R6Class(
             # Confirm object has been archived.
             if (!exists(private$..archive[[archiveName]])) {
               v <- Validate0$new()
-              v$notify(cls = "Archive", method = "restore",
+              v$notify(class = "Archive", method = "restore",
                        fieldName = "archiveName", value = archiveName, level = "Error",
                        msg = paste("The archive", archiveName, "does not exist.",
                                    "See ?Archive for further assistance."),
@@ -332,7 +332,7 @@ Archive <- R6::R6Class(
             }
 
             v <- ValidateExists$new()
-            if (v$validate(cls = "Archive", method = "restore",
+            if (v$validate(class = "Archive", method = "restore",
                            fieldName = "parent", value = objectData$parentName,
                            level = "Error",
                            msg = paste("Unable to restore object.

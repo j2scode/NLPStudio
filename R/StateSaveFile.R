@@ -50,7 +50,7 @@ StateSaveFile <- R6::R6Class(
 
       if (stateManager$verifyRequestId(requestId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateSaveFile", method = "saveState",
+        v$notify(class = "StateSaveFile", method = "saveState",
                  fieldName = "requestId", value = requestId, level = "Error",
                  msg = paste("RequestId parameter was not verified by the StateManager.",
                              "See ?StateSaveFile for further assistance."),
@@ -60,7 +60,7 @@ StateSaveFile <- R6::R6Class(
 
       if (stateManager$verifyStateId(stateId) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateSaveFile", method = "saveState",
+        v$notify(class = "StateSaveFile", method = "saveState",
                  fieldName = "stateId", value = stateId, level = "Error",
                  msg = paste("StateId parameter was not verified by the StateManager.",
                              "See ?StateSaveFile for further assistance."),
@@ -70,7 +70,7 @@ StateSaveFile <- R6::R6Class(
 
       if (stateManager$verifyClass(object) == FALSE) {
         v <- Validate0$new()
-        v$notify(cls = "StateSaveFile", method = "saveState",
+        v$notify(class = "StateSaveFile", method = "saveState",
                  fieldName = "class(object)", value = class(object)[1], level = "Error",
                  msg = paste("Object is not a serializable object.",
                              "See ?StateSaveFile for further assistance."),

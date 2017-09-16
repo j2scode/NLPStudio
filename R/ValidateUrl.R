@@ -25,16 +25,16 @@ ValidateUrl <- R6::R6Class(
   "ValidateUrl",
   inherit = Validate0,
   public = list(
-    validate = function(cls, method, fieldName, value, level, msg, expect = NULL) {
+    validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
       if (exists('value') & length(value) != 0) {
         if (!url.exists(value)) {
-          self$notify(cls, method, fieldName, value, level, msg, expect)
+          self$notify(class, method, fieldName, value, level, msg, expect)
           return(FALSE)
         } else {
           return(TRUE)
         }
       } else {
-        self$notify(cls, method, fieldName, value, level, msg, expect)
+        self$notify(class, method, fieldName, value, level, msg, expect)
         return(FALSE)
       }
     }

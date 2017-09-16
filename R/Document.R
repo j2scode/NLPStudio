@@ -3,48 +3,112 @@
 #==============================================================================#
 #' Document
 #'
-#' \code{Document} Class for instantiating,returning and printing individual
+#' \code{Document} Class for instantiating and ,returning and printing individual
 #' Document objects within objects of the DocumentCollection class.
 #'
-#' \strong{Document Class Overview:}
+#' \strong{Document Family of Classes Overview:}
 #'
-#' The Document class is component part of the Document0 composite class. This
-#' pattern is documented in the book "Design Patterns: Elements of Reusable
+#' The Document family of classes is an implementation of the composite
+#' pattern documented in the book "Design Patterns: Elements of Reusable
 #' Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 #' and John Vlissides (hence Gang of Four). This pattern allows composite
 #' and individual objects to be treated uniformly.
 #'
-#' \strong{Document Core Methods:}
-#' The core methods are as follows:
+#' The following sections include:
 #' \itemize{
-#'  \item{\code{new(name, fileName, desc)}}{Instantiates an object of the Document class. }
-#'  \item{\code{getDocument()}}{Returns the object and its meta data.}
-#'  \item{\code{accept(visitor)}}{Accepts a visitor and dispatches the visitor, passing 'self' as a parameter}
-#'  \item{\code{addContent(content)}}{Method for adding content to an object of the Document class.}
-#'  \item{\code{removeContent()}}{Method for removing content from an object of the Document class.}
-#' }
-#' \strong{Document Composite Methods:}
-#' The composite methods are not implemented for the Document class.
+#'  \item Class Participants: Classes the comprise this composite pattern.
+#'  \item Class Collaborators: Classes which interact with the Document0 class.
+#'  \item Class Methods: Methods included in the interface.
+#'  }
+#'
+#' \strong{Document Family of Classes Participants:}
+#' The participants of the Document0 class are:
 #' \itemize{
-#'  \item{\code{addDocument(document)}}{Not implemented for the Document class.}
-#'  \item{\code{getDocuments()}}{Not implemented for the Document class.}
-#'  \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
-#'  \item{\code{getAncestor()}}{Returns the parent object.}
-#'  \item{\code{setAncestor(parent)}}{Sets the parent object.}
+#'  \item Document0: This component class specifies an abstract interface
+#'  for all leaf and composite document classes.
+#'  \item Document: This "leaf" class specifies the concrete class for
+#'  individual.
+#'  \item DocumentCollection: The composite class that maintains the
+#'  hierarchical structure of document collections (composites) and individual
+#'  documents (leafs).
+#'  }
+#'
+#' \strong{Document Family of Classes Collaborators:}
+#' The collaborators of the Document family  are:
+#'  \itemize{
+#'   \item Lab: This class maintains a one-to-many "has a" association
+#'   relationship with the Document Class Family.
+#'   \item File: The File family of classes have a one-to-one association
+#'   with the Document class. Whereas a document is an abstract entity, a
+#'   File object is a manifestation of the document in a physical
+#'   file on disk.  Each document's file manifestation is
+#'   managed by the File family of classes.
+#'  }
+#'
+#' \strong{Document Methods:}
+#' There are six types of methods within the Document class and they are:
+#' \itemize{
+#'  \item{Core Methods: Core methods shared by both Document and
+#'  DocumentCollection objects.}
+#'  \item{Composite Methods: Methods implemented by the DocumentCollection
+#'  class to maintain the document heirarchy.}
+#'  \item{Read/Write Methods: Methods responsible for reading and writing
+#'  objects of the Document and DocumentCollection classes.}
+#'  \item{File Methods: Methods implemented by the Document class to add
+#'  and remove document file information.}
+#'  \item{Visitor Methods: Methods for implementation of and messaging
+#'  with objects of the visitor classes.}
+#'  \item{State Methods: Methods responsible for save and restoring objects
+#'  at designated states.}
 #' }
 #'
-#'#' \strong{Document I/O Methods:}
-#' The following input/output methods are implemented for the Document class.
-#' \itemize{
-#'  \item{\code{readDocument(format)}}{Reads the document in the format designated in the format parameter.}
-#'  \item{\code{writeDocument(format, content)}}{Writes the content to file in the format designated in the format parameter. }
+#' \strong{Document Core Methods:}
+#'  \itemize{
+#'   \item{\code{new(name, desc)}}{Method for instantiating a document}
+#'   \item{\code{getObject()}}{Method for obtaining the document
+#'   meta data.}
+#'   \item{\code{getPath()}}{Method returns the absolute path for an object's files.}
+#'   \item{\code{desc()}}{Method used to get / set the description variable.
+#'   This method is inherited from the Document0 class.}
+#'  }
+#'
+#'  #' \strong{File Methods:}
+#'  \itemize{
+#'   \item{\code{new(name, desc)}}{Method for instantiating a document}
+#'   \item{\code{getObject()}}{Method for obtaining the document
+#'   meta data.}
+#'   \item{\code{getPath()}}{Method returns the absolute path for an object's files.}
+#'   \item{\code{desc()}}{Method used to get / set the description variable.
+#'   This method is inherited from the Document0 class.}
+#'  }
+#'
+#'
+#'   \item{\code{addFile()}}{Method used to get / set the description variable.
+#'   This method is inherited from the Document0 class.}
 #' }
-#' @param content A character vector or list containing text content for objects. Required for write methods.
+#'
+#' \strong{Document Visitor Methods:}
+#'  \itemize{
+#'   \item{\code{accept(visitor)}}{Method for accepting objects of
+#'   one of the visitor classes.}
+#'  }
+#'
+#' \strong{Document State Methods:}
+#'  \itemize{
+#'  \item{\code{saveState()}}{Method for saving the current state of a document
+#'  object.}
+#'  \item{\code{restoreState(stateId)}}{Method for restoring the current state
+#'  of a document..}
+#' }
+#'
+#' @param name Character string indicating the name of the document or file. Required for all objects.
 #' @param desc Character string containing the description of the document.
-#' @param fileName Character string cointaining the file name for a document.  Required for objects of Document class.
-#' @param name Character string indicating the name of the document. Required for all objects
-#' @param parent An object of the DocumentCollection class that represents the parent object. Required for input / output methods.
-#' @param purge Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE
+#' @param fileName Character string indicating File object's file name.
+#' @param parent An object of the Lab or DocumentCollection class that represents
+#' the parent object.
+#' @param visitor An object from one of the visitor classes.
+#' @param stateId Character string that uniquely identifies an object and its
+#' state at a specific point in time.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -61,12 +125,12 @@ Document <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                           Core Methods                                  #
     #-------------------------------------------------------------------------#
-    initialize = function(name, fileName, desc = NULL) {
+    initialize = function(name, desc = NULL) {
 
       # Confirm required parameters are not missing.
       if (missing(name)) {
         v <- Validate0$new()
-        v$notify(cls = "Document", method = "initialize", fieldName = "name",
+        v$notify(class = "Document", method = "initialize", fieldName = "name",
                  value = "", level = "Error",
                  msg = paste("Name parameter is missing with no default.",
                              "See ?Document for further assistance."),
@@ -74,55 +138,37 @@ Document <- R6::R6Class(
         stop()
       }
 
-      if (missing(fileName)) {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "initialize", fieldName = "fileName",
-                 value = fileName, level = "Error",
-                 msg = paste("File name parameter is missing with no default.",
-                             "See ?Document for further assistance."),
-                 expect = NULL)
-        stop()
-      }
-
       # Validate name
       v <- ValidateName$new()
-      if (v$validate(cls = "Document", method = "initialize",
+      if (v$validate(class = "Document", method = "initialize",
                      value = name, expect = FALSE) == FALSE) {
         stop()
       }
 
-      # Get orphan collection information
-      o <- orphanCollection$getObject()
-
       # Instantiate variables
       private$..name <- name
-      private$..class <- "Document"
       private$..desc <- desc
-      private$..parent <- OrphanCollection
-      private$..parentName <- o$name
-      private$..path <- file.path(o$path, fileName)
-      private$..fileName <- fileName
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
 
       # Assign to object to name  in global environment
       assign(name, self, envir = .GlobalEnv)
 
-      invisible(self)
+      # Log event
+      historian$addEvent(class = "Document", objectName = name,
+                         method = "initialize",
+                         event = paste("Instantiated", name, "Document"))
 
+      invisible(self)
     },
 
     getOjbect = function() {
 
       document <- list (
         name = private$..name,
-        class = private$..class,
         desc = private$..desc,
         parent = private$..parent,
-        parentName = private$..parentName,
-        path = private$..path,
-        fileName = private$..fileName,
-        content = private$..content,
+        file = private$..file,
         created = private$..created,
         modified = private$..modified
       )
@@ -133,180 +179,91 @@ Document <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
-    addChild = function(document) {
-      v <- Validate0$new()
-      v$notify(cls = "Document", method = "addDocument",
-                fieldName = "addDocument", value = "", level = "Warn",
-                msg = paste("The addDocument method for the Document class",
-                            "is not implemented for individual document objects.",
-                            "See ?Document"),
-                expect = NULL)
-    },
+    addChild = function(document) { stop("This method not implemented for this class")},
+    getChildren = function() { stop("This method not implemented for this class")},
+    removeChild = function(name, purge = FALSE) { stop("This method not implemented for this class")},
 
-    getChildren = function(type = "list") {
-      v <- Validate0$new()
-      v$notify(cls = "Document", method = "getDocuments", fieldName = "",
-               level = "Warn", value = "",
-               msg = paste("The getDocuments method is not implemented",
-                           "for the Document class.",
-                           "See ?Document, and ?DocumentCollection",
-                           "for further assistance."),
-               expect = NULL)
-    },
-
-    removeChild = function(name, purge = FALSE) {
-      v$notify(cls = "Document", method = "removeDocument",
-               fieldName = "removeDocument", value = "", level = "Error",
-               msg = paste("The removeDocument method is not implemented for objects",
-                           "of the Document class. There are two approaches",
-                           "for removing individual documents. First, if the",
-                           "document is part of an object of the DocumentCollection",
-                           "class, the document may be removed using the removeDocument",
-                           "method for the DocumentCollection object. To permanently",
-                           "remove the object from current environment, set the 'purge'",
-                           "parameter to TRUE when invoking the removeDocument method",
-                           "on the DocumentCollection object. Second, if the object",
-                           "does not belong to DocumentCollection object, you may",
-                           "remove the object from the current environment using",
-                           "the 'rm()' function. See ?Document or ?rm for further",
-                           "assistance."),
-               expect = NULL)
-      stop()
-    },
-
-    getAncestor = function() {
-
-      p <- private$..parent
-
-      return(p)
-    },
+    getAncestor = function() private$..parent,
 
     setAncestor = function(parent) {
 
-      # Obtain old parent and path information
-      oldParent <- self$getAncestor()
-      oldParent <- oldparent$getObject()
-      oldPath <- oldParent$path
-
-      if (class(parent) %in% c("DocumentCollection")) {
-        # Add parent
-        private$..parent <- parent
-
-        # Add parent name
-        p <- parent$getObject()
-        private$..parentName <- p$name
-
-        # Update path
-        private$..path <- file.path(p$path, private$..fileName)
-
-        # Move file to new path
-        file.copy(oldPath, private$..path)
-        base::unlink(oldPath)
-
-        # Update State
-        stateManager$saveState(self)
-
-
-      } else {
-        v <- ValidateClass$new()
-        v$notify(cls = "Document", method = "setAncestor",
-                 fieldName = "parent", level = "Error", value = parent,
-                 msg = paste("Unable to add parent object. Objects of the",
-                             "Document class may only",
-                             "have DocumentCollection",
-                             "objects as parents.",
-                             "See ?Document for further assistance."),
-                 expect = "DocumentCollection")
+      v <- ValidateClass$new()
+      if (v$validate(class = "Document", method = "setAncestor", fieldName = "class(parent)",
+                     level = "Error", value = class(parent)[1],
+                     msg = paste("Unable to set parent.  Parent must be a",
+                                 "DocumentCollection object.",
+                                 "See ?Document for assistance."),
+                     expect = "DocumentCollection") == FALSE) {
         stop()
       }
+
+      # Get parent information
+      p <- parent$getObject()
+
+      # Set parent variable
+      private$..parent <- parent
+
+      # TODO: Implement move functionality
+      private$..file$moveFile(parent)
+
+      historian$addEvent(class = "Document", objectName = private$..name,
+                         method = "setAncestor",
+                         event = paste("Set ancestor of,",
+                                       private$..name, "to",
+                                       p$name))
     },
 
     #-------------------------------------------------------------------------#
-    #                                  I/O                                    #
+    #                           Read/Write Methods                            #
     #-------------------------------------------------------------------------#
-    readDocument = function(format = "text") {
 
-      if (format %in% private$..format) {
-        if (format == "bin") r <- ReadBin$new()
-        if (format == "text") r <- ReadText$new()
-        if (format == "txt") r <- ReadText$new()
-        if (format == "csv") r <- ReadCsv$new()
-        if (format == "RData") r <- ReadRdata$new()
-        if (format == "rdata") r <- ReadRdata$new()
-        if (format == "Rdata") r <- ReadRdata$new()
-        private$..content <- r$readData(private$..path)
-
-
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "readDocument", fieldName = "format",
-                 level = "Error", value = format,
-                 msg = paste("Format,", format, ",is not a valid document format.",
-                             "See ?Document for assistance."))
-        stop()
-      }
-      # Update state
-      # Update State
-      stateManager$saveState(self)
-
-      return(private$..content)
-    },
-
-    writeDocument = function(format = "text", content) {
-
-      if (missing(content)) {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "writeDocument", fieldName = "content",
-                 level = "Error", value = content,
-                 msg = paste("Unable to write content.",
-                             "Content variable is missing with no default.",
-                             "See ?Document for assistance."),
-                 expect = NULL)
-        stop()
-      } else {
-        v <- ValidateNotEmpty$new()
-        if (v$validate(cls = "Document", method = "writeDocument", fieldName = "content",
-                       level = "Error", value = content,
-                       msg = paste("Unable to write content.  Content variable is empty.",
-                                   "See ?Document for assistance."),
-                       expect = NULL) == FALSE) {
-          stop()
-        }
-      }
-      if (format %in% private$..format) {
-        if (format == "bin") w <- WriteBin$new()
-        if (format == "text") w <- WriteText$new()
-        if (format == "txt") w <- WriteText$new()
-        if (format == "csv") w <- WriteCsv$new()
-        if (format == "RData") w <- WriteRdata$new()
-        if (format == "rdata") w <- WriteRdata$new()
-        if (format == "Rdata") w <- WriteRdata$new()
-        private$..content <- w$writeData(private$..name, private$..path, content)
-        return(private$..content)
-      } else {
-        v <- Validate0$new()
-        v$notify(cls = "Document", method = "writeDocument", fieldName = "format",
-                 level = "Error", value = format,
-                 msg = paste("Unable to write content, format,", format,
-                             ",is not a valid document format.",
-                             "See ?Document for assistance."))
-        stop()
-      }
-    },
+    #-------------------------------------------------------------------------#
+    #                              File Methods                               #
+    #-------------------------------------------------------------------------#
 
     #-------------------------------------------------------------------------#
     #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
-    accept = function(visitor) {
+    accept = function(visitor)  {
+
+      # Log Event
+      v <- visitor$getObject()
+      historian$addEvent(class = "Document", objectName = private$..name,
+                         method = "accept",
+                         event = paste("Accepted", class(visitor)[1],
+                                       "class object,", v$name))
+
       visitor$visitDocument(self)
     },
 
-    acceptArchive = function(visitor, stateId) {
-      visitor$visitDocument(stateId, self)
+    #-------------------------------------------------------------------------#
+    #                            State Methods                                #
+    #-------------------------------------------------------------------------#
+    saveState = function() {
+      stateId <- stateManager$saveState(self)
+
+      # Log Event
+      historian$addEvent(class = "Document", objectName = private$..name,
+                         method = "saveState",
+                         event = paste("Saved state of Document class object",
+                                       private$..name))
     },
 
-    acceptRestore = function(visitor, stateId) {
-      visitor$visitDocument(stateId, self)
+    restoreState = function(stateId) {
+      object <- stateManager$restoreState(stateId)
+      o <- object$getObject()
+      private$..name <- o$name
+      private$..desc <- o$desc
+      private$..parent <- o$parent
+      private$..file <- o$file
+
+      # Log Event
+      historian$addEvent(class = "Document", objectName = private$..name,
+                         method = "restoreState",
+                         event = paste("Restored state of Document class object",
+                                       private$..name, "to state", stateId))
+
+      invisible(self)
     }
   )
 )

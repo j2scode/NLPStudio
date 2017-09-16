@@ -64,10 +64,10 @@ testVisitorArchive <- function() {
     # Test validation
     VisitorArchive$visitLab(object = Development) # Fail, stateId missing
     VisitorArchive$visitLab("Irma-2017-09-10-1") # Fail, lab object missing
-    #VisitorArchive$visitLab("Irma-2017-09-10-1", cls) # Fail, object wrong class As Expected!
+    #VisitorArchive$visitLab("Irma-2017-09-10-1", class) # Fail, object wrong class As Expected!
 
     # Logit
-    logTests(cls = "VisitorArchive", mthd = "archive", note = "Validation logic performs as expected")
+    logTests(class = "VisitorArchive", mthd = "archive", note = "Validation logic performs as expected")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -122,7 +122,7 @@ testVisitorArchive <- function() {
     stopifnot(!dir.exists(b$path))
 
     # Logit
-    logTests(cls = "VisitorArchive", mthd = "visitLab", note = "Successfully compressed and saved files for the Lab objects.")
+    logTests(class = "VisitorArchive", mthd = "visitLab", note = "Successfully compressed and saved files for the Lab objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -165,7 +165,7 @@ testVisitorArchive <- function() {
     stopifnot(file.exists(file.path(o$path, o$fileName)))
 
     # Logit
-    logTests(cls = "VisitorArchive", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
+    logTests(class = "VisitorArchive", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }
@@ -282,7 +282,7 @@ testVisitorArchive <- function() {
 
 
     # Logit
-    logTests(cls = "VisitorArchive", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
+    logTests(class = "VisitorArchive", mthd = "visitDocumentCollection", note = "Successfully compressed and saved files for the DocumentCollection objects.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }

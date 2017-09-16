@@ -1,56 +1,31 @@
 .onLoad <- function(libname, pkgname) {
 
   # Instantiate Singleton Classes
-  if (file.exists("./NLPStudio/.State.Rdata")) {
-    welcomeMessage <- "#                      Welcome back to the NLPStudio (Beta)!                              #"
-    stateManager <<- StateManager$new()$getInstance()
-    stateManager$restoreState()
-    nlpStudio <<- NLPStudio$new()$getInstance()
-   } else {
-    welcomeMessage <- "#                         Welcome to the NLPStudio (Beta)!                                #"
-    stateManager <<- StateManager$new()$getInstance()
-    nlpStudio <<- NLPStudio$new()$getInstance()
-    Lab$new(name = "OrphanCollections", desc = "Lab for Orphan Document Collections")
-    DocumentCollection$new(name = "OrphanDocuments", desc = "Collection for Orphan Documents")
-    stateManager$saveState(OrphanCollections)
-    stateManager$saveState(OrphanDocuments)
-    stateManager$restoreState()
+  nlpStudio <<- NLPStudio$new()$getInstance()
+  stateManager <<- StateManager$new()$getInstance()
+  historian <<- Historian$new()$getInstance()
+
+  # Restore objects
+  c <- Constants$new()
+  h <- c$getHistoryFile()
+  if (file.exists(h)) {
+    packageStartupMessage(paste0("#=========================================================================================#"))
+    packageStartupMessage(paste0("#                         Welcome back to the NLPStudio (Beta)!                           #"))
+    packageStartupMessage(paste0("#=========================================================================================#"))
+  } else {
+    packageStartupMessage(paste0("#=========================================================================================#"))
+    packageStartupMessage(paste0("#                                                                                         #"))
+    packageStartupMessage(paste0("#                           Welcome to the NLPStudio (Beta)!                              #"))
+    packageStartupMessage(paste0("#                                                                                         #"))
+    packageStartupMessage(paste0("# Thank you for installing the NLPStudio package. To get started, a sample R script,      #"))
+    packageStartupMessage(paste0("# 'myNLP.R' has been provided to illustrate some of the basic method calls for creating   #"))
+    packageStartupMessage(paste0("# your first lab, sourcing a document collection and performing some basic analysis.      #"))
+    packageStartupMessage(paste0("# Vignettes are also available at https://www.DataScienceSalon.org/NLPStudio. Thanks for  #"))
+    packageStartupMessage(paste0("# for exploring NLPStudio.                                                                #"))
+    packageStartupMessage(paste0("#                                       Data Science Salon                                #"))
+    packageStartupMessage(paste0("#                                       https://www.DataScienceSalon.org/NLPStudio        #"))
+    packageStartupMessage(paste0("#                                                                                         #"))
+    packageStartupMessage(paste0("#=========================================================================================#"))
   }
-
-  packageStartupMessage(paste0("#=========================================================================================#"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(welcomeMessage)
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("# Thank you for installing the NLPStudio package.  You are encouraged to review the       #"))
-  packageStartupMessage(paste0("# the vignettes at https://www.blahblah.com before starting. With that, please be aware   #"))
-  packageStartupMessage(paste0("# of several pre-instantiated objects that are required for manipulating the NLPStudio    #"))
-  packageStartupMessage(paste0("# and for saving and restoring current or historial state of an object, and they are      #"))
-  packageStartupMessage(paste0("# as follows:                                                                             #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    nlpStudio - This is an object of the NLPStudio class and contains data and methods   #"))
-  packageStartupMessage(paste0("#                for instantiating labs, which are the environments in which your data    #"))
-  packageStartupMessage(paste0("#                analyses and workflows will reside.                                      #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    stateManager - This is an object of the StateServer class which is responsible    #"))
-  packageStartupMessage(paste0("#                for saving and restoring the current state of objects within NLPStudio.  #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    nlpSnapshots <- An object of the Snap0 class which is responsible for saving and     #"))
-  packageStartupMessage(paste0("#                and restoring snapshots of objects within NLPStudio.                     #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("# In addition, there are a few labs that have been created to contain orphaned documents  #"))
-  packageStartupMessage(paste0("# and collections and they are as follows:                                                #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#    OrphanCollections - An object of the Lab class that contains orphaned document collections   #"))
-  packageStartupMessage(paste0("#    orphanCollection - An object of the DocumentCollection class that contains orphaned  #"))
-  packageStartupMessage(paste0("#                documents.                                                               #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("# Well, that's it..for now.  I hope tha you find this package an enhancement to your      #"))
-  packageStartupMessage(paste0("#    productivity and enjoyment.                                                          #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#                                       Data Science Salon                                #"))
-  packageStartupMessage(paste0("#                                       https://github.com/DataScienceSalon/NLPStudio     #"))
-  packageStartupMessage(paste0("#                                                                                         #"))
-  packageStartupMessage(paste0("#=========================================================================================#"))
-
 }
 

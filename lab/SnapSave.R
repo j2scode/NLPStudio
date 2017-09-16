@@ -38,7 +38,7 @@ SnapSave <- R6::R6Class(
       # Validate parameter
       if (missing(name)) {
         v <- Validate0$new()
-        v$notify(cls = "SnapSave", method = "save",
+        v$notify(class = "SnapSave", method = "save",
                  fieldName = "name", value = "", level = "Error",
                  msg = paste("Snapshot name is missing with no default.",
                              "See ?SnapSave for further assistance."),
@@ -49,7 +49,7 @@ SnapSave <- R6::R6Class(
 
       if (missing(object)) {
         v <- Validate0$new()
-        v$notify(cls = "SnapSave", method = "save",
+        v$notify(class = "SnapSave", method = "save",
                  fieldName = "object", value = "", level = "Error",
                  msg = paste("Object is missing with no default.",
                              "See ?SnapSave for further assistance."),
@@ -59,7 +59,7 @@ SnapSave <- R6::R6Class(
 
       if (missing(snapshotDirectory)) {
         v <- Validate0$new()
-        v$notify(cls = "SnapSave", method = "save",
+        v$notify(class = "SnapSave", method = "save",
                  fieldName = "snapshotDirectory", value = "", level = "Error",
                  msg = paste("Snapshot directory is missing with no default.",
                              "See ?SnapSave for further assistance."),
@@ -69,7 +69,7 @@ SnapSave <- R6::R6Class(
 
       if (!dir.exists(snapshotDirectory)) {
         v <- Validate0$new()
-        v$notify(cls = "SnapSave", method = "save",
+        v$notify(class = "SnapSave", method = "save",
                  fieldName = "snapshotDirectory", value = snapshotDirectory, level = "Error",
                  msg = paste("Snapshot directory does not exist.",
                              "See ?SnapSave for further assistance."),
@@ -78,7 +78,7 @@ SnapSave <- R6::R6Class(
       }
 
       v <- ValidateExists$new()
-      if (v$validate(cls = "SnapSave", method = "save",
+      if (v$validate(class = "SnapSave", method = "save",
                      fieldName = "object", value = object, level = "Error",
                      msg = paste("Unable to take snapshot of object. Object does not exist.",
                                  "Please see ?SnapSave for further assistance."),

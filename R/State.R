@@ -54,7 +54,7 @@ State <- R6::R6Class(
 
       if (key != private$..key) {
         v <- Validate0$new()
-        v$notify(cls = "State", method = method,
+        v$notify(class = "State", method = method,
                  fieldName = "key", value = key, level = "Error",
                  msg = paste("Unable to save state. The request did not",
                              "originate from the stateManager.",
@@ -66,7 +66,7 @@ State <- R6::R6Class(
       if (!(is.null(object))) {
 
         v <- ValidateClass$new()
-        if (v$validate(cls = "State", method = method,
+        if (v$validate(class = "State", method = method,
                    fieldName = "class(object)", value = class(object)[1], level = "Error",
                    msg = paste("Object is not a serializable object.",
                                "See ?State for further assistance."),
@@ -86,7 +86,7 @@ State <- R6::R6Class(
       private$..statesPath <- constants$getStatesPath()
       private$..stateClasses <- constants$getStateClasses()
       return(self)
-    }
+    },
 
     saveState = function(key, stateId, object) {
 

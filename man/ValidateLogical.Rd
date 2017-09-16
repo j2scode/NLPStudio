@@ -25,6 +25,16 @@ This class provide a methods for validating logicals.
 }
 }
 
+\seealso{
+Other Validation Classes: \code{\link{Validate0}},
+  \code{\link{ValidateClass}}, \code{\link{ValidateDate}},
+  \code{\link{ValidateExists}}, \code{\link{ValidateName}},
+  \code{\link{ValidateNoSpaces}},
+  \code{\link{ValidateNotEmpty}},
+  \code{\link{ValidateNumeric}},
+  \code{\link{ValidatePath}}, \code{\link{ValidateString}},
+  \code{\link{ValidateUrl}}
+}
 \author{
 John James, \email{jjames@datasciencesalon.org}
 }

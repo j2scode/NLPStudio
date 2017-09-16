@@ -181,7 +181,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Validate Name
       v <- ValidateName$new()
-      v$validate(cls = "CorpusBuilderRaw", method = "initialize",
+      v$validate(class = "CorpusBuilderRaw", method = "initialize",
                      name = name, expect = FALSE)
 
       # Format parameters
@@ -208,7 +208,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Validation
       v <- ValidateName$new()
-      v$validate(cls = "CorpusBuilderRaw", method = "buildCollection",
+      v$validate(class = "CorpusBuilderRaw", method = "buildCollection",
                      name = corpusName, expect = FALSE)
 
       # Format parameters
@@ -234,7 +234,7 @@ CorpusBuilderRaw <- R6::R6Class(
       # Validate
       v <- ValidateName$new()
       for (d in 1:length(name)) {
-        v$validate(cls = "CorpusBuilderRaw", method = "buildDocument",
+        v$validate(class = "CorpusBuilderRaw", method = "buildDocument",
                        name = name, expect = FALSE)
       }
 
@@ -256,14 +256,14 @@ CorpusBuilderRaw <- R6::R6Class(
 
       # Validate Parameters
       v <- ValidateUrl$new()
-      v$validate(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+      v$validate(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "url", value = url, level = "Error",
                  msg = paste("URL,", url, "is invalid."),
                  expect = TRUE)
 
       if (missing(zipFile)) {
         v <- Validate0$new()
-        v$notify(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+        v$notify(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "zipFile", value = NULL, level = "Error",
                  msg = "Zipfile is a required parameter.",
                  expect = TRUE)
@@ -271,7 +271,7 @@ CorpusBuilderRaw <- R6::R6Class(
 
       if (missing(fileNames)) {
         v <- Validate0$new()
-        v$notify(cls = "CorpusBuilderRaw", method = "obtainCorpus",
+        v$notify(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "fileNames", value = NULL, level = "Error",
                  msg = "Filenames is a required parameter.",
                  expect = TRUE)

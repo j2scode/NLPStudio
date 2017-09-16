@@ -9,22 +9,33 @@
 ValidateUrl
 }
 \value{
-A logical TRUE if valid logical, FALSE otherwise
+A logical TRUE if valid url, FALSE otherwise
 }
 \description{
 \code{ValidateUrl} Class for validating website urls
 }
 \details{
-This class provide a methods for validating logicals.
+This class provide a methods for validating website urls
 }
 \section{Methods}{
 
 \describe{
  \item{\code{new()}}{Creates an object of ValidateUrl class}
- \item{\code{validate(object)}}{Method for validating logical}
+ \item{\code{validate(object)}}{Method for validating urls}
 }
 }
 
+\seealso{
+Other Validation Classes: \code{\link{Validate0}},
+  \code{\link{ValidateClass}}, \code{\link{ValidateDate}},
+  \code{\link{ValidateExists}},
+  \code{\link{ValidateLogical}},
+  \code{\link{ValidateName}},
+  \code{\link{ValidateNoSpaces}},
+  \code{\link{ValidateNotEmpty}},
+  \code{\link{ValidateNumeric}},
+  \code{\link{ValidatePath}}, \code{\link{ValidateString}}
+}
 \author{
 John James, \email{jjames@datasciencesalon.org}
 }
