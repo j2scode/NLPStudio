@@ -20,7 +20,6 @@
 #'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
 #'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
 #'  \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
-#'  \item{\code{getPath()}}{Returns the current path to the lab object.}
 #' }
 #'
 #' @section Lab Methods:
@@ -28,8 +27,6 @@
 #'  \item{\code{getChildren()}}{Returns the list of member labs in the nlpStudio object.}
 #'  \item{\code{addChild(lab, enter = TRUE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
 #'  \item{\code{removeChild(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
-#'  \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
-#'  \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
 #' }
 #'
 #' @param lab An object of class 'Lab'.
@@ -43,8 +40,6 @@
 #' Lab$new(name = "Bart", desc = "Bart Simpon's lab")
 #' nlpStudio$addChild(Lisa, enter = FALSE) # Adds lab without setting it current.
 #' nlpStudio$addChild(Bart, enter = TRUE) # Adds lab and sets it current.
-#' nlpStudio$removeChild("Bart") # Fails: Cannot remove a current lab
-#' nlpStudio$enterLab(Lisa)
 #' nlpStudio$removeChild("Bart") # Success!
 #' nlpStudio$getChildren()
 #' }
@@ -104,13 +99,6 @@ NLPStudio <- R6::R6Class(
             opt <- options(show.error.messages=FALSE, warn = -1)
             on.exit(options(opt))
 
-            # Create NLPStudio folders
-            c <- Constants$new()
-            p <- c$getPaths()
-            lapply(p, function(d) {
-              if (!dir.exists(d)) suppressWarnings(dir.create(d))
-            })
-
             # Initialize System Logger
             private$initLog()
 
@@ -145,15 +133,10 @@ NLPStudio <- R6::R6Class(
             return(studio)
           },
 
-          getPath = function() {
-            c <- Constants$new()
-            return(file.path(c$getLabsPath, private$..name))
-          }
-
           #-------------------------------------------------------------------#
           #                           Lab Methods                             #
           #-------------------------------------------------------------------#
-          getChildren = function() private$..labs
+          getChildren = function() private$..labs,
 
           addChild = function(lab) {
 

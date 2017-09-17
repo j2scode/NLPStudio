@@ -35,11 +35,6 @@
 #'  \itemize{
 #'   \item Lab: This class maintains a one-to-many "has a" association
 #'   relationship with the Document Class Family.
-#'   \item File: The File family of classes have a one-to-one association
-#'   with the Document class. Whereas a document is an abstract entity, a
-#'   File object is a manifestation of the document in a physical
-#'   file on disk.  Each document's file manifestation is
-#'   managed by the File family of classes.
 #'  }
 #'
 #' \strong{DocumentCollection Methods:}
@@ -49,24 +44,18 @@
 #'  DocumentCollection objects.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
-#'  \item{Read/Write Methods: Methods responsible for reading and writing
-#'  objects of the Document and DocumentCollection classes.}
-#'  \item{File Methods: Methods implemented by the Document class to add
-#'  and remove document file information.}
+#'  \item{State Methods: Methods for saving and restoring state of the object.}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
-#'  \item{State Methods: Methods responsible for save and restoring objects
-#'  at designated states.}
 #' }
 #'
 #' \strong{DocumentCollection Core Methods:}
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating objects of the
 #'   DocumentCollection class.}
-#'   \item{\code{getObject()}}{Method for returning object member data.}
-#'   \item{\code{getPath()}}{Method for returning object path.}
 #'   \item{\code{desc()}}{This active binding method, inherited from
 #'   the Document0 class gets and sets the DocumentCollection object description.}
+#'   \item{\code{getObject()}}{Method for returning object member data.}
 #' }
 #'
 #' \strong{DocumentCollection Composite Methods:}
@@ -81,36 +70,22 @@
 #'   associated files to the new parent.}
 #' }
 #'
-#' \strong{DocumentCollection Read/Write Methods:}
+#' \strong{DocumentCollection State Methods:}
 #'  \itemize{
-#'   \item{\code{readDocument()}}{Method for reading a DocumentCollection object.}
-#'   \item{\code{writeDocument(content)}}{Method for writing a DocumentCollection object.}
-#'  }
-#'
-#'  \strong{DocumentCollection File Methods:}
-#'  \itemize{
-#'   \item{\code{addFile(file)}}{This method is not implemented for this class.}
-#'   \item{\code{removeFile(file)}}{This method is not implemented for this class.}
+#'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of the object. This method is inherited from the Document0 class.}
+#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state. This method is inherited from the Document0 class.}
 #'  }
 #'
 #' \strong{DocumentCollection Visitor Methods:}
 #'  \itemize{
-#'   \item{\code{accept(visitor)}}{Method which accepts operations from
-#'   visitor classes.}
+#'   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
 #'  }
 #'
-#' \strong{DocumentCollection State Methods:}
-#'  \itemize{
-#'  \item{\code{saveState()}}{Method for saving the current state of an document.}
-#'  \item{\code{restoreState(stateId)}}{Method for restoring a document to a prior state.}
-#' }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
 #' @param desc Character string containing the description of the document.
-#' @param content Nested list of content to be written to files.
 #' @param parent An object of the Lab or DocumentCollection class that represents
 #' the parent object.
-#' @param file This parametes is not used in this method.
 #' @param visitor An object from one of the visitor classes.
 #' @param stateId Character string that uniquely identifies an object and its
 #' state at a specific point in time.
@@ -138,7 +113,8 @@ DocumentCollection <- R6::R6Class(
 
       # Instantiate variables
       private$..name <- name
-      private$..desc <- desc
+      private$..desc <- ifelse(is.null(desc), paste(name, "Document Collection"), desc)
+      private$..state <- paste("DocumentCollection", name, "instantiated at", Sys.time())
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
 
@@ -148,8 +124,7 @@ DocumentCollection <- R6::R6Class(
       # Log Event
       historian$addEvent(class = "DocumentCollection", objectName = name,
                          method = "initialize",
-                         event = paste("Instantiated DocumentCollection",
-                                       "object", name))
+                         event = private$..state)
 
       invisible(self)
     },
@@ -161,6 +136,8 @@ DocumentCollection <- R6::R6Class(
         desc = private$..desc,
         parent = private$..parent,
         documents = private$..documents,
+        state = private$..state,
+        stateId = private$..stateId,
         created = private$..created,
         modified = private$..modified
       )
@@ -192,18 +169,16 @@ DocumentCollection <- R6::R6Class(
       document$setAncestor(self)
 
       # Update State
-      stateManager$saveState(object = self,
-                             desc = paste("Added",
-                                          d$name, "to",
-                                          private$..name,
-                                          "collection."))
+      private$..state <- paste("Added", class(document)[1], "object",
+                               "to the", private$..name, "DocumentCollection",
+                               "at", Sys.time())
+      private$..modified <- Sys.time()
+      self$saveState()
 
       # Log Event
       historian$addEvent(class = "DocumentCollection", objectName = private$..name,
                          method = "addChild",
-                         event = paste("Added", class(document)[1],
-                                       "object", d$name, "to", private$..name,
-                                       "DocumentCollection,"))
+                         event = private$..state)
     },
 
     removeChild = function(document) {
@@ -237,21 +212,18 @@ DocumentCollection <- R6::R6Class(
 
       # Remove document from collection
       private$..documents[[d$name]] <- NULL
-      private$..modified <- Sys.time()
 
       # Update State
-      stateManager$saveState(object = self,
-                             desc = paste("Removed",
-                                         d$name, "from",
-                                         private$..name,
-                                         "collection."))
+      private$..state <- paste("Removed", class(document)[1], "object",
+                               "from the", private$..name, "DocumentCollection",
+                               "at", Sys.time())
+      private$..modified <- Sys.time()
+      self$saveState()
 
       # Log Event
       historian$addEvent(class = "DocumentCollection", objectName = private$..name,
                          method = "removeChild",
-                         event = paste("Removed", class(document)[1],
-                                       "object", d$name, "from", private$..name,
-                                       "DocumentCollection,"))
+                         event = private$..state)
     },
 
     getAncestor = function() {
@@ -283,101 +255,30 @@ DocumentCollection <- R6::R6Class(
         stop()
       }
 
+      # Set parent and obtain parent information.
       private$..parent <- parent
-
-      # Log Event
       p <- parent$getObject()
-      historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "setAncestor",
-                         event = paste("Set parent for DocumentCollection object",
-                                       private$..name, "to", class(parent)[1],
-                                       "class object,", p$name))
 
-    },
-
-    #-------------------------------------------------------------------------#
-    #                         Read/Write Methods                              #
-    #-------------------------------------------------------------------------#
-    readDocument = function(format = "text") {
-
-      r <- private$..reader
-
-      documents <- lapply(private$..documents, function(d) {
-        d$readDocument(format)
-      })
+      # Update State
+      private$..state <- paste("Set parent of DocumentCollection object,",
+                               private$..name, "to", p$name, "at",
+                               Sys.time())
+      private$..modified <- Sys.time()
+      self$saveState()
 
       # Log Event
       historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "readDocument",
-                         event = paste("Read", class(self)[1],
-                                       "object,", private$..name))
-      return(documents)
+                         method = "removeChild",
+                         event = private$..state)
+
     },
-
-    writeDocument = function(content) {
-
-      lapply(private$..documents, function(d) {
-        w$writeDocument(format, content)
-      })
-
-      # Log Event
-      historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "writeDocument",
-                         event = paste("Wrote", class(self)[1],
-                                       "object,", private$..name))
-    },
-
-    #-------------------------------------------------------------------------#
-    #                              File Methods                               #
-    #-------------------------------------------------------------------------#
-    addFile = function(file) stop("The addFile method is not implemented for the DocumentCollection class."),
-    removeFile = function(file) stop("The addFile method is not implemented for the DocumentCollection class."),
 
 
     #-------------------------------------------------------------------------#
     #                             Visitor Methods                             #
     #-------------------------------------------------------------------------#
     accept = function(visitor)  {
-
-      v <- visitor$getObject()
-      # Log Event
-      historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "accept",
-                         event = paste("Accepted", class(visitor)[1],
-                                       "object,", v$name))
-      visitor$visitDocumentCollection(self)
-
-    },
-
-    #-------------------------------------------------------------------------#
-    #                            State Methods                                #
-    #-------------------------------------------------------------------------#
-    saveState = function() {
-      stateId <- stateManager$saveState(self)
-
-      # Log Event
-      historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "saveState",
-                         event = paste("Saved state of Document class object",
-                                       private$..name))
-    },
-
-    restoreState = function(stateId) {
-      object <- stateManager$restoreState(stateId)
-      o <- object$getObject()
-      private$..name <- o$name
-      private$..desc <- o$desc
-      private$..parent <- o$parent
-      private$..file <- o$file
-
-      # Log Event
-      historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-                         method = "restoreState",
-                         event = paste("Restored state of DocumentCollection",
-                                       "class object", private$..name,
-                                       "to state", stateId))
-
-      invisible(self)
+      visitor$DocumentCollection(self)
     }
   )
 )

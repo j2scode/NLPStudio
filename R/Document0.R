@@ -37,11 +37,6 @@
 #'  \itemize{
 #'   \item Lab: This class maintains a one-to-many "has a" association
 #'   relationship with the Document Class Family.
-#'   \item File: The File family of classes have a one-to-one association
-#'   with the Document class. Whereas a document is an abstract entity, a
-#'   File object is a manifestation of the document in a physical
-#'   file on disk.  Each document's file manifestation is
-#'   managed by the File family of classes.
 #'  }
 #'
 #' \strong{Document0 Methods:}
@@ -51,14 +46,9 @@
 #'  DocumentCollection objects.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
-#'  \item{Read/Write Methods: Methods responsible for reading and writing
-#'  objects of the Document and DocumentCollection classes.}
-#'  \item{File Methods: Methods implemented by the Document class to add
-#'  and remove document file information.}
+#'  \item{State Methods: Methods for saving and restoring state of the object.}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
-#'  \item{State Methods: Methods responsible for save and restoring objects
-#'  at designated states.}
 #' }
 #'
 #' \strong{Document0 Core Methods:}
@@ -66,13 +56,12 @@
 #'   \item{\code{new(name, desc)}}{Base method for instantiating
 #'   an object of the Document or DocumentCollection classes.
 #'   Specific behaviors implemented in the subclasses. }
+#'   \item{\code{desc()}}{Method used to get / set the description variable.
+#'   Implemented as an active binding and so the field may be updated
+#'   by assignment. This method is concrete and inherited by sub-classes.}
 #'   \item{\code{getObject()}}{Base method for retrieving an object of the
 #'   "Document" or "DocumentCollection" class. Specific behaviors
 #'   implemented in the subclasses.}
-#'   \item{\code{getPath()}}{Method tha returns the relative path for the object's files.}
-#'   \item{\code{desc()}}{Method used to get / set the description variable.
-#'   Implemented as an active binding and so the field may be updated
-#'   by assignment. This method is concrete and inherited by sub-classes.}#'
 #' }
 #'
 #' \strong{Document0 Composite Methods:}
@@ -93,41 +82,17 @@
 #'   DocumentCollection sub-classes.}
 #' }
 #'
-#' \strong{Document0 Read/Write Methods:}
+#' \strong{Document0 State Methods:}
 #'  \itemize{
-#'   \item{\code{readDocument()}}{Base method for reading objects of the Document
-#'   or DocumentCollection class. Specific behaviors implemented in the Document
-#'   and DocumentCollection composite sub-classes.}
-#'  }
-#'  \item{\code{writeDocument(content)}}{Base method for writing objects of the Document
-#'   or DocumentCollection class. Specific behaviors implemented in the Document
-#'   and DocumentCollection composite sub-classes.}
-#'  }
-#'
-#' \strong{Document0 File Methods:}
-#'  \itemize{
-#'   \item{\code{addFile()}}{Base method for adding files to objects of the Document
-#'   class.}
-#'   \item{\code{removeFile()}}{Base method for removing files from objects of the Document
-#'   class.}
+#'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of the object.}
+#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state.}
 #'  }
 #'
 #' \strong{Document0 Visitor Methods:}
 #'  \itemize{
-#'   \item{\code{accept(visitor)}}{Base method for accepting visitor methods. Specific
-#'   behaviors implemented in the Document and DocumentCollection composite
-#'   sub-classes.}
+#'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
 #'  }
 #'
-#' \strong{Document0 State Methods:}
-#'  \itemize{
-#'  \item{\code{saveState()}}{Base method for saving the current state of the object.
-#'   visitor methods. Specific behaviors implemented in the Document and
-#'   DocumentCollection composite sub-classes.}
-#'  \item{\code{restoreState(stateId)}}{Base method for restoring an object to
-#'  a previous state, as indicated by the stateId. Specific behaviors implemented
-#'  in the Document and DocumentCollection composite sub-classes.}
-#' }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
 #' @param desc Character string containing the description of the document.
@@ -152,8 +117,10 @@ Document0 <- R6::R6Class(
     ..name = character(0),
     ..desc = character(0),
     ..parent = character(0),
-    ..children = list(),
-    ..file = character(),
+    ..documents = list(),
+    ..fileName = character(0),
+    ..state = character(0),
+    ..stateId = character(0),
     ..created = character(0),
     ..modified = character(0)
   ),
@@ -174,7 +141,6 @@ Document0 <- R6::R6Class(
     # Core Methods
     initialize = function(name, desc) stop("Method is not available from Document0, an abstract class!"),
     getObject = function() stop("Method is not available from Document0, an abstract class!"),
-    getPath = function()  return(file.path(private$..parent$getPath(), private$..name)),
 
     # Composite Methods
     getChildren = function() stop("Method is not available from Document0, an abstract class!"),
@@ -183,19 +149,33 @@ Document0 <- R6::R6Class(
     getAncestor = function() stop("Method is not available from Document0, an abstract class!"),
     setAncestor = function(parent) stop("Method is not available from Document0, an abstract class!"),
 
-    # Read/Write Methods
-    readDocument = function() stop("Method is not available from Document0, an abstract class!"),
-    writeDocument = function(content) stop("Method is not available from Document0, an abstract class!"),
+    # State Methods
+    saveState = function() {
+      v <- ValidateClass$new()
+      if (v$validate(class = "Document0", level = "Error", method = "saveState",
+                     fieldName = "class(self)", value = class(self)[1],
+                     msg = paste("The saveState method is not implemented for the Document0 class."),
+                     expect = "Document0") == TRUE) {
+        stop()
+      }
+      state <- State$new()
+      state$save(self)
+    },
 
-    # File Methods
-    addFile = function(name, fileName, desc) stop("Method is not available from Document0, an abstract class!"),
-    removeFile = function(name) stop("Method is not available from Document0, an abstract class!"),
+    restoreState = function(stateId) {
+      v <- ValidateClass$new()
+      if (v$validate(class = "Document0", level = "Error", method = "restoreState",
+                     fieldName = "class(self)", value = class(self)[1],
+                     msg = paste("The restoreState method is not implemented for the Document0 class."),
+                     expect = "Document0") == TRUE) {
+        stop()
+      }
+      private$..stateId <- stateId
+      state <- State$new()
+      state$restore(self)
+    },
 
     # Visitor Methods
-    accept = function(visitor) stop("Method is not available from Document0, an abstract class!"),
-
-    # State Methods
-    setState = function() stop("Method is not available from Document0, an abstract class!"),
-    restoreState = function(stateId) stop("Method is not available from Document0, an abstract class!")
+    accept = function(visitor) stop("Method is not available from Document0, an abstract class!")
   )
 )

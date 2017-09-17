@@ -11,23 +11,36 @@
 #' the contained documents, add a document, and remove a document.
 #'
 #' \strong{Lab Core Methods:}
-#' \describe{
-#'  \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
-#'  \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
-#'  \item{\code{getObject()}}{Retrieves the meta data for the Lab object.}
-#'  \item{\code{getPath()}}{Method returns the relative path for the Lab.}
+#'  \describe{
+#'   \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
+#'   \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
+#'   \item{\code{getObject()}}{Retrieves the meta data for the Lab object.}
 #'  }
 #'
 #' \strong{Lab Aggregate Methods:}
-#' \describe{
-#'  \item{\code{getChildren()}}{Retrieves a list containing meta data for child objects of the DocumentCollection class.}
-#'  \item{\code{addChild(document)}}{Adds a child document, an object of the DocumentCollection class, to the Lab object.}
-#'  \item{\code{removeChild(document)}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
+#'  \describe{
+#'   \item{\code{getChildren()}}{Retrieves a list containing meta data for child objects of the DocumentCollection class.}
+#'   \item{\code{addChild(document)}}{Adds a child document, an object of the DocumentCollection class, to the Lab object.}
+#'   \item{\code{removeChild(document)}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
+#' }
 #'
+#' \strong{Lab State Methods:}
+#'  \describe{
+#'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of an object.}
+#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state.}
+#' }
+#'
+#'
+#' \strong{Lab Visitor Methods:}
+#'  \describe{
+#'   \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
+#' }
 #'
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
 #' @param desc A chararacter string containing the description of the Lab
 #' @param document An object of the DocumentCollection class to be added to the Lab object's list of document collections.
+#' @param visitor An object of one of the visitor classes.
+#' @param stateId Character string identifying a prior state for a Lab object.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -41,6 +54,8 @@ Lab <- R6::R6Class(
     ..desc = character(0),
     ..parent = character(0),
     ..collections = list(),
+    ..state = character(0),
+    ..stateId = character(0),
     ..modified = "None",
     ..created = "None"
   ),
@@ -76,7 +91,7 @@ Lab <- R6::R6Class(
       v <- ValidateExists$new()
       if (v$validate(class = "Lab", method = "initialize",
                  fieldName = "name", value = name, level = "Error",
-                 msg = paste("Cannot create lab because", name,
+                 msg = paste("Cannot create lab as", name,
                              "already exists.",
                              "See ?Lab"),
                  expect = FALSE) == FALSE) {
@@ -88,12 +103,9 @@ Lab <- R6::R6Class(
       if (is.null(desc)) { desc <- paste(name, "Lab") }
       private$..desc <- desc
       private$..parent <- nlpStudio
+      private$..state <+ paste("Lab", name, "instantiated at", Sys.time())
       private$..modified <- Sys.time()
       private$..created <- Sys.time()
-
-      # Create lab directory
-      constants <- Constants$new()
-      dir.create(file.path(constants$getLabsPath(), name))
 
       # Assign its name in the global environment
       assign(name, self, envir = .GlobalEnv)
@@ -113,6 +125,8 @@ Lab <- R6::R6Class(
         desc = private$..desc,
         parent = private$..parent,
         documents = private$..collections,
+        state = private$..state,
+        stateId = private$..stateId,
         modified = private$..modified,
         created = private$..created
       )
@@ -120,10 +134,6 @@ Lab <- R6::R6Class(
       return(lab)
     },
 
-    getPath = function() {
-      constants <- Constants$new()
-      return(file.path(constants$getLabsPath(), private$..name))
-    },
 
     #-------------------------------------------------------------------------#
     #                         Lab Aggregate Methods                           #
@@ -166,14 +176,13 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Update State
-      #TODO: Put in call to statebuilder
-      print("State saved after adding child")
+      private$..state <- paste("Collection", c$name, "added to Lab", private$..name, "at", Sys.time())
+      self$saveState()
 
       # Log Event
       historian$addEvent(class = "Lab", objectName = private$..name,
                          method = "addChild",
-                         event = paste("Added DocumentCollection object",
-                                       c$name, "to", private$..name, "Lab,"))
+                         event = private$..state)
 
 
       invisible(self)
@@ -200,18 +209,31 @@ Lab <- R6::R6Class(
       private$..collections[[c$name]] <- NULL
       private$..modified <- Sys.time()
 
-      # Save State
-      #TODO: Call statebuilder
-      print("State saved after removing child")
+      # Update State
+      private$..state <- paste("Collection", c$name, "removed from Lab", private$..name, "at", Sys.time())
+      self$saveState()
 
       # Log Event
       historian$addEvent(class = "Lab", objectName = private$..name,
                          method = "removeChild",
-                         event = paste("Removed DocumentCollection object",
-                                       c$name, "from", private$..name, "Lab,"))
+                         event = private$..state)
 
       invisible(self)
 
+    },
+
+    #-------------------------------------------------------------------------#
+    #                           Lab State Methods                             #
+    #-------------------------------------------------------------------------#
+    saveState = function() {
+      state <- State$new()
+      state$save(self)
+    },
+
+    restoreState = function(stateId) {
+      private$..stateId <- stateId
+      state <- State$new()
+      state$restore(self)
     }
   )
 )
