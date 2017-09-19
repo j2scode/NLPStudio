@@ -42,20 +42,27 @@
 #' \itemize{
 #'  \item{Core Methods: Core methods shared by both Document and
 #'  DocumentCollection objects.}
+#'  \item{Getter/Setter Methods: Active binding methods for getting and setting
+#'  selected private members.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
-#'  \item{State Methods: Methods for saving and restoring state of the object.}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
 #' }
 #'
 #' \strong{DocumentCollection Core Methods:}
 #'  \itemize{
-#'   \item{\code{new(name, desc)}}{Method for instantiating objects of the
-#'   DocumentCollection class.}
-#'   \item{\code{desc()}}{This active binding method, inherited from
-#'   the Document0 class gets and sets the DocumentCollection object description.}
-#'   \item{\code{getObject()}}{Method for returning object member data.}
+#'   \item{\code{new(name, desc)}}{Method for instantiating a document collection.}
+#'   \item{\code{getObject()}}{Method for obtaining the document collection data in a list format.}
+#'   \item{\code{setObject(object)}}{Method for restoring a document collection to a prior state, as per the object parameter.}
+#' }
+#'
+#' \strong{DocumentCollection Field Getter/Setter Active Binding Methods:}
+#'  \itemize{
+#'   \item{\code{desc()}}{Method used to get / set the description variable.
+#'   Implemented as an active binding and so the field may be updated
+#'   by assignment. This method is inherited from the Document0 class.}
+#'   \item{\code{fileName()}}{This method is not implemented for the DocumentCollection class.}
 #' }
 #'
 #' \strong{DocumentCollection Composite Methods:}
@@ -70,15 +77,14 @@
 #'   associated files to the new parent.}
 #' }
 #'
-#' \strong{DocumentCollection State Methods:}
-#'  \itemize{
-#'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of the object. This method is inherited from the Document0 class.}
-#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state. This method is inherited from the Document0 class.}
-#'  }
 #'
 #' \strong{DocumentCollection Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
+#'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
 #'
@@ -142,6 +148,16 @@ DocumentCollection <- R6::R6Class(
         modified = private$..modified
       )
       return(document)
+    },
+
+    setObject = function(object) {
+      o <- object$getObject()
+      private$..desc <- o$desc
+      private$..state <- o$state
+      private$..stateId <- o$stateId
+      private$..created <- o$created
+      private$..modified <- o$modified
+      invisible(self)
     },
 
 
@@ -278,7 +294,19 @@ DocumentCollection <- R6::R6Class(
     #                             Visitor Methods                             #
     #-------------------------------------------------------------------------#
     accept = function(visitor)  {
-      visitor$DocumentCollection(self)
+      visitor$documentCollection(self)
+    },
+    acceptUpdate = function(visitor, object)  {
+      visitor$documentCollection(self, object)
+    },
+    acceptAdd = function(visitor, object)  {
+      visitor$documentCollection(self, object)
+    },
+    acceptRemove = function(visitor, object)  {
+      visitor$documentCollection(self, object)
+    },
+    acceptAssociate = function(visitor, object)  {
+      visitor$documentCollection(self, object)
     }
   )
 )

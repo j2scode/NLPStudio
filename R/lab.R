@@ -15,6 +15,7 @@
 #'   \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
 #'   \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
 #'   \item{\code{getObject()}}{Retrieves the meta data for the Lab object.}
+#'   \item{\code{setObject(object)}}{Sets an object to a previous state as per the object parameter.}
 #'  }
 #'
 #' \strong{Lab Aggregate Methods:}
@@ -34,6 +35,10 @@
 #' \strong{Lab Visitor Methods:}
 #'  \describe{
 #'   \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
+#'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #' }
 #'
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
@@ -113,7 +118,7 @@ Lab <- R6::R6Class(
       # Log Event
       historian$addEvent(class = "Lab", objectName = name,
                          method = "initialize",
-                         event = paste("Instantiated", name, "Lab,"))
+                         event = private$..state)
 
       invisible(self)
     },
@@ -133,6 +138,18 @@ Lab <- R6::R6Class(
 
       return(lab)
     },
+
+    setObject = function(object) {
+      o <- object$getObject()
+      private$..desc <- o$desc
+      private$..parent <- nlpStudio
+      private$..state <- o$state
+      private$..stateId <- o$stateId
+      private$..created <- o$created
+      private$..modified <- o$modified
+      invisible(self)
+    },
+
 
 
     #-------------------------------------------------------------------------#
@@ -223,17 +240,22 @@ Lab <- R6::R6Class(
     },
 
     #-------------------------------------------------------------------------#
-    #                           Lab State Methods                             #
+    #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
-    saveState = function() {
-      state <- State$new()
-      state$save(self)
+    accept = function(visitor)  {
+      visitor$lab(self)
     },
-
-    restoreState = function(stateId) {
-      private$..stateId <- stateId
-      state <- State$new()
-      state$restore(self)
+    acceptUpdate = function(visitor, object)  {
+      visitor$lab(self, object)
+    },
+    acceptAdd = function(visitor, object)  {
+      visitor$lab(self, object)
+    },
+    acceptRemove = function(visitor, object)  {
+      visitor$lab(self, object)
+    },
+    acceptAssociate = function(visitor, object)  {
+      visitor$lab(self, object)
     }
   )
 )

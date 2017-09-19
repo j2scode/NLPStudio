@@ -20,40 +20,31 @@
 #'  querying states. It takes requests from client applications and dispatches
 #'  instantiates the appropriate visitor to fulfill the request. This class
 #'  also provides state query functionality.
+#'  \item StateBuilder: This class oversees the process of restoring a composite
+#'  to a prior state.
 #'  \item StateManager: This class has a persistent single object that
 #'  receives a save/restore request from a visitor, keeps track of the
 #'  saved states, and their locations, and dispatches the appropriate
 #'  save/restore method within the State class to serialize or
 #'  deserialize the object.
-#'  \item State: This class is responsible for serializing and deserializing
+#'  \item StateServer: This class is responsible for serializing and deserializing
 #'  object states.
-#'  \item VSaveState: This visitor class is invoked through the accept method
-#'  of the originator object, and dispatches a request to the StateManager
-#'  class for logging and fulfillment.
-#'  \item VRestoreState: This visitor class is invoked through the accept method
-#'  of the originator object, and dispatches a request to the StateManager
-#'  class for logging and fulfillment. This class also manages the process
-#'  of restoring composite objects to the prior designated state by iterating
-#'  through the composite hierarchy.
 #'  }
 #'
 #' @section Methods:
 #' The following methods are defined for this class:
 #' \describe{
 #' \item{\code{new()}}{Method for instantiating objects of the State class. Obtains the list of serializeable classes for validation puroses.}
-#'  \item{\code{getObject()}}{Method that returns State object data.}
 #'  \item{\code{query(dateFrom, dateTo, class, objectName)}}{Method for quering the saved states. Returns a list of states matching the query parameters.}
-#'  \item{\code{saveState(object, stateDesc)}}{Method for saving the state of a serializable object. This method invokes the accept method on the object which dispatches the appropriate save visitor.}
-#'  \item{\code{restoreState(object, stateId)}}{Method for restoring an the designated object to the state identified by the stateId parameter. The method invokes the accept method on the object, which dispatches the appropriate restore visitor.}
+#'  \item{\code{save(object)}}{Method for saving the state of a serializable object. This method invokes the accept method on the object which dispatches the appropriate save visitor.}
+#'  \item{\code{restore(object)}}{Method for restoring an the designated object to the state identified by the stateId parameter. The method invokes the accept method on the object, which dispatches the appropriate restore visitor to obtain the prior state, then invokes the StateBuilder to return the composite to the prior state}
 #'  }
 #'
-#' @param dateFrom An ISO 8601 formatted date indicating the date from which states should be returned.
-#' @param dateTo An ISO 8601 formatted date indicating the date to which states should be returned.
-#' @param class A character string indicating the class of state objects that should be returned.
-#' @param objectName A character string indicating the object for which states should be returned.
+#' @param dateFrom A parameter of the query method. An ISO 8601 formatted date indicating the date from which states should be returned.
+#' @param dateTo A parameter of the query method. An ISO 8601 formatted date indicating the date to which states should be returned.
+#' @param class A parameter of the query method. A character string indicating the class of state objects that should be returned.
+#' @param objectName A parameter of the query method. A character string indicating the object for which states should be returned.
 #' @param object A serializable object to be serialized or deserialized.
-#' @param stateId Character string which uniquely identifies an object and its state at a specific point in time.
-#' @param stateDesc Character string description for the state being saved.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -63,13 +54,6 @@ State <- R6::R6Class(
   classname = "State",
   lock_objects = FALSE,
   private = list(
-    ..requestId = character(0),
-    ..request = character(0),
-    ..stateId = character(0),
-    ..stateDesc = character(0),
-    ..objectName = character(0),
-    ..requested = character(0),
-    ..completed = character(0),
     ..validClasses = character(0),
 
     validateRequest = function(object, method) {
@@ -98,22 +82,9 @@ State <- R6::R6Class(
 
     },
 
-    getObject = function() {
-      state <- list(
-       requestId = private$..requestId,
-       request = private$..request,
-       stateId = private$..stateId,
-       stateDesc = private$..stateDesc,
-       objectName = private$..objectName,
-       requested = private$..requested,
-       completed = private$..completed
-      )
-      return(state)
-    },
+    save = function(object) {
 
-    saveState = function(object, stateDesc) {
-
-      method <- "saveState"
+      method <- "save"
 
       # Validate Request
       if (private$validateRequest(object, method = method) == FALSE) stop()
@@ -125,28 +96,34 @@ State <- R6::R6Class(
       tools <- Tools$new()
       private$..requestId <- paste0(o$name, "-", tools$makeRandomString())
       private$..request <- method
-      private$..stateDesc <- stateDesc
       private$..objectName <- o$name
+      private$..state <- o$state
+      private$..stateId <- o$stateId
       private$..requested <- Sys.time()
 
       # Send accept request to the object
-      private$..stateId <- object$acceptVSaveState(stateDesc)
+      private$..stateId <- object$acceptVSaveState(object)
       private$..completed <- Sys.time()
 
       invisible(self)
     },
 
-    restoreState = function(key, stateId) {
+    restore = function(object) {
 
       method <- "restoreState"
 
       # Validate Request
-      if (private$validateRequest(method = method, key) == FALSE) stop()
+      if (private$validateRequest(object, method = method) == FALSE) stop()
 
-      # Restore Object
-      object <- readRDS(file.path(private$..statesPath, paste0(stateId, ".rds")))
+      # Send accept request to the object
+      restoredObject <- object$acceptVRestoreState(object)
 
-      return(object)
+      # Rebuild Document / Composite
+      StateBuilder$new()
+
+
+
+      private$..completed <- Sys.time()
     }
   )
 )

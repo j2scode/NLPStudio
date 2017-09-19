@@ -45,9 +45,10 @@
 #' \itemize{
 #'  \item{Core Methods: Core methods shared by both Document and
 #'  DocumentCollection objects.}
+#'  \item{Getter/Setter Methods: Active binding methods for getting and setting
+#'  selected private members.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
-#'  \item{State Methods: Methods for saving and restoring state of the object.}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
 #' }
@@ -56,10 +57,18 @@
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating a document}
 #'   \item{\code{getObject()}}{Method for obtaining the document data in a list format.}
-#'   \item{\code{desc(value)}}{Method used to get / set the description variable.
-#'   This method is inherited from the Document0 class.}
-#'   \item{\code{fileName(value)}}{Method used to get / set the fileName variable.}
+#'   \item{\code{setObject(object)}}{Method for restoring an object to a prior state, as per the object parameter.}
 #'  }
+#'
+#' \strong{Document Field Getter/Setter Active Binding Methods:}
+#'  \itemize{
+#'   \item{\code{desc()}}{Method used to get / set the description variable.
+#'   Implemented as an active binding and so the field may be updated
+#'   by assignment. This method is inherited from the Document0 class.}
+#'   \item{\code{fileName()}}{Method used to get / set the file name variable.
+#'   Implemented as an active binding and so the field may be updated
+#'   by assignment.}
+#' }
 #'
 #' \strong{Document Composite Methods:}
 #'  \itemize{
@@ -79,6 +88,10 @@
 #' \strong{Document Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
+#'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -178,11 +191,22 @@ Document <- R6::R6Class(
       return(document)
     },
 
+    setObject = function(object) {
+      o <- object$getObject()
+      private$..desc <- o$desc
+      private$..fileName <- o$fileName
+      private$..state <- o$state
+      private$..stateId <- o$stateId
+      private$..created <- o$created
+      private$..modified <- o$modified
+      invisible(self)
+    },
+
     #-------------------------------------------------------------------------#
     #                          Composite Methods                              #
     #-------------------------------------------------------------------------#
     addChild = function(document) { stop("This method not implemented for this class")},
-    getChildren = function() { stop("This method not implemented for this class")},
+    getChildren = function() { return(NULL) },
     removeChild = function(name, purge = FALSE) { stop("This method not implemented for this class")},
 
     getAncestor = function() private$..parent,
@@ -223,7 +247,19 @@ Document <- R6::R6Class(
     #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
     accept = function(visitor)  {
-      visitor$Document(self)
+      visitor$document(self)
+    },
+    acceptUpdate = function(visitor, object)  {
+      visitor$document(self, object)
+    },
+    acceptAdd = function(visitor, object)  {
+      visitor$document(self, object)
+    },
+    acceptRemove = function(visitor, object)  {
+      visitor$document(self, object)
+    },
+    acceptAssociate = function(visitor, object)  {
+      visitor$document(self, object)
     }
   )
 )

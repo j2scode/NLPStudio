@@ -58,8 +58,8 @@
 #' @author John James, \email{jjames@@datasciencesalon.org}
 #' @family State Classes
 #' @export
-State <- R6::R6Class(
-  classname = "State",
+StateServer <- R6::R6Class(
+  classname = "StateServer",
   lock_objects = FALSE,
   private = list(
     ..key = character(0),
