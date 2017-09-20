@@ -262,7 +262,7 @@ DocumentCollection <- R6::R6Class(
       }
 
       v <- ValidateClass$new()
-      if (v$validate(class = "Document", method = "setAncestor", fieldName = "class(parent)",
+      if (v$validate(class = "DocumentCollection", method = "setAncestor", fieldName = "class(parent)",
                      level = "Error", value = class(parent)[1],
                      msg = paste("Unable to set parent.  Parent must be a",
                                  "DocumentCollection or Lab object.",

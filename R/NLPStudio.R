@@ -58,6 +58,8 @@ NLPStudio <- R6::R6Class(
           ..name = "nlpStudio",
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..labs = list(),
+          ..stateId = character(0),
+          ..stateDesc = character(0),
           ..created = "None",
           ..modified = "None",
 
@@ -83,6 +85,11 @@ NLPStudio <- R6::R6Class(
 
               futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
             }
+          },
+
+          saveState = function() {
+            state <- State$new()
+            private$..stateId <- state$saveState(self)
           }
         ),
 
@@ -99,18 +106,26 @@ NLPStudio <- R6::R6Class(
             opt <- options(show.error.messages=FALSE, warn = -1)
             on.exit(options(opt))
 
+            # Create Directories
+            c <- Constants$new()
+            paths <- c$getPaths()
+            lapply(paths, function(p) {
+              if (!dir.exists(p))  dir.create(p, recursive = TRUE)
+            })
+
             # Initialize System Logger
             private$initLog()
 
             # Create single instance of NLPStudio object
             private$..name <- name
             private$..desc <- desc
+            private$..stateDesc <- paste("NLPStudio object", name, "instantiated at", Sys.time())
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
 
             # Log Event
-            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
-                               method = "initializes", event = "nlpStudio Initialized")
+            #historian$addEvent(class = "NLPStudio", objectName = name,
+            #                   method = "initialize", event = private$..stateDesc)
 
             invisible(self)
           },
@@ -123,12 +138,11 @@ NLPStudio <- R6::R6Class(
               name = private$..name,
               desc = private$..desc,
               labs = private$..labs,
+              stateId = private$..stateId,
+              stateDesc = private$..stateDesc,
               modified = private$..modified,
               created = private$..created
               )
-
-            # Update State
-            stateManager$saveState(self)
 
             return(studio)
           },
@@ -161,8 +175,15 @@ NLPStudio <- R6::R6Class(
               stop()
             }
 
-            # Add lab to lab list
+            # Get lab information
             l <- lab$getObject()
+
+            # Save Memento
+             private$..stateDesc <- paste("NLPStudio object", private$..name,
+                                          "memento, prior to adding", l$name, "at", Sys.time())
+            # private$..saveState()
+
+            # Add lab to lab list
             private$..labs[[l$name]] <- lab
 
             # Add parent to lab
@@ -171,15 +192,14 @@ NLPStudio <- R6::R6Class(
             # Update modified time
             private$..modified <- Sys.time()
 
-            # Update State
-            stateNote <- paste("Lab", l$name, "added to nlpStudio.")
-            stateManager$saveState(self, stateNote)
+            # # Update State
+             private$..stateDesc <- paste("Lab", l$name, "added to nlpStudio.")
+            # private$..saveState()
 
             # Log Event
-            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
-                               method = "addChild",
-                               event = paste("Added Lab,",
-                                             l$name, "to nlpStudio."))
+            # historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+            #                    method = "addChild",
+            #                    event = private$..stateDesc)
 
             invisible(self)
 
@@ -210,28 +230,15 @@ NLPStudio <- R6::R6Class(
               stop()
             }
 
-            # Confirm lab is not current
-            if (isTRUE(all.equal(lab, private$..currentLab))) {
-              v <- Validate0$new()
-              v$notify(class = "NLPStudio", method = "removeChild",
-                       fieldName = "lab", value = lab, level = "Error",
-                       msg = "Unable to remove a current lab.  See ?NLPStudio",
-                       expect = NULL)
-              stop()
-            }
-
             # Obtain lab meta data
             l <- lab$getObject()
 
             # Save State
-            stateNote <- paste("Lab", l$name, "pending removal from nlpStudio.")
-            stateManager$saveState(self, stateNote)
+            private$..stateDesc <- paste("Lab", l$name, "memento prior to removing", l$name, "from", private$..name)
+            # private$..saveState()
 
             # Set child ancester to NULL
-            lab$setAncestor(NULL)
-
-            # Delete files and directory
-            base::unlink(file.path(self$getPath(), l$name))
+            lab$setAncestor()
 
             # Remove lab from nlpStudio
             private$..labs[[l$name]] <- NULL
@@ -240,13 +247,12 @@ NLPStudio <- R6::R6Class(
             private$..modified <- Sys.time()
 
             # Save state
-            stateNote <- paste("Lab", l$name, "removed from nlpStudio.")
-            stateManager$saveState(self, stateNote)
+            private$..stateDesc <- paste("Lab", l$name, "removed from nlpStudio.")
+            # private$..saveState()
 
-            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
-                               method = "removeChild",
-                               event = paste("Removed Lab,",
-                                             l$name, "from nlpStudio."))
+            # historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+            #                    method = "removeChild",
+            #                    event = private$..stateDesc)
 
           }
 

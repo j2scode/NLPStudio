@@ -15,7 +15,7 @@
 #'   \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
 #'   \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
 #'   \item{\code{getObject()}}{Retrieves the meta data for the Lab object.}
-#'   \item{\code{setObject(object)}}{Sets an object to a previous state as per the object parameter.}
+#'   \item{\code{setObject(object)}}{Sets an object to a previous stateDesc as per the object parameter.}
 #'  }
 #'
 #' \strong{Lab Aggregate Methods:}
@@ -23,12 +23,8 @@
 #'   \item{\code{getChildren()}}{Retrieves a list containing meta data for child objects of the DocumentCollection class.}
 #'   \item{\code{addChild(document)}}{Adds a child document, an object of the DocumentCollection class, to the Lab object.}
 #'   \item{\code{removeChild(document)}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
-#' }
-#'
-#' \strong{Lab State Methods:}
-#'  \describe{
-#'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of an object.}
-#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state.}
+#'   \item{\code{setAncestor(document)}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
+#'   \item{\code{getAncestor()}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
 #' }
 #'
 #'
@@ -45,7 +41,7 @@
 #' @param desc A chararacter string containing the description of the Lab
 #' @param document An object of the DocumentCollection class to be added to the Lab object's list of document collections.
 #' @param visitor An object of one of the visitor classes.
-#' @param stateId Character string identifying a prior state for a Lab object.
+#' @param stateId Character string identifying a prior stateDesc for a Lab object.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@datasciencesalon.org}
@@ -59,8 +55,8 @@ Lab <- R6::R6Class(
     ..desc = character(0),
     ..parent = character(0),
     ..collections = list(),
-    ..state = character(0),
     ..stateId = character(0),
+    ..stateDesc = character(0),
     ..modified = "None",
     ..created = "None"
   ),
@@ -73,8 +69,15 @@ Lab <- R6::R6Class(
       } else {
         private$..desc <- value
       }
-      #TODO; Add call to statebuilder
-      print("State saved after update of description")
+      # # Save State
+      private$..stateDesc <- paste(private$..name, "Lab description changed at", Sys.time())
+      # state <- State$new()
+      # private$..stateId <- state$saveState(self)
+    },
+
+    saveState = function() {
+      state <- State$new()
+      private$..stateId <- state$saveState(self)
     }
   ),
 
@@ -107,8 +110,8 @@ Lab <- R6::R6Class(
       private$..name <- name
       if (is.null(desc)) { desc <- paste(name, "Lab") }
       private$..desc <- desc
-      private$..parent <- nlpStudio
-      private$..state <+ paste("Lab", name, "instantiated at", Sys.time())
+      private$..parent <- nlpStudio$getInstance()
+      private$..stateDesc <- paste("Lab", name, "instantiated at", Sys.time())
       private$..modified <- Sys.time()
       private$..created <- Sys.time()
 
@@ -116,9 +119,9 @@ Lab <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = name,
-                         method = "initialize",
-                         event = private$..state)
+      # historian$addEvent(class = "Lab", objectName = name,
+      #                    method = "initialize",
+      #                    event = private$..stateDesc)
 
       invisible(self)
     },
@@ -130,7 +133,7 @@ Lab <- R6::R6Class(
         desc = private$..desc,
         parent = private$..parent,
         documents = private$..collections,
-        state = private$..state,
+        stateDesc = private$..stateDesc,
         stateId = private$..stateId,
         modified = private$..modified,
         created = private$..created
@@ -143,14 +146,12 @@ Lab <- R6::R6Class(
       o <- object$getObject()
       private$..desc <- o$desc
       private$..parent <- nlpStudio
-      private$..state <- o$state
+      private$..stateDesc <- o$stateDesc
       private$..stateId <- o$stateId
       private$..created <- o$created
       private$..modified <- o$modified
       invisible(self)
     },
-
-
 
     #-------------------------------------------------------------------------#
     #                         Lab Aggregate Methods                           #
@@ -182,25 +183,30 @@ Lab <- R6::R6Class(
         stop()
       }
 
-      # Add collection to list of collections
+      # Get collection information
       c <- collection$getObject()
+
+      # Save state as memento
+      private$..stateDesc <- paste("Memento of", private$..name, "before adding ", c$name, "at", Sys.time())
+      # private$saveState(self)
+
+      # Add collection to lab's list of collections
       private$..collections[[c$name]] <- collection
 
-      # Add parent to document
+      # Set parent to document collection object
       collection$setAncestor(self)
 
       # Update modified time
       private$..modified <- Sys.time()
 
-      # Update State
-      private$..state <- paste("Collection", c$name, "added to Lab", private$..name, "at", Sys.time())
-      self$saveState()
+      # Save State
+      private$..stateDesc <- paste("Collection", c$name, "added to Lab", private$..name, "at", Sys.time())
+      # private$saveState(self)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = private$..name,
-                         method = "addChild",
-                         event = private$..state)
-
+      # historian$addEvent(class = "Lab", objectName = private$..name,
+      #                    method = "addChild",
+      #                    event = private$..stateDesc)
 
       invisible(self)
 
@@ -219,23 +225,71 @@ Lab <- R6::R6Class(
         stop()
       }
 
-      # Obtain collection meta data
+      # Obtain collection information
       c <- collection$getObject()
+
+      # Save state as memento
+      private$..stateDesc <- paste("Memento of", private$..name, "before removing ", c$name, "at", Sys.time())
+      # private$saveState(self)
+
 
       # Remove collection from lab and update modified time
       private$..collections[[c$name]] <- NULL
       private$..modified <- Sys.time()
 
       # Update State
-      private$..state <- paste("Collection", c$name, "removed from Lab", private$..name, "at", Sys.time())
-      self$saveState()
+      private$..stateDesc <- paste("Collection", c$name, "removed from Lab", private$..name, "at", Sys.time())
+      # private$saveState(self)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = private$..name,
-                         method = "removeChild",
-                         event = private$..state)
+      # historian$addEvent(class = "Lab", objectName = private$..name,
+      #                    method = "removeChild",
+      #                    event = private$..stateDesc)
 
       invisible(self)
+
+    },
+
+    getAncestor = function() {
+
+      p <- private$..parent
+
+      return(p)
+    },
+
+    setAncestor = function(parent = NULL) {
+
+      v <- ValidateClass$new()
+      if (v$validate(class = "Lab", method = "setAncestor", fieldName = "class(parent)",
+                     level = "Error", value = parent,
+                     msg = paste("Unable to set parent.  Parent must be a",
+                                 "NLPStudio class object.",
+                                 "See ?Lab for assistance."),
+                     expect = "NLPStudio") == FALSE) {
+        stop()
+      }
+
+      # Get parent information
+      p <- parent$getObject()
+
+      # Update State
+      private$..stateDesc <- paste("Memento of Lab object", private$..name, "prior to setting ancestor to", p$name, "at", Sys.time())
+      # private$saveState(self)
+
+      # Set parent and obtain parent information.
+      private$..parent <- parent
+      private$..modified <- Sys.time()
+
+      # Update State
+      private$..stateDesc <- paste("Set parent of DocumentCollection object,",
+                                private$..name, "to", p$name, "at",
+                                Sys.time())
+      # private$saveState(self)
+
+      # Log Event
+      # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
+      #                    method = "removeChild",
+      #                    event = private$..stateDesc)
 
     },
 

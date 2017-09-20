@@ -34,6 +34,8 @@ ValidateClass <- R6::R6Class(
           self$notify(class, method, fieldName, value, level, msg, expect)
           return(FALSE)
         }
+      } else {
+        return(FALSE)
       }
     }
   )

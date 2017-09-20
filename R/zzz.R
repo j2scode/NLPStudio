@@ -23,8 +23,8 @@
     packageStartupMessage(paste0("#=========================================================================================#"))
   }
   # Instantiate Singleton Classes
-  historian <<- Historian$new()$getInstance()
+#  historian <<- Historian$new()$getInstance()
   nlpStudio <<- NLPStudio$new()$getInstance()
-  stateManager <<- StateManager$new()$getInstance()
+#  stateManager <<- StateManager$new()$getInstance()
 }
 
