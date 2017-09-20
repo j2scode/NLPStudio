@@ -26,6 +26,7 @@
 #' @param file Object of the File family of classes
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
+#' @family Read/Write Classes
 #' @export
 VReader <- R6::R6Class(
   classname = "VReader",

@@ -59,32 +59,32 @@ NLPStudio <- R6::R6Class(
           ..desc = "NLPStudio: Natural Language Processing Studio",
           ..labs = list(),
           ..created = "None",
-          ..modified = "None"
-        ),
+          ..modified = "None",
 
-        initLog = function() {
+          initLog = function() {
 
-          c <- Constants$new()
-          logPath <- c$getLogPath()
-          if (!dir.exists(logPath)) {
-            dir.create(logPath)
-            futile.logger::flog.threshold(INFO)
-            futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
-            futile.logger::flog.logger("green", Info, appender=appender.tee(file.path(logPath, "green.log")))
-            futile.logger::flog.logger("green", info, appender=appender.tee(file.path(logPath, "green.log")))
-            futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("yellow", Warn, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("yellow", warn, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("yellow", WARNING, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("yellow", Warning, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("yellow", warning, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
-            futile.logger::flog.logger("red", Error, appender=appender.tee(file.path(logPath, "red.log")))
-            futile.logger::flog.logger("red", error, appender=appender.tee(file.path(logPath, "red.log")))
+            c <- Constants$new()
+            logPath <- c$getLogPath()
+            if (!dir.exists(logPath)) {
+              dir.create(logPath)
+              futile.logger::flog.threshold(INFO)
+              futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
+              futile.logger::flog.logger("green", Info, appender=appender.tee(file.path(logPath, "green.log")))
+              futile.logger::flog.logger("green", info, appender=appender.tee(file.path(logPath, "green.log")))
+              futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("yellow", Warn, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("yellow", warn, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("yellow", WARNING, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("yellow", Warning, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("yellow", warning, appender=appender.tee(file.path(logPath, "yellow.log")))
+              futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
+              futile.logger::flog.logger("red", Error, appender=appender.tee(file.path(logPath, "red.log")))
+              futile.logger::flog.logger("red", error, appender=appender.tee(file.path(logPath, "red.log")))
 
-            futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
+              futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
+            }
           }
-        },
+        ),
 
         public = list(
           #-------------------------------------------------------------------#

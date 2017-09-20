@@ -103,7 +103,11 @@ Historian <- R6::R6Class(
             private$..events[[eventId]] <- event
 
             # Save event to history file
-            events <- readRDS(file = private$..historyFile)
+            if (file.exists(private$..historyFile)) {
+              events <- readRDS(file = private$..historyFile)
+            } else {
+              events = list()
+            }
             events[[eventId]] <- event
             saveRDS(events, file = private$..historyFile)
           },

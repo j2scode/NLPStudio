@@ -20,7 +20,7 @@
 #' The State family of classes is responsible for managing object persistence
 #' and an archive / restore capability within the NLPStudio objects.
 #'
-#' \strong(State Class Family Participants:)
+#' \strong{State Class Family Participants:}
 #' The participants of the family are as follows:
 #' \itemize{
 #'  \item StateManager: This class accepts save / restore requests from object
@@ -33,7 +33,7 @@
 #'  restoring any files associated with an object being saved or restored.
 #'  }
 #'
-#' @section Methods:
+#' \strong{StateManager Methods:}
 #' The methods for the StateManager class are as follows:
 #' \describe{
 #'  \item{\code{getState(stateId)}}{Returns the object at the state designated by the stateId parameter.}

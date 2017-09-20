@@ -96,8 +96,8 @@
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
 #'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
@@ -159,6 +159,9 @@ Document0 <- R6::R6Class(
     setAncestor = function(parent) stop("Method is not available from Document0, an abstract class!"),
 
     # Visitor Methods
-    accept = function(visitor) stop("Method is not available from Document0, an abstract class!")
+    accept = function(visitor) stop("Method is not available from Document0, an abstract class!"),
+    acceptVUpdate = function(visitor, priorObject)  stop("Method is not available from Document0, an abstract class!"),
+    acceptVAddChild = function(visitor, child)  stop("Method is not available from Document0, an abstract class!"),
+    acceptVRemoveChild = function(visitor, child) stop("Method is not available from Document0, an abstract class!")
   )
 )

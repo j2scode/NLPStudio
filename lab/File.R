@@ -40,8 +40,8 @@
 #'  \itemize{
 #'   \item{\code{acceptVReader(visitor)}}{Method for accepting the VReader visitor method. Subclasses override these methods.}
 #'   \item{\code{acceptVWriter(visitor)}}{Method for accepting the VWriter visitor method. Subclasses override these methods.}
-#'   \item{\code{acceptVSaveState(visitor)}}{Method for accepting the VSaveState visitor method. Subclasses override these methods.}
-#'   \item{\code{acceptVRestoreState(visitor)}}{Method for accepting the VRestoreState visitor method. Subclasses override these methods.}
+#'   \item{\code{acceptVWriteState(visitor)}}{Method for accepting the VWriteState visitor method. Subclasses override these methods.}
+#'   \item{\code{acceptVReadState(visitor)}}{Method for accepting the VReadState visitor method. Subclasses override these methods.}
 #'  }
 #'
 #' @docType class
@@ -149,7 +149,7 @@ File <- R6::R6Class(
     #-------------------------------------------------------------------------#
     acceptVReader = function(visitor)  stop("This method is not implemented for this class"),
     acceptVWriter = function(visitor)  stop("This method is not implemented for this class"),
-    acceptVSaveState = function(visitor)  stop("This method is not implemented for this class"),
-    acceptVRestoreState = function(visitor)  stop("This method is not implemented for this class")
+    acceptVWriteState = function(visitor)  stop("This method is not implemented for this class"),
+    acceptVReadState = function(visitor)  stop("This method is not implemented for this class")
   )
 )

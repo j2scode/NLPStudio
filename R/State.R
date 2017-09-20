@@ -14,7 +14,7 @@
 #' data recovery in the NLPStudio package and is comprised of the following
 #' participants.
 #'
-#' \strong(State Class Family Participants:)
+#' \strong{State Class Family Participants:}
 #' \itemize{
 #'  \item State: This class oversees the process of saving, restoring and
 #'  querying states. It takes requests from client applications and dispatches
@@ -31,7 +31,7 @@
 #'  object states.
 #'  }
 #'
-#' @section Methods:
+#' \strong{State Class Methods:}
 #' The following methods are defined for this class:
 #' \describe{
 #' \item{\code{new()}}{Method for instantiating objects of the State class. Obtains the list of serializeable classes for validation puroses.}
@@ -102,7 +102,7 @@ State <- R6::R6Class(
       private$..requested <- Sys.time()
 
       # Send accept request to the object
-      private$..stateId <- object$acceptVSaveState(object)
+      private$..stateId <- object$acceptVWriteState(object)
       private$..completed <- Sys.time()
 
       invisible(self)
@@ -116,7 +116,7 @@ State <- R6::R6Class(
       if (private$validateRequest(object, method = method) == FALSE) stop()
 
       # Send accept request to the object
-      restoredObject <- object$acceptVRestoreState(object)
+      restoredObject <- object$acceptVReadState(object)
 
       # Rebuild Document / Composite
       StateBuilder$new()

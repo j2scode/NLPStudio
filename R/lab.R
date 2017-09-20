@@ -36,8 +36,8 @@
 #'  \describe{
 #'   \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
 #'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #' }
 #'
@@ -245,17 +245,14 @@ Lab <- R6::R6Class(
     accept = function(visitor)  {
       visitor$lab(self)
     },
-    acceptUpdate = function(visitor, object)  {
-      visitor$lab(self, object)
+    acceptVUpdate = function(visitor, priorObject)  {
+      visitor$lab(self, priorObject)
     },
-    acceptAdd = function(visitor, object)  {
-      visitor$lab(self, object)
+    acceptVAddChild = function(visitor, child)  {
+      visitor$lab(self, child)
     },
-    acceptRemove = function(visitor, object)  {
-      visitor$lab(self, object)
-    },
-    acceptAssociate = function(visitor, object)  {
-      visitor$lab(self, object)
+    acceptVRemoveChild = function(visitor, child)  {
+      visitor$lab(self, child)
     }
   )
 )

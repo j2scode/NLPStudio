@@ -19,7 +19,7 @@
 #' data recovery in the NLPStudio package and is comprised of the following
 #' participants.
 #'
-#' \strong(State Class Family Participants:)
+#' \strong{State Class Family Participants:}
 #' \itemize{
 #'  \item State: This class oversees the process of saving, restoring and
 #'  querying states. It takes requests from client applications and dispatches
@@ -32,17 +32,17 @@
 #'  deserialize the object.
 #'  \item StateServer: This class is responsible for serializing and deserializing
 #'  object states.
-#'  \item VSaveState: This visitor class is invoked through the accept method
+#'  \item VWriteState: This visitor class is invoked through the accept method
 #'  of the originator object, and dispatches a request to the StateManager
 #'  class for logging and fulfillment.
-#'  \item VRestoreState: This visitor class is invoked through the accept method
+#'  \item VReadState: This visitor class is invoked through the accept method
 #'  of the originator object, and dispatches a request to the StateManager
 #'  class for logging and fulfillment. This class also manages the process
 #'  of restoring composite objects to the prior designated state by iterating
 #'  through the composite hierarchy.
 #'  }
 #'
-#' @section Methods:
+#' \strong{StateServer Methods:}
 #' The following methods are defined for this class:
 #' \describe{
 #'  \item{\code{new(key)}}{Method that instantiates an object of the StateServer class. The method is invoked by the StateManager class with a unique key. This key is validated against future requests to confirm that the requests is originating from the StateManager class.}

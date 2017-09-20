@@ -1,14 +1,14 @@
-## ---- VRestoreState
+## ---- VWriteState
 #==============================================================================#
-#                                   VRestoreState                              #
+#                                   VWriteState                                 #
 #==============================================================================#
-#' VRestoreState
+#' VWriteState
 #'
 #'
-#' \code{VRestoreState} Visitor class responsible for restoring objects to prior states
+#' \code{VWriteState} Visitor class responsible for saving the current state of the object which accepts this visitor.
 #'
-#' \strong{VRestoreState Methods:}
-#' The VRestoreState methods are as follows:
+#' \strong{VWriteState Methods:}
+#' The VWriteState methods are as follows:
 #'  \itemize{
 #'   \item{\code{lab(object)}}{Method for saving the current state of Lab objects.}
 #'   \item{\code{documentCollection(object)}}{Method for saving the current state of DocumentCollection objects.}
@@ -19,8 +19,8 @@
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
 #' @export
-VRestoreState <- R6::R6Class(
-  classname = "VRestoreState",
+VWriteState <- R6::R6Class(
+  classname = "VWriteState",
   private = list(
 
     validateObject = function(object) {
@@ -28,11 +28,11 @@ VRestoreState <- R6::R6Class(
       constants <- Constants$new()
 
       v <- ValidateClass$new()
-      if (v$validate(class = "VRestoreState", method = method, fieldName = "class(object)",
+      if (v$validate(class = "VWriteState", method = method, fieldName = "class(object)",
                      level = "Error", value = class(object)[1],
-                     msg = paste("Unable to restore object.",
+                     msg = paste("Unable to save object.",
                                  "Object is not of a serializable class.",
-                                 "See ?VRestoreState for assistance."),
+                                 "See ?VWriteState for assistance."),
                      expect = constants$getStateClasses()) == FALSE) {
         stop()
       }
@@ -42,16 +42,15 @@ VRestoreState <- R6::R6Class(
 
     lab = function()  {
       private$..validateObject(object)
-
-      private$..reinstate
+      stateManager$saveState(object)
     },
     documentCollection = function()  {
       private$..validateObject(object)
-      state <- stateManager$restoreState(object)
+      stateManager$saveState(object)
     },
     document = function()  {
       private$..validateObject(object)
-      state <- stateManager$restoreState(object)
+      stateManager$saveState(object)
     }
   )
 )

@@ -29,6 +29,7 @@
 #' @param object This is an object of the DocumentCollection, Document or File class
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
+#' @family Read/Write Classes
 #' @export
 Reader <- R6::R6Class(
   classname = "Reader",

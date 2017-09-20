@@ -82,8 +82,8 @@
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAdd class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemove class.}
+#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
+#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
 #'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
@@ -296,17 +296,14 @@ DocumentCollection <- R6::R6Class(
     accept = function(visitor)  {
       visitor$documentCollection(self)
     },
-    acceptUpdate = function(visitor, object)  {
-      visitor$documentCollection(self, object)
+    acceptVUpdate = function(visitor, priorObject)  {
+      visitor$documentCollection(self, priorObject)
     },
-    acceptAdd = function(visitor, object)  {
-      visitor$documentCollection(self, object)
+    acceptVAddChild = function(visitor, child)  {
+      visitor$documentCollection(self, child)
     },
-    acceptRemove = function(visitor, object)  {
-      visitor$documentCollection(self, object)
-    },
-    acceptAssociate = function(visitor, object)  {
-      visitor$documentCollection(self, object)
+    acceptVRemoveChild = function(visitor, child)  {
+      visitor$documentCollection(self, child)
     }
   )
 )
