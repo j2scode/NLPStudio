@@ -38,7 +38,7 @@ Reader <- R6::R6Class(
     readData = function(object) {
 
       vReader <- VReader$new()
-      object$acceptVReader(vReader)
+      object$accept(vReader)
 
     }
   )

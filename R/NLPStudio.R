@@ -147,6 +147,47 @@ NLPStudio <- R6::R6Class(
             return(studio)
           },
 
+          setObject = function(visitor, restored) {
+
+            v <- ValidateClass$new()
+            if (v$validate(class = "NLPStudio", method = "setObject",
+                           fieldName = "visitor", value = visitor, level = "Error",
+                           msg = paste("Method invoked by unauthorized class",
+                                       "Please see ?NLPStudio for further assistance."),
+                           expect = "VUpdate") == FALSE) {
+              stop()
+            }
+
+            if (v$validate(class = "NLPStudio", method = "setObject",
+                           fieldName = "restored", value = restored, level = "Error",
+                           msg = paste0("Unable to restore ", private$..name,
+                                        ", an object of the ", class(self)[1], " class ",
+                                       "to the state of an object of class ",
+                                       class(restored)[1], ". ",
+                                       "Please see ?NLPStudio for further assistance."),
+                           expect = "NLPStudio") == FALSE) {
+              stop()
+            }
+
+
+            r <- restored$getObject()
+            private$..desc <- r$desc
+            private$..labs <- r$labs
+            private$..stateId <- r$stateId
+            private$..stateDesc <- paste("NLPStudio object restored to prior",
+                                         "state, designated by state identifier:",
+                                         r$stateId,"at", Sys.time())
+            private$..modified <- Sys.time()
+            private$..created <- r$created
+
+            # Log event
+            # historian$addEvent(class = class(self)[1], objectName = name,
+            #                    method = "setObject",
+            #                    event = private$..stateDesc)
+
+            invisible(self)
+          },
+
           #-------------------------------------------------------------------#
           #                           Lab Methods                             #
           #-------------------------------------------------------------------#

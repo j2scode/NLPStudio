@@ -38,7 +38,7 @@ Writer <- R6::R6Class(
     writeData = function(object) {
 
       vWriter <- VWriter$new()
-      object$acceptVWriter(vWriter)
+      object$accept(vWriter)
 
     }
   )

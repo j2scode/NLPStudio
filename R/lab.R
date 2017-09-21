@@ -145,19 +145,38 @@ Lab <- R6::R6Class(
       v <- ValidateClass$new()
       if (v$validate(class = "Lab", level = "Error", method = "setObject",
                      fieldName = "visitor", value = visitor,
-                     msg = paste("Class not autorized to invoke this method.",
+                     msg = paste("Class not authorized to invoke this method.",
                                  "Please see ?Lab for further assistance."),
                      expect = "VUpdate") == FALSE) {
+        stop()
+      }
+
+      if (v$validate(class = "Lab", level = "Error", method = "setObject",
+                     fieldName = "restored", value = restored,
+                     msg = paste0("Unable to restore ", private$..name, ", ",
+                                  "an object of class ", class(self)[1], "to state ",
+                                  "of an object of class ", class(restored)[1], ". ",
+                                  "Please see ?Lab for further assistance."),
+                     expect = "Lab") == FALSE) {
         stop()
       }
       r <- restored$getObject()
       private$..desc <- r$desc
       private$..parent <- r$parent
       private$..collections <- r$collections
-      private$..stateDesc <- paste("Lab object", private$..name, "restored to state id:", r$stateId)
+      private$..stateDesc <- paste("Lab object", private$..name,
+                                   "restored to prior state designated",
+                                   "by state id:", r$stateId, "at",
+                                   system.time())
       private$..stateId <- r$stateId
       private$..created <- r$created
-      private$..modified <- r$modified
+      private$..modified <- Sys.time()
+
+      # Log event
+      # historian$addEvent(class = class(self)[1], objectName = name,
+      #                    method = "setObject",
+      #                    event = private$..stateDesc)
+
       invisible(self)
     },
 

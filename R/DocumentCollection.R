@@ -23,11 +23,15 @@
 #' \itemize{
 #'  \item Document0: This component class specifies an abstract interface
 #'  for all leaf and composite document classes.
-#'  \item Document: This "leaf" class specifies the concrete class for
-#'  individual.
 #'  \item DocumentCollection: The composite class that maintains the
 #'  hierarchical structure of document collections (composites) and individual
 #'  documents (leafs).
+#'  \item Document: An "abstract leaf" class defines the interface for
+#'  DocumentText, DocumentRdata, DocumentCsv, and DocumentXlsx sub-classes.
+#'  \item DocumentText: This "concrete leaf" class for text documents.
+#'  \item DocumentCsv: This "concrete leaf" class for csv documents.
+#'  \item DocumentRdata: This "concrete leaf" class for RData documents.
+#'  \item DocumentXlsx: This "concrete leaf" class for excel documents.
 #'  }
 #'
 #' \strong{Document Family of Classes Collaborators:}
@@ -107,6 +111,10 @@
 DocumentCollection <- R6::R6Class(
   classname = "DocumentCollection",
   inherit = Document0,
+  private = list(
+    ..documents = list()
+  ),
+
   public = list(
     #-------------------------------------------------------------------------#
     #                            Core Methods                                 #
@@ -133,7 +141,7 @@ DocumentCollection <- R6::R6Class(
       # Log Event
       #historian$addEvent(class = "DocumentCollection", objectName = name,
       #                   method = "initialize",
-      #                   event = private$..state)
+      #                   event = private$..stateDesc)
 
       invisible(self)
     },
@@ -153,13 +161,43 @@ DocumentCollection <- R6::R6Class(
       return(document)
     },
 
-    setObject = function(object) {
-      o <- object$getObject()
-      private$..desc <- o$desc
-      private$..stateDesc <- o$state
-      private$..stateId <- o$stateId
-      private$..created <- o$created
-      private$..modified <- o$modified
+    setObject = function(visitor, restored) {
+
+      v <- ValidateClass$new()
+      if (v$validate(class = "DocumentCollection", level = "Error", method = "setObject",
+                     fieldName = "visitor", value = visitor,
+                     msg = paste("Class not authorized to invoke this method.",
+                                 "Please see ?DocumentCollection for further assistance."),
+                     expect = "VUpdate") == FALSE) {
+        stop()
+      }
+
+      if (v$validate(class = "DocumentCollection", level = "Error", method = "setObject",
+                     fieldName = "restored", value = restored,
+                     msg = paste0("Unable to restore ", private$..name, ", ",
+                                  "an object of class ", class(self)[1], "to state ",
+                                  "of an object of class ", class(restored)[1], ". ",
+                                  "Please see ?DocumentCollection for further assistance."),
+                     expect = "DocumentCollection") == FALSE) {
+        stop()
+      }
+      r <- restored$getObject()
+      private$..desc <- r$desc
+      private$..parent <- r$parent
+      private$..documents <- r$documents
+      private$..stateDesc <- paste("DocumentCollection object", private$..name,
+                                   "restored to prior state designated by",
+                                   "state identifier:",
+                                   r$stateId,"at", Sys.time())
+      private$..stateId <- r$stateId
+      private$..created <- r$created
+      private$..modified <- Sys.time()
+
+      # Log event
+      # historian$addEvent(class = class(self)[1], objectName = name,
+      #                    method = "setObject",
+      #                    event = private$..stateDesc)
+
       invisible(self)
     },
 
@@ -197,7 +235,7 @@ DocumentCollection <- R6::R6Class(
       # Log Event
       # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
       #                    method = "addChild",
-      #                    event = private$..state)
+      #                    event = private$..stateDesc)
     },
 
     removeChild = function(document) {
@@ -242,7 +280,7 @@ DocumentCollection <- R6::R6Class(
       # Log Event
       # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
       #                    method = "removeChild",
-      #                    event = private$..state)
+      #                    event = private$..stateDesc)
     },
 
     getAncestor = function() {

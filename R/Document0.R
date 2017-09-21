@@ -25,11 +25,15 @@
 #' \itemize{
 #'  \item Document0: This component class specifies an abstract interface
 #'  for all leaf and composite document classes.
-#'  \item Document: This "leaf" class specifies the concrete class for
-#'  individual.
 #'  \item DocumentCollection: The composite class that maintains the
 #'  hierarchical structure of document collections (composites) and individual
 #'  documents (leafs).
+#'  \item Document: An "abstract leaf" class defines the interface for
+#'  DocumentText, DocumentRdata, DocumentCsv, and DocumentXlsx sub-classes.
+#'  \item DocumentText: This "concrete leaf" class for text documents.
+#'  \item DocumentCsv: This "concrete leaf" class for csv documents.
+#'  \item DocumentRdata: This "concrete leaf" class for RData documents.
+#'  \item DocumentXlsx: This "concrete leaf" class for excel documents.
 #'  }
 #'
 #' \strong{Document Family of Classes Collaborators:}
@@ -129,8 +133,6 @@ Document0 <- R6::R6Class(
     ..name = character(0),
     ..desc = character(0),
     ..parent = character(0),
-    ..documents = list(),
-    ..fileName = character(0),
     ..stateId = character(0),
     ..stateDesc = character(0),
     ..created = character(0),
