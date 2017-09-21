@@ -15,19 +15,32 @@
 #' retrieve information about the NLPStudio object.  The second set allows
 #' clients to add, remove, enter, and leave labs.
 #'
-#' @section NLPStudio Object Methods:
+#' \strong{NLPStudio Core Methods:}
 #' \describe{
 #'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
 #'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
 #'  \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
 #' }
 #'
-#' @section Lab Methods:
+#' \strong{NLPSTudio Lab Methods:}
 #' \describe{
 #'  \item{\code{getChildren()}}{Returns the list of member labs in the nlpStudio object.}
 #'  \item{\code{addChild(lab, enter = TRUE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
 #'  \item{\code{removeChild(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
 #' }
+#'
+#' \strong{NLPSTudio State Methods:}
+#' \describe{
+#'  \item{\code{saveState()}}{Method for saving the current state of an NLPObject and its descendants.}
+#'  \item{\code{restoreState()}}{Method for restoring an NLPStudio object to a prior state as designated by a state id.}
+#' }
+#'
+#' \strong{NLPSTudio Visitor Methods:}
+#'  \itemize{
+#'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
+#'   \item{\code{acceptVUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'  }
+#'
 #'
 #' @param lab An object of class 'Lab'.
 #' @param autoSave Logical indicating whether to automatically save the state of an object after any change is made.
@@ -69,28 +82,15 @@ NLPStudio <- R6::R6Class(
             logPath <- c$getLogPath()
             if (!dir.exists(logPath)) {
               dir.create(logPath)
-              futile.logger::flog.threshold(INFO)
-              futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
-              futile.logger::flog.logger("green", Info, appender=appender.tee(file.path(logPath, "green.log")))
-              futile.logger::flog.logger("green", info, appender=appender.tee(file.path(logPath, "green.log")))
-              futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("yellow", Warn, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("yellow", warn, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("yellow", WARNING, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("yellow", Warning, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("yellow", warning, appender=appender.tee(file.path(logPath, "yellow.log")))
-              futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
-              futile.logger::flog.logger("red", Error, appender=appender.tee(file.path(logPath, "red.log")))
-              futile.logger::flog.logger("red", error, appender=appender.tee(file.path(logPath, "red.log")))
-
-              futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
             }
-          },
+            futile.logger::flog.threshold(INFO)
+            futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
+            futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
+            futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
 
-          saveState = function() {
-            state <- State$new()
-            private$..stateId <- state$saveState(self)
+            futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
           }
+
         ),
 
         public = list(
@@ -254,8 +254,22 @@ NLPStudio <- R6::R6Class(
             #                    method = "removeChild",
             #                    event = private$..stateDesc)
 
-          }
+          },
 
+          #-------------------------------------------------------------------#
+          #                           Lab Methods                             #
+          #-------------------------------------------------------------------#
+          saveState = function() {
+            state <- State$new()
+            private$..stateId <- state$save(self)
+          },
+
+          restoreState = function() {
+            private$..stateId <- stateId
+            state <- State$new()
+            state$restore(self)
+            invisible(self)
+          }
         )
       )
       super$initialize(...)

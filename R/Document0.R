@@ -48,6 +48,7 @@
 #'  selected private members.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
+#'  \item{State Methods: Methods for saving current and restoring prior states of objects .}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
 #' }
@@ -92,13 +93,16 @@
 #'   DocumentCollection sub-classes.}
 #' }
 #'
+#' \strong{Document0 State Methods:}
+#'  \itemize{
+#'   \item{\code{saveState()}}{Method for saving the current state of an object to file.}
+#'   \item{\code{restoreState()}}{Method for restoring an object to a prior state.}
+#'  }
+#'
 #' \strong{Document0 Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
-#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
 #'
@@ -127,10 +131,11 @@ Document0 <- R6::R6Class(
     ..parent = character(0),
     ..documents = list(),
     ..fileName = character(0),
-    ..state = character(0),
     ..stateId = character(0),
+    ..stateDesc = character(0),
     ..created = character(0),
     ..modified = character(0)
+
   ),
 
   active = list(
@@ -159,9 +164,11 @@ Document0 <- R6::R6Class(
     setAncestor = function(parent) stop("Method is not available from Document0, an abstract class!"),
 
     # Visitor Methods
+    saveState = function() stop("Method is not available from Document0, an abstract class!"),
+    restoreState = function()  stop("Method is not available from Document0, an abstract class!"),
+
+    # Visitor Methods
     accept = function(visitor) stop("Method is not available from Document0, an abstract class!"),
-    acceptVUpdate = function(visitor, priorObject)  stop("Method is not available from Document0, an abstract class!"),
-    acceptVAddChild = function(visitor, child)  stop("Method is not available from Document0, an abstract class!"),
-    acceptVRemoveChild = function(visitor, child) stop("Method is not available from Document0, an abstract class!")
+    acceptVUpdate = function(visitor, priorObject)  stop("Method is not available from Document0, an abstract class!")
   )
 )

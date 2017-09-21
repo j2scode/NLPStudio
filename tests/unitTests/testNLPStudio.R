@@ -26,7 +26,7 @@ testNLPStudio <- function() {
     logTests(class = class, mthd = "initiate", note = "Successfully created nlpStudio")
     logTests(class = class, mthd = "initiate", note = "Create and modified dates initialized correctly")
 
-    cat(paste("\n", test, " Completed: Success!\n"))
+    cat(paste("\n\n", test, " Completed: Success!\n"))
   }
 
   test1 = function() {
@@ -45,7 +45,8 @@ testNLPStudio <- function() {
     # Logit
     logTests(class = class, mthd = "getObject()", note = "Successfully returned list")
 
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste("\n              NLPStudio:", studio$stateDesc))
+    cat(paste("\n\n", test, "Completed: Success!\n"))
   }
 
   test2 <- function() {
@@ -80,7 +81,9 @@ testNLPStudio <- function() {
     logTests(class = class, mthd = "addChild", note = "Date modified updated correctly")
 
 
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste("\n              Beats Lab:", l$stateDesc))
+    cat(paste("\n              NLPStudio:", studio$stateDesc))
+    cat(paste("\n\n", test, "Completed: Success!\n"))
   }
 
 
@@ -108,7 +111,9 @@ testNLPStudio <- function() {
     logTests(class = class, mthd = "getObject(type = 'list')", note = "Successfully returned list type")
     logTests(class = class, mthd = "addChild", note = "Successfully added lab")
 
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste("\n              Beats Lab:", lab$stateDesc))
+    cat(paste("\n              NLPStudio:", studio$stateDesc))
+    cat(paste("\n\n", test, "Completed: Success!\n"))
   }
 
   test4 <- function() {
@@ -117,50 +122,23 @@ testNLPStudio <- function() {
 
     Lab$new(name = "Bart",desc = "Simpsons Lab")
     nlpStudio$addChild(Bart)
-
-    # Confirm modified date updated
     studio <<- nlpStudio$getObject()
-    stopifnot((Sys.time() - studio$created) > 0.2)
-    stopifnot((Sys.time() - studio$modified) < 2)
+    stopifnot(length(studio$labs) == 2)
+    lab <- studio$labs[[2]]$getObject()
+    stopifnot(lab$name == "Bart")
+    stopifnot(lab$desc == "Simpsons Lab")
+    stopifnot(isTRUE(all.equal(lab$parent, nlpStudio)))
 
     # Logit
     logTests(class = class, mthd = "addChild(enter = 'TRUE')", note = "Successfully added lab")
-    logTests(class = class, mthd = "addChild(enter = 'TRUE')", note = "Date modified updated correctly")
-
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste("\n               Bart Lab:", lab$stateDesc))
+    cat(paste("\n              NLPStudio:", studio$stateDesc))
+    cat(paste("\n\n", test, "Completed: Success!\n"))
   }
+
 
   test5 <- function() {
-    test <- "test5: getObject() with two labs"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test getObject list format
-    studio <<- nlpStudio$getObject()
-    stopifnot(studio$name == "nlpStudio")
-    stopifnot(studio$desc == "NLPStudio: Natural Language Processing Studio")
-
-    stopifnot(length(studio$labs) == 2)
-    beats <- studio$labs[[1]]$getObject()
-    stopifnot(beats$name == "Beats")
-    stopifnot(beats$desc == "Beats Lab")
-    stopifnot(beats$parentName == "nlpStudio")
-
-    bart <- studio$labs[[2]]$getObject()
-    stopifnot(bart$name == "Bart")
-    stopifnot(bart$desc == "Simpsons Lab")
-    stopifnot(bart$parentName == "nlpStudio")
-
-    # Logit
-    logTests(class = class, mthd = "getObject('list')", note = "Successfully returned nlpStudio list with two labs")
-    logTests(class = class, mthd = "addChild", note = "Successfully added 2nd lab")
-
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
-
-  }
-
-
-  test6 <- function() {
-    test <- "test6: Remove lab"
+    test <- "test5: Remove lab"
     cat(paste("\n",test, " Commencing\r"))
 
     # Validation
@@ -170,25 +148,23 @@ testNLPStudio <- function() {
 
     # Successfuly remove Bart
     nlpStudio$removeChild(Bart)
-    stopifnot(exists("Bart") == FALSE)
-    stopifnot(exists("Beats") == TRUE)
-
-    # Confirm date modified updated correctly
-    studio <- nlpStudio$getObject()
-    stopifnot((Sys.time() - studio$created) > 1)
-    stopifnot((Sys.time() - studio$modified) < 5)
+    stopifnot(is.null(Bart$getAncestor()))
+    stopifnot(!is.null(Beats$getAncestor()))
 
     # # Confirm removed from list
-    labs <<- Bart$getObject()
-    for (l in 1:length(labs)) {
-      stopifnot(!isTRUE(all.equal(labs[[l]]$name, "Bart")))
+    studio <- nlpStudio$getObject()
+    for (l in 1:length(studio$labs)) {
+      lab <- studio$labs[[l]]$getObject()
+      stopifnot(!isTRUE(all.equal(lab$name, "Bart")))
     }
 
     # Logit
     logTests(class = class, mthd = "removeChild", note = "Tested validation and removal of lab")
     logTests(class = class, mthd = "removeChild", note = "Tested archive of files and inventory of archives")
 
-    cat(paste("\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste("\n               Bart Lab:", lab$stateDesc))
+    cat(paste("\n              NLPStudio:", studio$stateDesc))
+    cat(paste("\n\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
   }
 
 
@@ -199,7 +175,6 @@ test2()
 test3()
 test4()
 test5()
-test6()
 
 }
 

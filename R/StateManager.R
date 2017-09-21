@@ -187,7 +187,7 @@ StateManager <- R6::R6Class(
 
             # Create state object and dispatch save request
             state <- State$new(key)
-            path <- state$saveState(key = key, stateId = stateId, object = object)
+            path <- state$save(key = key, stateId = stateId, object = object)
 
             #  Create log entry for new saved state
             state <- list(

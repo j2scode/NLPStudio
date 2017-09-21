@@ -49,6 +49,7 @@
 #'  selected private members.}
 #'  \item{Composite Methods: Methods implemented by the DocumentCollection
 #'  class to maintain the document heirarchy.}
+#'  \item{State Methods: Methods for saving current and restoring to prior object states.}
 #'  \item{Visitor Methods: Methods for implementation of and messaging
 #'  with objects of the visitor classes.}
 #' }
@@ -82,16 +83,13 @@
 #' \strong{Document State Methods:}
 #'  \itemize{
 #'   \item{\code{saveState()}}{Method that initiates the process of saving the current state of the object. This method is inherited from the Document0 class.}
-#'   \item{\code{restoreState(stateId)}}{Method that initiates the process of restoring an object to a prior state. This method is inherited from the Document0 class.}
+#'   \item{\code{restoreState()}}{Method that initiates the process of restoring an object to a prior state. This method is inherited from the Document0 class.}
 #'  }
 
 #' \strong{Document Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
-#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -182,8 +180,8 @@ Document <- R6::R6Class(
         desc = private$..desc,
         parent = private$..parent,
         fileName = private$..fileName,
-        state = private$..state,
         stateId = private$..stateId,
+        stateDesc = private$..stateDesc,
         created = private$..created,
         modified = private$..modified
       )
@@ -213,35 +211,70 @@ Document <- R6::R6Class(
 
     setAncestor = function(parent) {
 
-      v <- ValidateClass$new()
-      if (v$validate(class = "Document", method = "setAncestor", fieldName = "class(parent)",
-                     level = "Error", value = class(parent)[1],
-                     msg = paste("Unable to set parent.  Parent must be a",
-                                 "DocumentCollection object.",
-                                 "See ?Document for assistance."),
-                     expect = "DocumentCollection") == FALSE) {
-        stop()
+      if (!is.null(parent)) {
+
+        # Obtain parent information
+        p <<- parent$getObject()
+
+        v <- ValidateClass$new()
+        if (v$validate(class = "Document", method = "setAncestor", fieldName = "class(parent)",
+                       level = "Error", value = class(parent)[1],
+                       msg = paste("Unable to set parent.  Parent must be a",
+                                   "Document or Lab object.",
+                                   "See ?Document for assistance."),
+                       expect = c("Document", "Lab")) == FALSE) {
+          stop()
+        }
+
+        # Save Memento
+        private$..state <- paste("Saving Memento of Document object",
+                                 private$..name, "before setting parent to",
+                                 p$name, "at", Sys.time())
+        # private$saveState(self)
+
+        # Set parent and state description
+        private$..parent <- parent
+        private$..stateDesc <- paste("Set parent of Document object,",
+                                     private$..name, "to", p$name, "at",
+                                     Sys.time())
+      } else {
+        # Save Memento
+        private$..stateDesc <- paste("Saving Memento of Document object",
+                                     private$..name, "before setting parent to NULL",
+                                     "at", Sys.time())
+        # private$saveState(self)
+
+        # Set parent to null and update object state"
+        private$..parent <- NULL
+        private$..stateDesc <- paste("Set parent of Document object",
+                                     private$..name, "to NULL at",
+                                     Sys.time())
       }
 
-      # Get parent information
-      p <- parent$getObject()
+      private$..modified <- Sys.time()
+      # private$saveState(self)
 
-      # Set parent variable
-      private$..parent <- parent
-
-      # Set state
-      private$..state <- paste("Document", private$..name, "parent set to",
-                               p$name, "at", Sys.time())
-      self$saveState()
-
-      # Log event
-      historian$addEvent(class = "Document", objectName = private$..name,
-                         method = "setAncestor",
-                         event = private$..state)
-
-      invisible(self)
+      # Log Event
+      # historian$addEvent(class = "Document", objectName = private$..name,
+      #                    method = "removeChild",
+      #                    event = private$..stateDesc)
     },
 
+
+    #-------------------------------------------------------------------#
+    #                           State Method                            #
+    #-------------------------------------------------------------------#
+    saveState = function() {
+      state <- State$new()
+      private$..stateId <- state$save(self)
+    },
+
+    restoreState = function(stateId) {
+      private$..stateId <- stateId
+      state <- State$new()
+      state$restore(self)
+      invisible(self)
+    },
 
     #-------------------------------------------------------------------------#
     #                           Visitor Methods                               #
@@ -251,12 +284,6 @@ Document <- R6::R6Class(
     },
     acceptVUpdate = function(visitor, priorObject)  {
       visitor$document(self, priorObject)
-    },
-    acceptVAddChild = function(visitor, child)  {
-      visitor$document(self, child)
-    },
-    acceptVRemoveChild = function(visitor, child)  {
-      visitor$document(self, child)
     }
   )
 )

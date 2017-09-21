@@ -27,8 +27,8 @@ VUpdate <- R6::R6Class(
     validateObject = function(current, restored) {
 
       v <- ValidateClass$new()
-      if (v$validate(class = "VUpdate", method = method, fieldName = "class(object)",
-                     level = "Error", value = class(object)[1],
+      if (v$validate(class = "VUpdate", method = method, fieldName = "class(restored)",
+                     level = "Error", value = restored,
                      msg = paste0("Unable to restore object of class ",
                                  class(current)[1], " to state of ",
                                  "object class ", class(restored)[1], ". ",
@@ -42,15 +42,15 @@ VUpdate <- R6::R6Class(
 
     lab = function(current, restored)  {
       private$..validateObject(current, restored)
-      current$setObject(restored)
+      current$setObject(self, restored)
     },
     documentCollection = function(current, restored)  {
       private$..validateObject(current, restored)
-      current$setObject(restored)
+      current$setObject(self, restored)
     },
     document = function(current, restored)  {
       private$..validateObject(current, restored)
-      current$setObject(restored)
+      current$setObject(self, restored)
     }
   )
 )

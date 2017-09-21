@@ -27,14 +27,17 @@
 #'   \item{\code{getAncestor()}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
 #' }
 #'
+#' \strong{State Methods:}
+#'  \describe{
+#'   \item{\code{saveState()}}{Retrieves a list containing meta data for child objects of the DocumentCollection class.}
+#'   \item{\code{restoreState()}}{Removes a child document, an object of the DocumentCollection class, from the Lab object.}
+#' }
+#'
 #'
 #' \strong{Lab Visitor Methods:}
 #'  \describe{
 #'   \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
 #'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
-#'   \item{\code{acceptAdd(visitor, object)}}{Accepts an object of the VAddChild class.}
-#'   \item{\code{acceptRemove(visitor, object)}}{Accepts an object of the VRemoveChild class.}
-#'   \item{\code{acceptAssociate(visitor, object)}}{Accepts an object of the VAssociate class.}
 #' }
 #'
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
@@ -72,12 +75,7 @@ Lab <- R6::R6Class(
       # # Save State
       private$..stateDesc <- paste(private$..name, "Lab description changed at", Sys.time())
       # state <- State$new()
-      # private$..stateId <- state$saveState(self)
-    },
-
-    saveState = function() {
-      state <- State$new()
-      private$..stateId <- state$saveState(self)
+      # private$..stateId <- state$save(self)
     }
   ),
 
@@ -90,7 +88,7 @@ Lab <- R6::R6Class(
 
       # Validate Name
       v <- ValidateName$new()
-      if (v$validate(class = "NLPStudio", method = "initialize", value = name,
+      if (v$validate(class = "Lab", method = "initialize", value = name,
                      expect = FALSE) == FALSE) {
         stop()
       }
@@ -132,7 +130,7 @@ Lab <- R6::R6Class(
         name = private$..name,
         desc = private$..desc,
         parent = private$..parent,
-        documents = private$..collections,
+        collections = private$..collections,
         stateDesc = private$..stateDesc,
         stateId = private$..stateId,
         modified = private$..modified,
@@ -142,14 +140,24 @@ Lab <- R6::R6Class(
       return(lab)
     },
 
-    setObject = function(object) {
-      o <- object$getObject()
-      private$..desc <- o$desc
-      private$..parent <- nlpStudio
-      private$..stateDesc <- o$stateDesc
-      private$..stateId <- o$stateId
-      private$..created <- o$created
-      private$..modified <- o$modified
+    setObject = function(visitor, restored) {
+
+      v <- ValidateClass$new()
+      if (v$validate(class = "Lab", level = "Error", method = "setObject",
+                     fieldName = "visitor", value = visitor,
+                     msg = paste("Class not autorized to invoke this method.",
+                                 "Please see ?Lab for further assistance."),
+                     expect = "VUpdate") == FALSE) {
+        stop()
+      }
+      r <- restored$getObject()
+      private$..desc <- r$desc
+      private$..parent <- r$parent
+      private$..collections <- r$collections
+      private$..stateDesc <- paste("Lab object", private$..name, "restored to state id:", r$stateId)
+      private$..stateId <- r$stateId
+      private$..created <- r$created
+      private$..modified <- r$modified
       invisible(self)
     },
 
@@ -235,6 +243,11 @@ Lab <- R6::R6Class(
 
       # Remove collection from lab and update modified time
       private$..collections[[c$name]] <- NULL
+
+      # Change parent of removed object to null
+      collection$setAncestor()
+
+      # Update modified tieme
       private$..modified <- Sys.time()
 
       # Update State
@@ -259,31 +272,50 @@ Lab <- R6::R6Class(
 
     setAncestor = function(parent = NULL) {
 
-      v <- ValidateClass$new()
-      if (v$validate(class = "Lab", method = "setAncestor", fieldName = "class(parent)",
-                     level = "Error", value = parent,
-                     msg = paste("Unable to set parent.  Parent must be a",
-                                 "NLPStudio class object.",
-                                 "See ?Lab for assistance."),
-                     expect = "NLPStudio") == FALSE) {
-        stop()
+      if (!is.null(parent)) {
+
+        # Get parent information
+        p <- parent$getObject()
+
+        v <- ValidateClass$new()
+        if (v$validate(class = "Lab", method = "setAncestor", fieldName = "class(parent)",
+                       level = "Error", value = parent,
+                       msg = paste("Unable to set parent.  Parent must be a",
+                                   "NLPStudio class object.",
+                                   "See ?Lab for assistance."),
+                       expect = "NLPStudio") == FALSE) {
+          stop()
+        }
+
+        # Save Memento
+        private$..stateDesc <- paste("Memento of Lab object", private$..name,
+                                     "prior to setting ancestor to", p$name,
+                                     "at", Sys.time())
+        # private$saveState(self)
+
+        # Set parent and and state description
+        private$..parent <- parent
+        private$..stateDesc <- paste("Parent of Lab object,",
+                                     private$..name, "changed to", p$name, "at",
+                                     Sys.time())
+
+
+      } else {
+        # Save Memento
+        private$..stateDesc <- paste("Memento of Lab object",
+                                     private$..name,
+                                     "prior to setting ancestor to NULL at",
+                                     Sys.time())
+        # private$saveState(self)
+
+        # Set parent and state description
+        private$..parent <- NULL
+        private$..stateDesc <- paste("Parent of Lab object,",
+                                     private$..name, "changed to NULL at",
+                                     Sys.time())
       }
 
-      # Get parent information
-      p <- parent$getObject()
-
-      # Update State
-      private$..stateDesc <- paste("Memento of Lab object", private$..name, "prior to setting ancestor to", p$name, "at", Sys.time())
-      # private$saveState(self)
-
-      # Set parent and obtain parent information.
-      private$..parent <- parent
       private$..modified <- Sys.time()
-
-      # Update State
-      private$..stateDesc <- paste("Set parent of DocumentCollection object,",
-                                private$..name, "to", p$name, "at",
-                                Sys.time())
       # private$saveState(self)
 
       # Log Event
@@ -291,6 +323,21 @@ Lab <- R6::R6Class(
       #                    method = "removeChild",
       #                    event = private$..stateDesc)
 
+    },
+
+    #-------------------------------------------------------------------#
+    #                           State Method                            #
+    #-------------------------------------------------------------------#
+    saveState = function() {
+      state <- State$new()
+      private$..stateId <- state$save(self)
+    },
+
+    restoreState = function(stateId) {
+      private$..stateId <- stateId
+      state <- State$new()
+      state$restore(self)
+      invisible(self)
     },
 
     #-------------------------------------------------------------------------#
@@ -301,12 +348,6 @@ Lab <- R6::R6Class(
     },
     acceptVUpdate = function(visitor, priorObject)  {
       visitor$lab(self, priorObject)
-    },
-    acceptVAddChild = function(visitor, child)  {
-      visitor$lab(self, child)
-    },
-    acceptVRemoveChild = function(visitor, child)  {
-      visitor$lab(self, child)
     }
   )
 )

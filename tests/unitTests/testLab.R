@@ -11,30 +11,20 @@ testLab <- function() {
     if (exists("oxford", envir = .GlobalEnv)) {
       rm(list = ls(envir = .GlobalEnv)[grep("oxford", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
     }
-    if (exists("penn", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("penn", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-    if (exists("stanford", envir = .GlobalEnv)) {
-      rm(list = ls(envir = .GlobalEnv)[grep("stanford", ls(envir = .GlobalEnv))], envir = .GlobalEnv)
-    }
-
-    if (dir.exists("./NLPStudio/Labs/blue") == TRUE) base::unlink("./NLPStudio/Labs/blue", recursive = TRUE)
 
     # Source state and log
-    source("./tests/testFunctions/checkState.r")
     source("./tests/testFunctions/logTests.r")
-    source("./tests/testFunctions/copyFiles.r")
   }
 
   # Test 0: Confirm instantiation of lab
   test0 <- function() {
     test <- "test0: Lab Instantiation"
-    cat(paste("\n",test, " Commencing\r"))
+    cat(paste("\n",test, " Commencing\n\n"))
 
     # Test Instantiation
-    # lab$new() # should fail, name is required: Success
+    #Lab$new() # should fail, name is required: Success
     Lab$new(name = "blue", "Blue Lab")
-    #lab$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
+    #Lab$new(name = "blue", "Blue Lab") # Error lab exists and directory already exists: success
 
 
     # Confirm instantiation
@@ -42,20 +32,14 @@ testLab <- function() {
     stopifnot("Lab" %in% class(blue))
     stopifnot(b$name == "blue")
     stopifnot(b$desc == "Blue Lab")
-    stopifnot(is.TRUE(all.equal(b$parent, nlpStudio)))
-    stopifnot(b$parentName == "nlpStudio")
-    stopifnot(b$path == "./NLPStudio/Labs/blue")
+    stopifnot(isTRUE(all.equal(b$parent, nlpStudio)))
     stopifnot((Sys.time() - b$created) < 1)
     stopifnot((Sys.time() - b$modified) < 1)
-
-    # Confirm directory created
-    stopifnot(dir.exists("./NLPStudio/Labs/blue"))
+    cat(paste("\n               Object State:", b$stateDesc))
 
     # Logit
     logTests(class = class, mthd = "initiate", note = "Successfully created lab")
-    logTests(class = class, mthd = "initiate", note = "Create and modified dates initialized correctly")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
+    cat(paste("\n\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
   }
 
 
@@ -63,382 +47,133 @@ testLab <- function() {
     test <- "test1: Add Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Get lab information
-    b <- blue$getObject()
-
-    # Create collection
-    DocumentCollection$new(name = "brown", parent = blue, desc = "Brown Corpus")
-
-    # Verify Collection Instantiation
-
-
+    # Create and verify document collection
+    DocumentCollection$new(name = "brown", desc = "Brown Corpus")
+    collection <<- brown$getObject()
     stopifnot("DocumentCollection" %in% class(brown))
-    stopifnot("Lab" %in% class(blue))
-    blue$addDocument(brown)
-    copyFiles("./NLPStudio/Labs/blue/brown")
+    stopifnot(collection$name == "brown")
+    stopifnot(collection$desc == "Brown Corpus")
+    stopifnot((Sys.time() - collection$created) < 1)
+    stopifnot((Sys.time() - collection$modified) < 1)
+    cat(paste("\n               Object State:", collection$stateDesc))
 
-    # Confirm directory created
-    stopifnot(dir.exists("./NLPStudio/Labs/blue/brown"))
+    # Add collection to lab
+    blue$addChild(brown)
 
-    # Confirm modified date updated
+    # Confirm Lab is updated
     lab <<- blue$getObject()
-    stopifnot((Sys.time() - lab$created) > 1)
+    stopifnot(nrow(lab$collections) == 1)
+    stopifnot(lab$collections[[1]]$name == "brown")
+    stopifnot(lab$collections[[1]]$desc == "Brown Corpus")
+    stopifnot((Sys.time() - lab$collections[[1]]$created) < 1.5)
+    stopifnot((Sys.time() - lab$collections[[1]]$modified) < 1.5)
+    stopifnot((Sys.time() - lab$created) < 1)
     stopifnot((Sys.time() - lab$modified) < 1)
+    cat(paste("\n               Object State:", lab$stateDesc))
 
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "addDocument", note = "Created collection and added to lab")
-    logTests(class = class, mthd = "addDocument", note = "Date modified updated correctly")
-    logTests(class = class, mthd = "addDocument", note = "Directory created")
-
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-
-  test5 <- function() {
-    test <- "test5: getObject('object') with Collection"
-    cat(paste("\n",test, " Commencing\r"))
-
-    lab <<- blue$getObject()
-    stopifnot(isTRUE(all.equal(lab, blue)))
-    stopifnot("Lab" %in% class(blue))
-
-    # Check existence of documents
-    documents <- blue$getDocuments()
-    for (i in length(documents)) {
-      stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
-    }
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
+    # Confirm collection parent is updated
+    collection <<- brown$getObject()
+    stopifnot("DocumentCollection" %in% class(brown))
+    stopifnot(collection$name == "brown")
+    stopifnot(collection$desc == "Brown Corpus")
+    stopifnot(isTRUE(all.equal(collection$parent, blue)))
+    stopifnot((Sys.time() - collection$created) < 1)
+    stopifnot((Sys.time() - collection$modified) < 1)
+    cat(paste("\n               Object State:", collection$stateDesc))
 
     # Logit
-    logTests(class = class, mthd = "getObject(format = 'object')", note = "Successfully returned object type")
-    cat(paste("\n", test, " Completed: Success!\n"))
+    logTests(class = class, mthd = "addChild", note = "Created collection and added to lab")
+
+
+    cat(paste("\n\n", test, " Completed: Success!\n"))
   }
 
-  test6 <- function() {
-    test <- "test6: getObject('list') with Collection"
+  test2 <- function() {
+    test <- "test2: addChild() 2nd Collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getObject list format
+    # Instantiate and confirm instantiation
+    DocumentCollection$new(name = "oxford", desc = "Oxford Corpus")
+    o <- oxford$getObject()
+    stopifnot("DocumentCollection" %in% class(oxford))
+    stopifnot(o$name == "oxford")
+    stopifnot(o$desc == "Oxford Corpus")
+    stopifnot((Sys.time() - o$created) < 1)
+    stopifnot((Sys.time() - o$modified) < 1)
+    cat(paste("\n               Object State:", o$stateDesc))
+
+    # Add collection to lab
+    blue$addChild(oxford)
+
+    # Confirm document added to lab
     lab <<- blue$getObject()
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1.5)
+    stopifnot(nrow(lab$collections) == 2)
+    stopifnot(lab$collections[[2]]$name == "oxford")
+    stopifnot(lab$collections[[2]]$desc == "Oxford Corpus")
+    stopifnot((Sys.time() - lab$collections[[2]]$created) < 1.5)
+    stopifnot((Sys.time() - lab$collections[[2]]$modified) < 1.5)
+    stopifnot((Sys.time() - lab$created) < 1)
+    stopifnot((Sys.time() - lab$modified) < 1)
+    cat(paste("\n               Object State:", lab$stateDesc))
 
-    stopifnot(nrow(lab$documents) == 1)
-    stopifnot(lab$documents[[1]]$name == "brown")
-    stopifnot(lab$documents[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$documents[[1]]$created) < 1.5)
-    stopifnot((Sys.time() - lab$documents[[1]]$modified) < 1.5)
+    # Confirm collection parent is updated
+    collection <<- oxford$getObject()
+    stopifnot("DocumentCollection" %in% class(oxford))
+    stopifnot(collection$name == "oxford")
+    stopifnot(collection$desc == "Oxford Corpus")
+    stopifnot(isTRUE(all.equal(collection$parent, blue)))
+    stopifnot((Sys.time() - collection$created) < 1)
+    stopifnot((Sys.time() - collection$modified) < 1)
+    cat(paste("\n               Object State:", collection$stateDesc))
 
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
 
     # Logit
-    logTests(class = class, mthd = "getObject(format = 'list')", note = "Successfully returned list type with added collection")
-    logTests(class = class, mthd = "addDocument", note = "Successfully added collection")
-    cat(paste("\n", test, " Completed: Success!\n"))
+    logTests(class = class, mthd = "addChild(oxford)", note = "Successfully added 2nd collection")
+
+    cat(paste("\n\n", test, " Completed: Success!\n"))
   }
 
-  test7 <- function() {
-    test <- "test7: getObject('df') with Collection"
+  test3 <- function() {
+    test <- "test3: Remove collection"
     cat(paste("\n",test, " Commencing\r"))
 
-    # Test getObject df format
-    lab <<- blue$getObject()
-    stopifnot(lab$labDf$name == "blue")
-    stopifnot(lab$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified) < 1)
-
-    stopifnot(nrow(lab$documentsDf) == 1)
-    stopifnot(lab$documentsDf$name[1] == "brown")
-    stopifnot(lab$documentsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$documentsDf$created[1]) < 1)
-    stopifnot((Sys.time() - lab$documentsDf$modified[1]) < 1)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "getObject(format = 'df')", note = "Successfully returned df type")
-    logTests(class = class, mthd = "addDocument", note = "Successfully added collection")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test8 <- function() {
-    test <- "test8: addDocument() 2nd Collection"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Get lab name, which is also the path for the collection
-    lab <<- blue$getObject()
-    path <- lab$name
-
-    DocumentCollection$new(name = "oxford", parent = blue, desc = "Oxford Corpus")
-    blue$addDocument(oxford)
-    copyFiles("./NLPStudio/Labs/blue/oxford")
-
-    # Confirm directory created
-    stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
-
-    # Confirm modified date updated
-    lab <<- blue$getObject()
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1.5)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-    stopifnot(checkState("oxford") == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "addDocument(oxford)", note = "Successfully added 2nd collection")
-    logTests(class = class, mthd = "addDocument(oxford)", note = "Date modified updated correctly")
-    logTests(class = class, mthd = "addDocument(oxford)", note = "Directory created")
-
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-
-  test9 <- function() {
-    test <- "test9: getObject('object') with two documents"
-    cat(paste("\n",test, " Commencing\r"))
-
-    lab <<- blue$getObject()
-    stopifnot(isTRUE(all.equal(lab, blue)))
-
-    # Check existence of documents
-    documents <- blue$getDocuments()
-    for (i in length(documents)) {
-      stopifnot("DocumentCollection" %in% class(documents[[i]])[1])
-    }
-    stopifnot(i == 2)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-    stopifnot(checkState("oxford") == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "getObject('object')", note = "Successfully returned blue object")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test10 <- function() {
-    test <- "test10: getObject('list') with two documents"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test getObject list format
-    lab <<- blue$getObject()
-    stopifnot(lab$name == "blue")
-    stopifnot(lab$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 2)
-
-    stopifnot(length(lab$documents) == 2)
-    stopifnot(lab$documents[[1]]$name == "brown")
-    stopifnot(lab$documents[[1]]$desc == "Brown Corpus")
-    stopifnot((Sys.time() - lab$documents[[1]]$created) > 0.5)
-    stopifnot((Sys.time() - lab$documents[[1]]$modified) > 0.5)
-
-    stopifnot(lab$documents[[2]]$name == "oxford")
-    stopifnot(lab$documents[[2]]$desc == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$documents[[2]]$created) < 2)
-    stopifnot((Sys.time() - lab$documents[[2]]$modified) < 2)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-    stopifnot(checkState("oxford") == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "getObject('list')", note = "Successfully returned blue list with two documents")
-    logTests(class = class, mthd = "addDocument", note = "Successfully added 2nd collection")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test11 <- function() {
-    test <- "test11: getObject('df') with two documents"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Test getObject df format
-    lab <<- blue$getObject()
-    stopifnot(lab$labDf$name == "blue")
-    stopifnot(lab$labDf$desc == "Blue Lab")
-    stopifnot((Sys.time() - lab$labDf$created) > 1)
-    stopifnot((Sys.time() - lab$labDf$modified) < 1)
-
-    stopifnot(nrow(lab$documentsDf) == 2)
-    stopifnot(lab$documentsDf$name[1] == "brown")
-    stopifnot(lab$documentsDf$desc[1] == "Brown Corpus")
-    stopifnot((Sys.time() - lab$documentsDf$created[1]) > 0.5)
-    stopifnot((Sys.time() - lab$documentsDf$modified[1]) > 0.5)
-
-    stopifnot(lab$documentsDf$name[2] == "oxford")
-    stopifnot(lab$documentsDf$desc[2] == "Oxford Corpus")
-    stopifnot((Sys.time() - lab$documentsDf$created[2]) < 1)
-    stopifnot((Sys.time() - lab$documentsDf$modified[2]) < 1)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState('brown') == TRUE)
-    stopifnot(checkState('oxford') == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "getObject('df')", note = "Successfully returned df type with 2 documents")
-    logTests(class = class, mthd = "addDocument", note = "Successfully added 2nd lab")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test12 <- function() {
-    test <- "test12: Remove collection, purge = FALSE"
-    cat(paste("\n",test, " Commencing\r"))
+    Sys.sleep(1)
 
     # Attempt to remove a non-existent collection ( a function): Success
-    # blue$removeChild(logTests)
+    #blue$removeChild(logTests)  # Failed successfully
 
-    # Successfuly remove oxford from collection list
-    blue$removeChild(oxford, purge = FALSE)
-    documents <<- blue$getDocuments()
-    for (d in 1:length(documents)) {
-      stopifnot(!isTRUE(all.equal(documents[[d]]$name, "oxford")))
+    # Remove oxford from collection list
+    blue$removeChild(oxford)
+
+    # Verify object removed from lab object
+    collections <<- blue$getChildren()
+    for (c in 1:length(collections)) {
+      stopifnot(!isTRUE(all.equal(collections[[c]]$name, "oxford")))
     }
 
-    # Confirm object exists in global environment
-    stopifnot(exists('oxford'))
+    # Verify States
+    b <- blue$getObject()
+    o <- oxford$getObject()
+    cat(paste("\n               Object State:", b$stateDesc))
+    cat(paste("\n               Object State:", o$stateDesc))
 
-    # Confirm directory has not been  deleted
-    stopifnot(dir.exists("./NLPStudio/Labs/blue/oxford"))
-
-    # Confirm document exists in archive
-    archives <- nlpArchives$getArchives()
-    stopifnot(archives[[1]]$objectName == "oxford")
-    stopifnot(archives[[1]]$archiveName == "oxford-2017-09-03-1")
-    stopifnot(archives[[1]]$seqNum == 1)
-    stopifnot(archives[[1]]$numFiles == 4)
-
-    # Confirm date modified updated correctly
-    lab <- blue$getObject()
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    stopifnot(checkState("brown") == TRUE)
-    stopifnot(checkState('oxford') == TRUE)
+    # Verify parent of removed object set to null
+    o <- oxford$getObject()
+    stopifnot(is.null(o$parent))
+    stopifnot((Sys.time() - o$created) > 1)
+    stopifnot((Sys.time() - o$modified) < 1)
 
     # Logit
     logTests(class = class, mthd = "removeLab", note = "Remove lab, purge = FALSE, tested")
     cat(paste("\n", test, " Completed: Success!\n"))
   }
 
-  test13 <- function() {
-    test <- "test13: Remove collection, purge = TRUE"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Create  new document
-    lab <- blue$getObject()
-    path <- lab$name
-    DocumentCollection$new(name = "penn", parent = blue, desc = "Penn Corpus")
-
-    # Add new document
-    blue$addDocument(penn)
-    copyFiles("./NLPStudio/Labs/blue/penn")
-
-    # Confirm object exists as class DocumentCollection
-    stopifnot("DocumentCollection" %in% class(penn))
-
-    # Confirm directory created
-    stopifnot(dir.exists("./NLPStudio/Labs/blue/penn"))
-
-    # Remove document with a vengeance
-    blue$removeChild(penn, purge = TRUE)
-
-    # Confirm document removed from lab
-    documents <<- blue$getDocuments()
-    if (length(documents) > 0) {
-      for (c in 1:length(documents)) {
-        stopifnot(!isTRUE(all.equal(documents[[c]]$name, "penn")))
-      }
-    }
-
-    # Confirm object has been removed from global environment
-    stopifnot(!exists('penn'))
-
-    # Confirm files deleted
-    stopifnot(!dir.exists("./NLPStudio/Labs/blue/penn"))
-
-    # Confirm Archived
-    archives <- nlpArchives$getArchives()
-    stopifnot(archives[[2]]$objectName == "penn")
-    stopifnot(archives[[2]]$archiveName == "penn-2017-09-03-1")
-    stopifnot(archives[[2]]$numFiles == 4)
-    stopifnot(archives[[2]]$seqNum == 1)
-    stopifnot(as.Date(archives[[2]]$created) == as.Date(Sys.time()))
-
-    # Confirm date modified updated correctly
-    lab <- blue$getObject()
-    stopifnot((Sys.time() - lab$created) > 1)
-    stopifnot((Sys.time() - lab$modified) < 1.5)
-
-    # Check state
-    stopifnot(checkState("blue") == TRUE)
-    #stopifnot(checkState("penn") == TRUE) # should fail, not existing in state: success
-    stopifnot(checkState('oxford') == TRUE)
-
-    # Logit
-    logTests(class = class, mthd = "removeLab", note = "Remove lab, purge = TRUE, tested")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
-
-  test14 <- function() {
-    test <- "test14: Print lab"
-    cat(paste("\n",test, " Commencing\r"))
-
-    # Add lab
-    DocumentCollection$new(name = "stanford", parent = blue, desc = "Stanford Corpus")
-    blue$addDocument(stanford)
-    copyFiles("./NLPStudio/Labs/blue/stanford")
-
-    # Confirm object exists as class DocumentCollection
-    stopifnot("DocumentCollection" %in% class(stanford))
-
-    # Confirm directory created
-    stopifnot(dir.exists("./NLPStudio/Labs/blue/stanford"))
-
-    blue$printLab()  # should show 2 documents
-
-    # Logit
-    logTests(class = class, mthd = "printLab", note = "Print lab tested")
-    cat(paste("\n", test, " Completed: Success!\n"))
-  }
 
   init()
   test0()
   test1()
   test2()
   test3()
-  test4()
-  test5()
-  test6()
-  test7()
-  test8()
-  test9()
-  test10()
-  test11()
-  test12()
-  test13()
-  test14()
 
 }
 
