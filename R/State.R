@@ -20,7 +20,7 @@
 #'  querying states. It takes requests from client applications and dispatches
 #'  instantiates the appropriate visitor to fulfill the request. This class
 #'  also provides state query functionality.
-#'  \item StateBuilder: This class oversees the process of restoring a composite
+#'  \item Curator: This class oversees the process of restoring a composite
 #'  to a prior state.
 #'  \item StateManager: This class has a persistent single object that
 #'  receives a save/restore request from a visitor, keeps track of the
@@ -37,7 +37,7 @@
 #' \item{\code{new()}}{Method for instantiating objects of the State class. Obtains the list of serializeable classes for validation puroses.}
 #'  \item{\code{query(dateFrom, dateTo, class, objectName)}}{Method for quering the saved states. Returns a list of states matching the query parameters.}
 #'  \item{\code{save(object)}}{Method for saving the state of a serializable object. This method invokes the accept method on the object which dispatches the appropriate save visitor.}
-#'  \item{\code{restore(object)}}{Method for restoring an the designated object to the state identified by the stateId parameter. The method invokes the accept method on the object, which dispatches the appropriate restore visitor to obtain the prior state, then invokes the StateBuilder to return the composite to the prior state}
+#'  \item{\code{restore(object)}}{Method for restoring an the designated object to the state identified by the stateId parameter. The method invokes the accept method on the object, which dispatches the appropriate restore visitor to obtain the prior state, then invokes the Curator to return the composite to the prior state}
 #'  }
 #'
 #' @param dateFrom A parameter of the query method. An ISO 8601 formatted date indicating the date from which states should be returned.
@@ -60,11 +60,11 @@ State <- R6::R6Class(
 
       o <- object$getObject()
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "State", method = method, fieldName = "class(object)",
-                     level = "Error", value = class(object)[1],
+                     level = "Error", value = object,
                      msg = paste("Unable process the save/restore request.",
-                                 "Object", o@name, "is not a serializable object.",
+                                 "Object", o$name, "is not a serializable object.",
                                  "See ?State for assistance."),
                      expect = private$..validClasses) == FALSE) {
         return(FALSE)
@@ -119,7 +119,7 @@ State <- R6::R6Class(
       restoredObject <- object$acceptVReadState(object)
 
       # Rebuild Document / Composite
-      StateBuilder$new()
+      Curator$new()
 
 
 

@@ -26,11 +26,7 @@ and methods for reading files in binary format.
 }
 
 \seealso{
-Other Document i/o classes: \code{\link{ReadCsv}},
-  \code{\link{ReadRdata}}, \code{\link{ReadText}},
-  \code{\link{Write0}}, \code{\link{WriteBin}},
-  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
-  \code{\link{WriteText}}
+Other Document i/o classes: \code{\link{WriteBin}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

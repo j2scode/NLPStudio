@@ -38,7 +38,7 @@ VWriter <- R6::R6Class(
       f <- file$getObject()
 
       if (lengtH(f$path) == 0) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VWriter", method = method, fieldName = "path",
                  level = "Error", value = "",
                  msg = paste("Unable to write document.",
@@ -49,7 +49,7 @@ VWriter <- R6::R6Class(
       }
 
       if (lengtH(f$fileName) == 0) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VWriter", method = method, fieldName = "fileName",
                  level = "Error", value = "",
                  msg = paste("Unable to write document.",
@@ -60,7 +60,7 @@ VWriter <- R6::R6Class(
       }
 
       if (length(f$content) == 0) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VWriter", method = method, fieldName = "content",
                  level = "Error", value = "",
                  msg = paste("Unable to write document.",
@@ -70,7 +70,7 @@ VWriter <- R6::R6Class(
         stop()
       }
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "VWriter", method = method, fieldName = "class(file)",
                      level = "Error", value = class(file)[1],
                      msg = paste("Unable to write document. Object is not a",

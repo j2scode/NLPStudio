@@ -40,11 +40,11 @@
 #' \strong{DocumentXlsx Class Collaborators:}
 #' The collaborators of the Document family  are:
 #'  \itemize{
-#'   \item DocumentCollection: Class resonsible for containing the composite hierarchy of documents.
+#'   \item State: Class responsible for saving current and restoring prior states of objects.
+#'   \item Historian: Class responsible for maintaining the history of events on objects.
 #'   \item Reader: Class responsible for initiating the document read operation.
 #'   \item Writer: Class responsible for initiating the document write operation.
-#'   \item VReader: Visitor class responsible for performing read operations through the Document hierarchy.
-#'   \item VWriter: Visitor class responsible for performing write operations through the Document hierarchy.
+#'
 #'  }
 #'
 #' \strong{DocumentXlsx Methods:}
@@ -64,8 +64,8 @@
 #' \strong{DocumentXlsx Core Methods:}
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating a document}
-#'   \item{\code{getObject()}}{Method for obtaining the document data in a list format.}
-#'   \item{\code{setObject(object)}}{Method for restoring an object to a prior state, as per the object parameter.}
+#'   \item{\code{getName()}}{Method for returning the name of the current document.}
+#'   \item{\code{restore(curator, prior)}}{Method for restoring an object to a prior state, as per the object parameter.}
 #'   \item{\code{addContent(content)}}{Method for adding content to the document object. This method is invoked by the read visitor.}
 #'  }
 #'
@@ -73,10 +73,7 @@
 #'  \itemize{
 #'   \item{\code{desc()}}{Method used to get / set the description variable.
 #'   Implemented as an active binding and so the field may be updated
-#'   by assignment. This method is inherited from the Document0 class.}
-#'   \item{\code{fileName()}}{Method used to get / set the file name variable.
-#'   Implemented as an active binding and so the field may be updated
-#'   by assignment.}
+#'   by assignment. This method is inherited from the Document0 class.}#'
 #' }
 #'
 #' \strong{DocumentXlsx Composite Methods:}
@@ -84,8 +81,7 @@
 #'   \item{\code{addChild(document)}}{Not implemented for this class.}
 #'   \item{\code{getChildren()}}{Returns NULL.}
 #'   \item{\code{removeChild(document)}}{Not implemented for this class.}
-#'   \item{\code{getAncestor()}}{Returns the parent object for the Document object.}
-#'   \item{\code{setAncestor(parent)}}{Sets the parent object for the Document object.}
+#'   \item{\code{parent(value)}}{Getter/setter method for the parent field, implemented as an active binding on the private member.}
 #' }
 #'
 #'
@@ -98,7 +94,7 @@
 #' \strong{DocumentXlsx Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
-#'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -130,7 +126,7 @@ DocumentXlsx <- R6::R6Class(
 
       # Confirm required parameters are not missing.
       if (missing(name)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = class(self)[1], method = "initialize", fieldName = "name",
                  value = "", level = "Error",
                  msg = paste0("Name parameter is missing with no default. ",
@@ -140,14 +136,14 @@ DocumentXlsx <- R6::R6Class(
       }
 
       # Validate name
-      v <- ValidateName$new()
+      v <- ValidatorName$new()
       if (v$validate(class = class(self)[1], method = "initialize",
                      value = name, expect = FALSE) == FALSE) {
         stop()
       }
 
       if (missing(fileName)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = class(self)[1], method = "initialize", fieldName = "fileName",
                  value = "", level = "Error",
                  msg = paste0("File name parameter is missing with no default. ",

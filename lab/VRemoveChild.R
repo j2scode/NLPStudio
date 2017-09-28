@@ -32,7 +32,7 @@ VRemoveChild <- R6::R6Class(
       parent$addChild(child)
     },
     document = function(parent, child)  {
-      v <- Validate0$new()
+      v <- Validator0$new()
       v$notify(class = "VRemoveChild", method = "document",
                fieldName = "parent", value = class(parent)[1], level = "Error",
                msg = paste("Unable to add child to a document class object."),

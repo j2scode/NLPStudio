@@ -1,6 +1,6 @@
 .onLoad <- function(libname, pkgname) {
 
-  # Restore objects
+  # Greet the user
   c <- Constants$new()
   h <- c$getHistoryFile()
   if (file.exists(h)) {
@@ -22,9 +22,11 @@
     packageStartupMessage(paste0("#                                                                                         #"))
     packageStartupMessage(paste0("#=========================================================================================#"))
   }
+
   # Instantiate Singleton Classes
-#  historian <<- Historian$new()$getInstance()
-  nlpStudio <<- NLPStudio$new()$getInstance()
-#  stateManager <<- StateManager$new()$getInstance()
+  nlpStudio <<- NLPStudio$new()
+  historian <<- Historian$new()$getInstance()
+  stateManager <<- StateManager$new()$getInstance()
+
 }
 

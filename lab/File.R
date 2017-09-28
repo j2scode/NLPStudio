@@ -118,7 +118,7 @@ File <- R6::R6Class(
 
     setAncestor = function(parent) {
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = class(self)[1], method = "setAncestor", fieldName = "class(parent)",
                      level = "Error", value = class(parent)[1],
                      msg = paste("Unable to set parent.  Parent must be a",

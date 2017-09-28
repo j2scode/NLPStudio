@@ -26,13 +26,12 @@ Constants <- R6::R6Class(
     ),
     ..paths = list(
       studio = "./NLPStudio",
-      states = "./NLPStudio/States",
-      labs = "./NLPStudio/Labs",
-      log = "./NLPStudio/Log"
+      files = "./NLPStudio/Files",
+      log = "./NLPStudio/Log",
+      states = "./NLPStudio/States"
       ),
     ..files = list(
-      statesFile = "./NLPStudio/States/.States.Rdata",
-      historyFile = "./NLPStudio/States/.History.Rdata"
+      historyFile = "./NLPStudio/Log/History.Rdata"
     )
   ),
 
@@ -45,12 +44,11 @@ Constants <- R6::R6Class(
     # Paths
     getPaths = function() private$..paths,
     getStudioPath = function() private$..paths$studio,
+    getFilesPath = function() private$..paths$files,
     getStatesPath = function() private$..paths$states,
-    getLabsPath = function() private$..paths$labs,
     getLogPath = function() private$..paths$log,
 
     # Files
-    getStatesFile = function() private$..files$statesFile,
     getHistoryFile = function() private$..files$historyFile
   )
 )

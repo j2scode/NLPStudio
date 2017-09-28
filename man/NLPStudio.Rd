@@ -9,9 +9,9 @@
 NLPStudio
 }
 \arguments{
-\item{enter}{A logical indicating whether to enter a lab and to set the lab current.}
-
 \item{lab}{An object of class 'Lab'.}
+
+\item{stateId}{Character string indicating the stateId which uniquely identifies a serialized object at prior state.}
 }
 \description{
 \code{NLPStudio} Class the creates and manages labs.
@@ -25,27 +25,35 @@ load time.  Any subsequent initializations will return the single nlpStudio
 instance. There are two sets of methods.  The first set enables clients to
 retrieve information about the NLPStudio object.  The second set allows
 clients to add, remove, enter, and leave labs.
-}
-\section{NLPStudio Object Methods}{
 
+\strong{NLPStudio Core Methods:}
 \describe{
  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
- \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
- \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
-}
+ \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.},
+ \item{\code{getName()}}{Returns the name of the current NLPStudio object.}
+ \item{\code{getObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
+ \item{\code{restore(requester, prior)}}{Restores the object to a prior state of invoked by an authorized requester.}
 }
 
-\section{Lab Methods}{
-
+\strong{NLPSTudio Lab Methods:}
 \describe{
  \item{\code{getChildren()}}{Returns the list of member labs in the nlpStudio object.}
  \item{\code{addChild(lab, enter = TRUE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
  \item{\code{removeChild(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
- \item{\code{enterLab(lab)}}{Sets the currentLab and currentLabName to that of the lab object parameter.  The parameter must be an object of the Lab class.}
- \item{\code{leaveLab(lab)}}{Sets the currentLab and currentLabName to "None".}
-}
+ \item{\code{parent(value)}}{Getter/setter method for the parent field, implemented as an active binding on the private member.}
 }
 
+\strong{NLPSTudio State Methods:}
+\describe{
+ \item{\code{saveState()}}{Method for saving the current state of an NLPObject and its descendants.}
+ \item{\code{restoreState()}}{Method for restoring an NLPStudio object to a prior state as designated by a state id.}
+}
+
+\strong{NLPSTudio Visitor Methods:}
+ \itemize{
+  \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
+ }
+}
 \examples{
 \dontrun{
 nlpStudio$getObject() # Returns nlpStudio object and meta data in list format
@@ -53,8 +61,6 @@ Lab$new(name = "List", desc = "Lisa Simpon's lab")
 Lab$new(name = "Bart", desc = "Bart Simpon's lab")
 nlpStudio$addChild(Lisa, enter = FALSE) # Adds lab without setting it current.
 nlpStudio$addChild(Bart, enter = TRUE) # Adds lab and sets it current.
-nlpStudio$removeChild("Bart") # Fails: Cannot remove a current lab
-nlpStudio$enterLab(Lisa)
 nlpStudio$removeChild("Bart") # Success!
 nlpStudio$getChildren()
 }

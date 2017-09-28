@@ -18,8 +18,10 @@
 #' \strong{NLPStudio Core Methods:}
 #' \describe{
 #'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
-#'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.}
-#'  \item{\code{getObject()}}{Returns the meta data and current NLPStudio object.}
+#'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.},
+#'  \item{\code{getName()}}{Returns the name of the current NLPStudio object.}
+#'  \item{\code{getObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
+#'  \item{\code{restore(requester, prior)}}{Restores the object to a prior state of invoked by an authorized requester.}
 #' }
 #'
 #' \strong{NLPSTudio Lab Methods:}
@@ -27,6 +29,7 @@
 #'  \item{\code{getChildren()}}{Returns the list of member labs in the nlpStudio object.}
 #'  \item{\code{addChild(lab, enter = TRUE)}}{Adds an existing lab to the NLPStudio object list of labs.  If enter is set to TRUE, the currentLab and currentLabName variables are updated accordingly.}
 #'  \item{\code{removeChild(lab, purge = FALSE)}}{Method which archives and removes the lab from the nlpStudio objectd. If purge is set to TRUE, the lab is removed from memory, disk, and state.}
+#'  \item{\code{parent(value)}}{Getter/setter method for the parent field, implemented as an active binding on the private member.}
 #' }
 #'
 #' \strong{NLPSTudio State Methods:}
@@ -38,12 +41,11 @@
 #' \strong{NLPSTudio Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
-#'   \item{\code{acceptVUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
 #'  }
 #'
 #'
 #' @param lab An object of class 'Lab'.
-#' @param autoSave Logical indicating whether to automatically save the state of an object after any change is made.
+#' @param stateId Character string indicating the stateId which uniquely identifies a serialized object at prior state.
 #'
 #' @docType class
 #' @examples
@@ -68,8 +70,8 @@ NLPStudio <- R6::R6Class(
       Class <<- R6::R6Class(
         classname = "NLPStudio",
         private = list(
-          ..name = "nlpStudio",
-          ..desc = "NLPStudio: Natural Language Processing Studio",
+          ..name = character(0),
+          ..desc = character(0),
           ..labs = list(),
           ..stateId = character(0),
           ..stateDesc = character(0),
@@ -100,7 +102,7 @@ NLPStudio <- R6::R6Class(
           initialize = function() {
 
             name <- "nlpStudio"
-            desc <- "NLPStudio: Natural Language Processing Studio"
+            desc <- "NLPStudio: Natural Language Processing Environment"
 
             # Suppress automatically generated error messages
             opt <- options(show.error.messages=FALSE, warn = -1)
@@ -123,16 +125,30 @@ NLPStudio <- R6::R6Class(
             private$..modified <- Sys.time()
             private$..created <- Sys.time()
 
+            # Assign its name in the global environment
+            assign(name, self, envir = .GlobalEnv)
+
             # Log Event
-            #historian$addEvent(class = "NLPStudio", objectName = name,
-            #                   method = "initialize", event = private$..stateDesc)
+            historian$addEvent(class = "NLPStudio", objectName = name,
+                              method = "initialize", event = private$..stateDesc)
 
             invisible(self)
           },
 
-          getInstance = function()  invisible(self),
+          getInstance = function()  {
+            invisible(self)
+          },
 
-          getObject = function() {
+          getName = function() {
+            private$..name
+          },
+
+          getObject = function(requester) {
+
+            # TODO: Uncomment after testing
+            # v <- Validator$new()
+            # if (v$getObject(object = self,
+            #                 requester = requester) == FALSE) stop()
 
             studio = list(
               name = private$..name,
@@ -142,39 +158,22 @@ NLPStudio <- R6::R6Class(
               stateDesc = private$..stateDesc,
               modified = private$..modified,
               created = private$..created
-              )
-
+            )
             return(studio)
           },
 
-          setObject = function(visitor, restored) {
+          restore = function(requester, prior) {
 
-            v <- ValidateClass$new()
-            if (v$validate(class = "NLPStudio", method = "setObject",
-                           fieldName = "visitor", value = visitor, level = "Error",
-                           msg = paste("Method invoked by unauthorized class",
-                                       "Please see ?NLPStudio for further assistance."),
-                           expect = "VUpdate") == FALSE) {
-              stop()
-            }
+            v <- Validator$new()
+            if (v$restore(object = self,
+                          requester = requester,
+                          prior = prior) == FALSE) stop()
 
-            if (v$validate(class = "NLPStudio", method = "setObject",
-                           fieldName = "restored", value = restored, level = "Error",
-                           msg = paste0("Unable to restore ", private$..name,
-                                        ", an object of the ", class(self)[1], " class ",
-                                       "to the state of an object of class ",
-                                       class(restored)[1], ". ",
-                                       "Please see ?NLPStudio for further assistance."),
-                           expect = "NLPStudio") == FALSE) {
-              stop()
-            }
-
-
-            r <- restored$getObject()
+            r <- prior$getObject()
             private$..desc <- r$desc
             private$..labs <- r$labs
             private$..stateId <- r$stateId
-            private$..stateDesc <- paste("NLPStudio object restored to prior",
+            private$..stateDesc <- paste("NLPStudio object prior to prior",
                                          "state, designated by state identifier:",
                                          r$stateId,"at", Sys.time())
             private$..modified <- Sys.time()
@@ -182,7 +181,7 @@ NLPStudio <- R6::R6Class(
 
             # Log event
             # historian$addEvent(class = class(self)[1], objectName = name,
-            #                    method = "setObject",
+            #                    method = "restore",
             #                    event = private$..stateDesc)
 
             invisible(self)
@@ -193,123 +192,97 @@ NLPStudio <- R6::R6Class(
           #-------------------------------------------------------------------#
           getChildren = function() private$..labs,
 
-          addChild = function(lab) {
+          addChild = function(child = child) {
 
-            # Validation
-            if (missing(lab)) {
-              v <- Validate0$new()
-              v$notify(class = "NLPStudio", method = "addChild",
-                         fieldName = "lab", value = "", level = "Error",
-                         msg = paste("Unable to add lab.",
-                                     "Variable lab is missing with no default.",
-                                     "Please see ?NLPStudio for further assistance."),
-                         expect = TRUE)
-              stop()
-            }
+            # Perform validation
+            v <- Validator$new()
+            if (v$addChild(self, child) == FALSE) stop()
 
-            v <- ValidateClass$new()
-            if (v$validate(class = "NLPStudio", method = "addChild",
-                           fieldName = "lab", value = lab, level = "Error",
-                           msg = paste("Object is not a valid 'Lab' type.",
-                                       "Please see ?NLPStudio for further assistance."),
-                           expect = "Lab") == FALSE) {
-              stop()
-            }
-
-            # Get lab information
-            l <- lab$getObject()
+            # Get kids name
+            kidsName <- child$getName()
 
             # Save Memento
-             private$..stateDesc <- paste("NLPStudio object", private$..name,
-                                          "memento, prior to adding", l$name, "at", Sys.time())
-            # private$..saveState()
+            private$..stateDesc <- paste("NLPStudio object", private$..name,
+                                          "memento, prior to adding", kidsName, "at", Sys.time())
+            # self$saveState()
 
             # Add lab to lab list
-            private$..labs[[l$name]] <- lab
+            private$..labs[[kidsName]] <- child
 
             # Add parent to lab
-            lab$setAncestor(self)
+            child$parent <- self
 
             # Update modified time
             private$..modified <- Sys.time()
 
             # # Update State
-             private$..stateDesc <- paste("Lab", l$name, "added to nlpStudio.")
-            # private$..saveState()
+            private$..stateDesc <- paste("Lab", kidsName, "added to nlpStudio.")
+            # self$saveState()
 
             # Log Event
-            # historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
-            #                    method = "addChild",
-            #                    event = private$..stateDesc)
+            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+                               method = "addChild",
+                               event = private$..stateDesc)
 
             invisible(self)
 
           },
 
-          removeChild = function(lab) {
+          removeChild = function(child = child) {
 
-            # Confirm lab parameter is not missing
-            if (missing(lab)) {
-              v <- Validate0$new()
-              v$notify(class = "NLPStudio", method = "removeChild",
-                       fieldName = "lab", value = "", level = "Error",
-                       msg = paste("Lab is missing with no default.",
-                                   "See ?NLPStudio for further assistance."),
-                       expect = TRUE)
-              stop()
-            }
+            # Perform validation
+            v <- Validator$new()
+            if (v$addChild(self, child) == FALSE) stop()
 
-            # Confirm lab is a lab
-            v <- ValidateClass$new()
-            if (v$validate(class = "NLPStudio", method = "removeChild",
-                           fieldName = "lab", value = lab, level = "Error",
-                           msg = paste("Object is not a valid 'Lab' type.",
-                                       "Encountered object of the",
-                                       class(lab), "class.",
-                                       "See ?NLPStudio for further assistance."),
-                           expect = "Lab") == FALSE) {
-              stop()
-            }
-
-            # Obtain lab meta data
-            l <- lab$getObject()
+            # Obtain kids name
+            kidsName <- child$getName()
 
             # Save State
-            private$..stateDesc <- paste("Lab", l$name, "memento prior to removing", l$name, "from", private$..name)
-            # private$..saveState()
+            private$..stateDesc <- paste("Lab", kidsName,
+                                         "memento prior to removing",
+                                         kidsName, "from the", class(self)[1],
+                                         "object,", private$..name)
+            # self$saveState()
 
             # Set child ancester to NULL
-            lab$setAncestor()
+            child$parent <- NULL
 
             # Remove lab from nlpStudio
-            private$..labs[[l$name]] <- NULL
+            private$..labs[[kidsName]] <- NULL
 
             # Update modified time
             private$..modified <- Sys.time()
 
             # Save state
             private$..stateDesc <- paste("Lab", l$name, "removed from nlpStudio.")
-            # private$..saveState()
+            # self$saveState()
 
-            # historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
-            #                    method = "removeChild",
-            #                    event = private$..stateDesc)
+            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+                               method = "removeChild",
+                               event = private$..stateDesc)
 
           },
 
           #-------------------------------------------------------------------#
-          #                           Lab Methods                             #
+          #                           State Methods                           #
           #-------------------------------------------------------------------#
           saveState = function() {
             state <- State$new()
             private$..stateId <- state$save(self)
           },
 
-          restoreState = function() {
+          restoreState = function(stateId) {
             private$..stateId <- stateId
             state <- State$new()
             state$restore(self)
             invisible(self)
+          },
+
+          #-------------------------------------------------------------------------#
+          #                           Visitor Methods                               #
+          #-------------------------------------------------------------------------#
+          accept = function(visitor, ...)  {
+            visitor$nlpStudio(self, ...)
           }
         )
       )

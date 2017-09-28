@@ -75,13 +75,12 @@ StateManager <- R6::R6Class(
 
           getConstants = function() {
             constants <- Constants$new()
-            private$..statesFile <- constants$getStatesFile()
             private$..stateClasses <- constants$getStateClasses()
           },
 
           validateObject = function(method, object) {
 
-            v <- ValidateClass$new()
+            v <- ValidatorClass$new()
             if (v$validate(class = "StateManager", method = method,
                            fieldName = "class(object)", value = object, level = "Error",
                            msg = paste("Object is not a serializable object",
@@ -94,7 +93,7 @@ StateManager <- R6::R6Class(
           validateState = function(method, stateId) {
 
             if (!exists(private$..states[[stateId]])) {
-              v <- Validate0$new()
+              v <- Validator0$new()
               v$notify(class = "StateManager", method = method,
                              fieldName = "stateId", value = stateId, level = "Error",
                              msg = paste("State does not exist.",

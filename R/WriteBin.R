@@ -33,7 +33,7 @@ WriteBin <- R6::R6Class(
 
       # Validate parameters
       if (missing(path)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = "",
                  msg = paste("Unable to write document. Path is missing without a default",
@@ -41,7 +41,7 @@ WriteBin <- R6::R6Class(
                  expect = TRUE)
         stop()
       }
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path is not a character string.",
@@ -50,7 +50,7 @@ WriteBin <- R6::R6Class(
         stop()
       }
 
-      v <- ValidatePath$new()
+      v <- ValidatorPath$new()
       if (v$validate(class = "WriteBin", method = "writeData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to write document. Path", path, "is invalid.",
@@ -60,7 +60,7 @@ WriteBin <- R6::R6Class(
       }
 
       if (missing(content)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "WriteBin", method = "writeData",
                    fieldName = "content", value = "", level = "Error",
                    msg = paste("Unable to write content. Content is missing with no default",
@@ -69,7 +69,7 @@ WriteBin <- R6::R6Class(
         stop()
       }
 
-      v <- ValidateNotEmpty$new()
+      v <- ValidatorNotEmpty$new()
       if (v$validate(class = "WriteBin", method = "writeData",
                  fieldName = "content", value = content, level = "Error",
                  msg = paste("Unable to write content. Content must not be empty.",

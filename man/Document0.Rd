@@ -9,27 +9,26 @@
 Document0
 }
 \arguments{
-\item{content}{A character vector or list containing text content for objects. Required for write methods.}
+\item{name}{Character string indicating the name of the document or file. Required for all objects.}
 
 \item{desc}{Character string containing the description of the document.}
 
-\item{document}{An object of the Document class.  Maintained as members of objects of the DocumentClass composite class.}
+\item{parent}{An object of the Lab or DocumentCollection class that represents the parent object.}
 
-\item{fileName}{Character string cointaining the file name for a document.  Required for objects of Document class.}
+\item{visitor}{An object from one of the visitor classes.}
 
-\item{name}{Character string indicating the name of the document. Required for all objects}
+\item{prior}{A Document Family Class object, deserialized from a prior state.}
 
-\item{parent}{An object of the Lab or DocumentCollection class that represents the parent object. Required for input / output methods.}
-
-\item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
+\item{stateId}{Character string that uniquely identifies an object and its
+state at a specific point in time.}
 }
 \description{
-\code{Document0} Abstract class for composite and individual documents in the NLPStudio
+\code{Document0} Component class for Document composite in the NLPStudio.
 }
 \details{
-\strong{Document0 Class Overview:}
+\strong{Document Family of Classes Overview:}
 
-The Document0 family of classes is an implementation of the composite
+The Document family of classes is an implementation of the composite
 pattern documented in the book "Design Patterns: Elements of Reusable
 Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 and John Vlissides (hence Gang of Four). This pattern allows composite
@@ -39,70 +38,100 @@ The following sections include:
 \itemize{
  \item Class Participants: Classes the comprise this composite pattern.
  \item Class Collaborators: Classes which interact with the Document0 class.
- \item Core Methods: Methods implemented by both individual and document
- collections.
- \item Composite Methods: Methods for managing child parent relationships.
- \item Input / Output Methods: Methods for reading and writing documents.
-}
+ \item Class Methods: Methods included in the interface.
+ }
 
-\strong{Document0 Class Participants:}
+\strong{Document Family of Classes Participants:}
 The participants of the Document0 class are:
 \itemize{
  \item Document0: This component class specifies an abstract interface
- for all individual and composite document classes.
- \item Document: This "leaf" class specifies the  interface forindividual
- document objects.
- \item DocumentCollection: The composite class specifies the interface
- for the composite document objects.
+ for all leaf and composite document classes.
+ \item DocumentCollection: The composite class that maintains the
+ hierarchical structure of document collections (composites) and individual
+ documents (leafs).
+ \item Document: An "abstract leaf" class defines the interface for
+ DocumentText, DocumentRdata, DocumentCsv, and DocumentXlsx sub-classes.
+ \item DocumentText: This "concrete leaf" class for text documents.
+ \item DocumentCsv: This "concrete leaf" class for csv documents.
+ \item DocumentRdata: This "concrete leaf" class for RData documents.
+ \item DocumentXlsx: This "concrete leaf" class for excel documents.
  }
 
-\strong{Document0 Class Collaborators:}
-The collaborators of the Document0 class are:
-\itemize{
- \item Lab: This class instantiates labs within NLPStudio which have the
- responsibility of managing document objects.
- \item CorpusBuilder0: A family of classes of the builder pattern,
- responsibile for building varying representations of document collections.
+\strong{Document Family of Classes Collaborators:}
+The collaborators of the Document family  are:
+ \itemize{
+  \item Lab: Class responsible for document collections.
+  \item State: Class responsible for saving current and restoring prior states of objects.
+  \item Historian: Class responsible for maintaining the history of events on objects.
+  \item Curator: Class responsible for maintaining the object hierarchy.
+  \item Reader: Class responsible for initiating the document read operation.
+  \item Writer: Class responsible for initiating the document write operation.
+  \item VReader: Visitor class responsible for performing read operations through the Document hierarchy.
+  \item VWriter: Visitor class responsible for performing write operations through the Document hierarchy.
+  \item VCurator: Visitor class that fulfills commands from the Curator class.
  }
+
+\strong{Document0 Methods:}
+There are six types of methods within the Document0 class and they are:
+\itemize{
+ \item{Core Methods: Core methods shared by both Document and
+ DocumentCollection objects.}
+ \item{Getter/Setter Methods: Active binding methods for getting and setting
+ selected private members.}
+ \item{Composite Methods: Methods implemented by the DocumentCollection
+ class to maintain the document heirarchy.}
+ \item{State Methods: Methods for saving current and restoring prior states of objects .}
+ \item{Visitor Methods: Methods for implementation of and messaging
+ with objects of the visitor classes.}
+}
 
 \strong{Document0 Core Methods:}
-The core methods are shared by both primative and composite objects and are
-as follows:
-\itemize{
- \item{\code{new(name, fileName, desc)}}{Base method for instantiating
- an object of the Document and  DocumentCollection classes. File name is
- only only required of objects of the Document class.
- Specific behaviors implemented in the Collection subclasses. }
- \item{\code{getDocument()}}{Base method for retrieving an object of the
- "Document" or "DocumentCollection" class. Specific behaviors
- implemented in the Document and Collection subclasses.}
- \item{\code{accept(visitor)}}{Base method for accepting a visitor object. Specific behaviors
- implemented in the Document and Collection subclasses, }
- \item{\code{addContent(content)}}{Base method for adding content to an object of the Document class. Specific behaviors
- implemented in the Document and Collection subclasses, }
- \item{\code{removeContent()}}{Base method for removing content from an object of the Document class. Specific behaviors
- implemented in the Document and Collection subclasses, }#'
+ \itemize{
+  \item{\code{new(name, desc)}}{Base method for instantiating
+  an object of the Document or DocumentCollection classes.
+  Specific behaviors implemented in the subclasses. }
+  \item{\code{getName()}}{Returns the name of the current object.}
+  \item{\code{getObject(requester)}}{Base method for returning the elements of the current object if invoked by an authorized method.}
+  \item{\code{restore(requester, prior)}}{Base method for restoring an object
+  to a prior state, as per the object parameter.}
+}
+
+\strong{Document0 Field Getter/Setter Active Binding Methods:}
+ \itemize{
+  \item{\code{desc()}}{Method used to get / set the description variable.
+  Implemented as an active binding and so the field may be updated
+  by assignment. This method is concrete and inherited by sub-classes.}
 }
 
 \strong{Document0 Composite Methods:}
-The composite methods are used to manage parent / child relationshipos among
-the documents, and are:
-\itemize{
- \item{\code{addDocument(document)}}{Base method for adding documents to a
- collection. Specific behaviors implemented in the Collection composite class}
- \item{\code{getDocuments()}}{Base method for retrieving the meta data for
- a collection of child objects of the Document class. Specific behaviors
- implemented in the Document and Collection subclasses }
- \item{\code{removeDocument(document)}}{Base method for removing documents from
- a collection. Specific behaviors implemented in the Collection composite class}
- \item{\code{getAncestor()}}{Base method for retrieving the parent object for a document.
- Specific behaviors implemented in the Collection composite class}
- \item{\code{setAncestor(parent)}}{Base method for adding the parent object to a document.
- Specific behaviors implemented in the Collection composite class}
+ \itemize{
+  \item{\code{addChild(document)}}{Base method for adding documents to a
+  collection. Specific behaviors implemented in the DocumentCollection composite
+  sub-class}
+  \item{\code{getChildren()}}{Base method for retrieving child objects. Specific behaviors
+  implemented in the DocumentCollection subclass }
+  \item{\code{removeChild(document)}}{Base method for removing documents from
+  a collection. Specific behaviors implemented in the DocumentCollection composite
+  sub-class}
+  \item{\code{parent(value)}}{Getter/setter method for the parent field, implemented as an active binding on the private member.}
 }
+
+\strong{Document0 State Methods:}
+ \itemize{
+  \item{\code{saveState()}}{Method for saving the current state of an object to file.}
+  \item{\code{restoreState(prior)}}{Method for restoring an object to a prior state.}
+ }
+
+\strong{Document0 Visitor Methods:}
+ \itemize{
+  \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
+  \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
+ }
 }
 \seealso{
 Other Document classes: \code{\link{DocumentCollection}},
+  \code{\link{DocumentCsv}}, \code{\link{DocumentRdata}},
+  \code{\link{DocumentText}}, \code{\link{DocumentXlsx}},
   \code{\link{Document}}
 }
 \author{

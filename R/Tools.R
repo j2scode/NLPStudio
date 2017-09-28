@@ -24,7 +24,7 @@ Tools <- R6::R6Class(
 
     makeRandomString = function(len = 12) {
 
-      v <- ValidateNumeric$new()
+      v <- ValidatorNumeric$new()
       if (v$validate(class = "Tools", method = "makeRandomString",
                  fieldName = "len", value = len, level = "Info",
                  msg = paste("Invalid length, random string of length 12 returned.",
@@ -39,7 +39,7 @@ Tools <- R6::R6Class(
 
 
     parseDate = function(date, class = "Tools", method = "parseDate") {
-      v <- ValidateDate$new()
+      v <- ValidatorDate$new()
       date <- v$validate(class = class, method = method,
                          fieldName = "date", value = date, level = "Error",
                          msg = paste("Date parameter not recognized. The",

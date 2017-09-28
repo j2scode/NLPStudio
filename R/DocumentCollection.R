@@ -34,11 +34,16 @@
 #'  \item DocumentXlsx: This "concrete leaf" class for excel documents.
 #'  }
 #'
-#' \strong{Document Family of Classes Collaborators:}
+#' \strong{DocumentCollection Collaborators:}
 #' The collaborators of the Document family  are:
 #'  \itemize{
 #'   \item Lab: This class maintains a one-to-many "has a" association
 #'   relationship with the Document Class Family.
+#'   \item State: Class responsible for saving current and restoring prior states of objects.
+#'   \item Historian: Class responsible for maintaining the history of events on objects.
+#'   \item Reader: Class responsible for initiating the document read operation.
+#'   \item Writer: Class responsible for initiating the document write operation.
+#'   \item Validator: Class responsible for validating method parameters.
 #'  }
 #'
 #' \strong{DocumentCollection Methods:}
@@ -58,8 +63,9 @@
 #' \strong{DocumentCollection Core Methods:}
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating a document collection.}
-#'   \item{\code{getObject()}}{Method for obtaining the document collection data in a list format.}
-#'   \item{\code{setObject(object)}}{Method for restoring a document collection to a prior state, as per the object parameter.}
+#'   \item{\code{getName()}}{Method returns the name of the DocumentCollection object.}
+#'   \item{\code{getObject(requester)}}{Method that returns the elements of the current DocumentCollection object, if invoked by an authorized method.}
+#'   \item{\code{restore(requester, prior)}}{Method for restoring a document collection to a prior state, as per the object parameter.}
 #' }
 #'
 #' \strong{DocumentCollection Field Getter/Setter Active Binding Methods:}
@@ -67,7 +73,6 @@
 #'   \item{\code{desc()}}{Method used to get / set the description variable.
 #'   Implemented as an active binding and so the field may be updated
 #'   by assignment. This method is inherited from the Document0 class.}
-#'   \item{\code{fileName()}}{This method is not implemented for the DocumentCollection class.}
 #' }
 #'
 #' \strong{DocumentCollection Composite Methods:}
@@ -77,9 +82,7 @@
 #'   \item{\code{getChildren()}}{Method retrieves the child documents of the object.}
 #'   \item{\code{removeChild(document)}}{Method removes a Document or DocumentCollection
 #'   object from its list of child documents.}
-#'   \item{\code{getAncestor()}}{Method returns the parent object.}
-#'   \item{\code{setAncestor(parent)}}{Method sets the parent object and moves any
-#'   associated files to the new parent.}
+#'   \item{\code{parent(value)}}{Getter/setter method for the parent field, implemented as an active binding on the private member.}
 #' }
 #'
 #' #' \strong{DocumentCollection State Methods:}
@@ -92,7 +95,7 @@
 #' \strong{DocumentCollection Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
-#'   \item{\code{acceptUpdate(visitor, object)}}{Accepts an object of the VUpdate class.}
+#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #'
@@ -121,12 +124,8 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, desc = NULL) {
 
-      # Validate Name
-      v <- ValidateName$new()
-      if (v$validate(class = "DocumentCollection", method = "initialize",
-                 value = name, expect = FALSE) == FALSE) {
-        stop()
-      }
+      v <- Validator$new()
+      if (v$init(self, name = name) == FALSE) stop()
 
       # Instantiate variables
       private$..name <- name
@@ -146,7 +145,11 @@ DocumentCollection <- R6::R6Class(
       invisible(self)
     },
 
-    getObject = function() {
+    getObject = function(requester) {
+
+      v <- Validator()
+      if (v$getObject(object = self,
+                      requester = requester) == FALSE) stop()
 
       document <- list(
         name = private$..name,
@@ -161,41 +164,26 @@ DocumentCollection <- R6::R6Class(
       return(document)
     },
 
-    setObject = function(visitor, restored) {
+    restore = function(requester, prior) {
 
-      v <- ValidateClass$new()
-      if (v$validate(class = "DocumentCollection", level = "Error", method = "setObject",
-                     fieldName = "visitor", value = visitor,
-                     msg = paste("Class not authorized to invoke this method.",
-                                 "Please see ?DocumentCollection for further assistance."),
-                     expect = "VUpdate") == FALSE) {
-        stop()
-      }
+      v <- Validator()
+      if (v$restore(object = self,
+                      requester = requester) == FALSE) stop()
 
-      if (v$validate(class = "DocumentCollection", level = "Error", method = "setObject",
-                     fieldName = "restored", value = restored,
-                     msg = paste0("Unable to restore ", private$..name, ", ",
-                                  "an object of class ", class(self)[1], "to state ",
-                                  "of an object of class ", class(restored)[1], ". ",
-                                  "Please see ?DocumentCollection for further assistance."),
-                     expect = "DocumentCollection") == FALSE) {
-        stop()
-      }
-      r <- restored$getObject()
-      private$..desc <- r$desc
-      private$..parent <- r$parent
-      private$..documents <- r$documents
+      private$..desc <- prior$desc
+      private$..parent <- prior$parent
+      private$..documents <- prior$documents
       private$..stateDesc <- paste("DocumentCollection object", private$..name,
                                    "restored to prior state designated by",
                                    "state identifier:",
                                    r$stateId,"at", Sys.time())
-      private$..stateId <- r$stateId
-      private$..created <- r$created
+      private$..stateId <- prior$stateId
+      private$..created <- prior$created
       private$..modified <- Sys.time()
 
       # Log event
       # historian$addEvent(class = class(self)[1], objectName = name,
-      #                    method = "setObject",
+      #                    method = "restore",
       #                    event = private$..stateDesc)
 
       invisible(self)
@@ -209,14 +197,8 @@ DocumentCollection <- R6::R6Class(
 
     addChild = function(document) {
 
-      # Validate document
-      v <- ValidateClass$new()
-      if (v$validate(class = "DocumentCollection", method = "addDocument",
-                 fieldName = "document", value = document, level = "Error",
-                 msg = "Argument is not a Document class object.",
-                 expect = c("Document", "DocumentCollection")) == FALSE) {
-        stop()
-      }
+      v <- Validator()
+      if (v$addChild(object = self, child = document) == FALSE) stop()
 
       # Add document to list of documents for collection
       d <- document$getObject()
@@ -240,32 +222,15 @@ DocumentCollection <- R6::R6Class(
 
     removeChild = function(document) {
 
-      # Validate parameters
-      if (missing(document)) {
-        v <- Validate0$new()
-        v$notify(class = "DocumentCollection", method = "removeChild",
-                 fieldName = "document", value = "", level = "Error",
-                 msg = paste("Document is missing with no default.",
-                             "See ?DocumentCollection for further assistance."),
-                 expect = TRUE)
-        stop()
-      }
+      v <- Validator()
+      if (v$removeChild(object = self, child = document) == FALSE) stop()
 
-      # Obtain document information
-      d <- document$getObject()
-
-      # Confirm document exists
-      if (!exists(private$..documents[[d$name]])) {
-        v <- Validate0$new()
-        v$notify(class = "DocumentCollection", method = "removeChild",
-                 fieldName = "document", value = "", level = "Error",
-                 msg = paste("Document is not in the.", private$..name,
-                             "collection.",
-                             "See ?DocumentCollection for further assistance."),
-                 expect = TRUE)
-        stop()
-
-      }
+      # Save Memento
+      private$..stateDesc <- paste("Memento of DocumentCollection object", private$..name,
+                                   "prior to removing child document, ", document$getName(),
+                                   "at", Sys.time())
+      private$..modified <- Sys.time()
+      #self$saveState()
 
       # Remove document from collection
       private$..documents[[d$name]] <- NULL
@@ -275,71 +240,12 @@ DocumentCollection <- R6::R6Class(
                                "from the", private$..name, "DocumentCollection",
                                "at", Sys.time())
       private$..modified <- Sys.time()
-      self$saveState()
+      #self$saveState()
 
       # Log Event
       # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
       #                    method = "removeChild",
       #                    event = private$..stateDesc)
-    },
-
-    getAncestor = function() {
-
-      p <- private$..parent
-
-      return(p)
-    },
-
-    setAncestor = function(parent = NULL) {
-
-      if (!is.null(parent)) {
-
-        # Obtain parent information
-        p <<- parent$getObject()
-
-        v <- ValidateClass$new()
-        if (v$validate(class = "DocumentCollection", method = "setAncestor", fieldName = "class(parent)",
-                       level = "Error", value = parent,
-                       msg = paste("Unable to set parent.  Parent must be a",
-                                   "DocumentCollection or Lab object.",
-                                   "See ?DocumentCollection for assistance."),
-                       expect = c("DocumentCollection", "Lab")) == FALSE) {
-          stop()
-        }
-
-        # Save Memento
-        private$..stateDesc <- paste("Saving Memento of DocumentCollection object",
-                                 private$..name, "before setting parent to",
-                                 p$name, "at", Sys.time())
-        # private$saveState(self)
-
-        # Set parent and state description
-        private$..parent <- parent
-        private$..stateDesc <- paste("Set parent of DocumentCollection object,",
-                                     private$..name, "to", p$name, "at",
-                                     Sys.time())
-      } else {
-        # Save Memento
-        private$..stateDesc <- paste("Saving Memento of DocumentCollection object",
-                                 private$..name, "before setting parent to NULL",
-                                 "at", Sys.time())
-        # private$saveState(self)
-
-        # Set parent to null and update object state"
-        private$..parent <- NULL
-        private$..stateDesc <- paste("Set parent of DocumentCollection object",
-                                     private$..name, "to NULL at",
-                                     Sys.time())
-      }
-
-      private$..modified <- Sys.time()
-      # private$saveState(self)
-
-      # Log Event
-      # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
-      #                    method = "removeChild",
-      #                    event = private$..stateDesc)
-
     },
 
     #-------------------------------------------------------------------#
@@ -360,17 +266,8 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                             Visitor Methods                             #
     #-------------------------------------------------------------------------#
-    accept = function(visitor)  {
-      visitor$documentCollection(self)
-    },
-    acceptVUpdate = function(visitor, priorObject)  {
-      visitor$documentCollection(self, priorObject)
-    },
-    acceptVAddChild = function(visitor, child)  {
-      visitor$documentCollection(self, child)
-    },
-    acceptVRemoveChild = function(visitor, child)  {
-      visitor$documentCollection(self, child)
+    accept = function(visitor, ...)  {
+      visitor$documentCollection(self, ...)
     }
   )
 )

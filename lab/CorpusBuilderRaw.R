@@ -180,7 +180,7 @@ CorpusBuilderRaw <- R6::R6Class(
     initialize = function(name) {
 
       # Validate Name
-      v <- ValidateName$new()
+      v <- ValidatorName$new()
       v$validate(class = "CorpusBuilderRaw", method = "initialize",
                      name = name, expect = FALSE)
 
@@ -207,7 +207,7 @@ CorpusBuilderRaw <- R6::R6Class(
     buildCollection = function(corpusName, corpusDesc = NULL) {
 
       # Validation
-      v <- ValidateName$new()
+      v <- ValidatorName$new()
       v$validate(class = "CorpusBuilderRaw", method = "buildCollection",
                      name = corpusName, expect = FALSE)
 
@@ -232,7 +232,7 @@ CorpusBuilderRaw <- R6::R6Class(
     buildDocument = function(name, fileName, desc  = NULL) {
 
       # Validate
-      v <- ValidateName$new()
+      v <- ValidatorName$new()
       for (d in 1:length(name)) {
         v$validate(class = "CorpusBuilderRaw", method = "buildDocument",
                        name = name, expect = FALSE)
@@ -255,14 +255,14 @@ CorpusBuilderRaw <- R6::R6Class(
     obtainCorpus = function(url, zipFile, fileNames) {
 
       # Validate Parameters
-      v <- ValidateUrl$new()
+      v <- ValidatorUrl$new()
       v$validate(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "url", value = url, level = "Error",
                  msg = paste("URL,", url, "is invalid."),
                  expect = TRUE)
 
       if (missing(zipFile)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "zipFile", value = NULL, level = "Error",
                  msg = "Zipfile is a required parameter.",
@@ -270,7 +270,7 @@ CorpusBuilderRaw <- R6::R6Class(
       }
 
       if (missing(fileNames)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "CorpusBuilderRaw", method = "obtainCorpus",
                  fieldName = "fileNames", value = NULL, level = "Error",
                  msg = "Filenames is a required parameter.",

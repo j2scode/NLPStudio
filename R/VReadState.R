@@ -27,7 +27,7 @@ VReadState <- R6::R6Class(
 
       constants <- Constants$new()
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "VReadState", method = method, fieldName = "class(object)",
                      level = "Error", value = class(object)[1],
                      msg = paste("Unable to restore object.",

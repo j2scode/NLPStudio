@@ -37,7 +37,7 @@ VReader <- R6::R6Class(
       f <- file$getObject()
 
       if (lengtH(f$path) == 0) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VReader", method = method, fieldName = "path",
                  level = "Error", value = "",
                  msg = paste("Unable to read document.",
@@ -48,7 +48,7 @@ VReader <- R6::R6Class(
       }
 
       if (lengtH(f$fileName) == 0) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VReader", method = method, fieldName = "fileName",
                  level = "Error", value = "",
                  msg = paste("Unable to read document.",
@@ -58,7 +58,7 @@ VReader <- R6::R6Class(
         stop()
       }
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "VReader", method = method, fieldName = "class(file)",
                      level = "Error", value = class(file)[1],
                      msg = paste("Unable to read document. Object is not a",
@@ -69,7 +69,7 @@ VReader <- R6::R6Class(
       }
 
       if (!file.exists(file.path(f$path, f$fileName))) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "VReader", method = method, fieldName = "path/fileName",
                  level = "Error", value = file.path(f$path, f$fileName),
                  msg = paste("Unable to read document.",

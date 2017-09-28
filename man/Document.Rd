@@ -9,60 +9,127 @@
 Document
 }
 \arguments{
-\item{content}{A character vector or list containing text content for objects. Required for write methods.}
+\item{name}{Character string indicating the name of the document or file. Required for all objects.}
 
 \item{desc}{Character string containing the description of the document.}
 
-\item{fileName}{Character string cointaining the file name for a document.  Required for objects of Document class.}
+\item{content}{Nested list of content to be written to files.}
 
-\item{name}{Character string indicating the name of the document. Required for all objects}
+\item{fileName}{Character string indicating File object's file name.}
 
-\item{parent}{An object of the DocumentCollection class that represents the parent object. Required for input / output methods.}
+\item{parent}{An object of the Lab or DocumentCollection class that represents
+the parent object.}
 
-\item{purge}{Logical indicating whether the removeDocument method should purge the document from the current environment. The default is FALSE}
+\item{visitor}{An object of one of the visitor classes.}
+
+\item{stateId}{Character string that uniquely identifies an object and its
+state at a specific point in time.}
 }
 \description{
-\code{Document} Class for instantiating,returning and printing individual
-Document objects within objects of the DocumentCollection class.
+\code{Document} An abstract class that defines the interfaces and primary
+methods for the DocumentText, DocumentRdata, DocumentCsv, and DocumentXlsx
+sub classes.
 }
 \details{
-\strong{Document Class Overview:}
+\strong{Document Family of Classes Overview:}
 
-The Document class is component part of the Document0 composite class. This
-pattern is documented in the book "Design Patterns: Elements of Reusable
+The Document family of classes is an implementation of the composite
+pattern documented in the book "Design Patterns: Elements of Reusable
 Object-Oriented Software" by Erich Gamma, Richard Helm, Ralph Johnson
 and John Vlissides (hence Gang of Four). This pattern allows composite
 and individual objects to be treated uniformly.
 
-\strong{Document Core Methods:}
-The core methods are as follows:
+The following sections include:
 \itemize{
- \item{\code{new(name, fileName, desc)}}{Instantiates an object of the Document class. }
- \item{\code{getDocument()}}{Returns the object and its meta data.}
- \item{\code{accept(visitor)}}{Accepts a visitor and dispatches the visitor, passing 'self' as a parameter}
- \item{\code{addContent(content)}}{Method for adding content to an object of the Document class.}
- \item{\code{removeContent()}}{Method for removing content from an object of the Document class.}
-}
-\strong{Document Composite Methods:}
-The composite methods are not implemented for the Document class.
+ \item Class Participants: Classes the comprise this composite pattern.
+ \item Class Collaborators: Classes which interact with the Document0 class.
+ \item Class Methods: Methods included in the interface.
+ }
+
+\strong{Document Family of Classes Participants:}
+The participants of the Document0 class are:
 \itemize{
- \item{\code{addDocument(document)}}{Not implemented for the Document class.}
- \item{\code{getDocuments()}}{Not implemented for the Document class.}
- \item{\code{removeDocument(document)}}{Not implemented for the Document class.}
- \item{\code{getAncestor()}}{Returns the parent object.}
- \item{\code{setAncestor(parent)}}{Sets the parent object.}
+ \item Document0: This component class specifies an abstract interface
+ for all leaf and composite document classes.
+ \item DocumentCollection: The composite class that maintains the
+ hierarchical structure of document collections (composites) and individual
+ documents (leafs).
+ \item Document: This "abstract leaf" class defines the interface for
+ DocumentText, DocumentRdata, DocumentCsv, and DocumentXlsx sub-classes.
+ \item DocumentText: This "concrete leaf" class for text documents.
+ \item DocumentCsv: This "concrete leaf" class for csv documents.
+ \item DocumentRdata: This "concrete leaf" class for RData documents.
+ \item DocumentXlsx: This "concrete leaf" class for excel documents.
+ }
+
+\strong{Document Class Collaborators:}
+The collaborators of the Document family  are:
+ \itemize{
+  \item State: Class responsible for saving current and restoring prior states of objects.
+  \item Curator: Class responsible for maintaining the object hierarchy.
+  \item Historian: Class responsible for maintaining the history of events on objects.
+  \item Reader: Class responsible for initiating the document read operation.
+  \item Writer: Class responsible for initiating the document write operation.
+  \item VReader: Visitor class responsible for performing read operations through the Document hierarchy.
+  \item VWriter: Visitor class responsible for performing write operations through the Document hierarchy.
+  \item VCurator: Visitor class that fulfills commands from the Curator class.
+ }
+
+\strong{Document Methods:}
+There are six types of methods within the Document class and they are:
+\itemize{
+ \item{Core Methods: Core methods shared by both Document and
+ DocumentCollection objects.}
+ \item{Getter/Setter Methods: Active binding methods for getting and setting
+ selected private members.}
+ \item{Composite Methods: Methods implemented by the DocumentCollection
+ class to maintain the document heirarchy.}
+ \item{State Methods: Methods for saving current and restoring to prior object states.}
+ \item{Visitor Methods: Methods for implementation of and messaging
+ with objects of the visitor classes.}
 }
 
-#' \strong{Document I/O Methods:}
-The following input/output methods are implemented for the Document class.
-\itemize{
- \item{\code{readDocument(format)}}{Reads the document in the format designated in the format parameter.}
- \item{\code{writeDocument(format, content)}}{Writes the content to file in the format designated in the format parameter. }
+\strong{Document Core Methods:}
+ \itemize{
+  \item{\code{new(name, desc)}}{Method for instantiating a document}
+  \item{\code{getName()}}{Method for obtaining the document name.}
+  \item{\code{getObject(requester)}}{Method for obtaining the document data in a list format if invoked by authorized method.}
+  \item{\code{restore(requester, prior)}}{Method for restoring an object to a prior state, as per the object parameter.}
+  \item{\code{addContent(content)}}{Method for adding content to the document object. This method is invoked by the read visitor.}
+ }
+
+\strong{Document Field Getter/Setter Active Binding Methods:}
+ \itemize{
+  \item{\code{desc()}}{Method used to get / set the description variable.
+  Implemented as an active binding and so the field may be updated
+  by assignment. This method is inherited from the Document0 class.}
 }
+
+\strong{Document Composite Methods:}
+ \itemize{
+  \item{\code{addChild(document)}}{Not implemented for this class.}
+  \item{\code{getChildren()}}{Returns NULL.}
+  \item{\code{removeChild(document)}}{Not implemented for this class.}
+  \item{\code{parent()}}{Getter/Setter method for retrieving and changing the parent of a Document class object.}
+}
+
+\strong{Document State Methods:}
+ \itemize{
+  \item{\code{saveState()}}{Method that initiates the process of saving the current state of the object. This method is inherited from the Document0 class.}
+  \item{\code{restoreState()}}{Method that initiates the process of restoring an object to a prior state. This method is inherited from the Document0 class.}
+ }
+
+\strong{Document Visitor Methods:}
+ \itemize{
+  \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
+  \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
+ }
 }
 \seealso{
 Other Document classes: \code{\link{Document0}},
-  \code{\link{DocumentCollection}}
+  \code{\link{DocumentCollection}},
+  \code{\link{DocumentCsv}}, \code{\link{DocumentRdata}},
+  \code{\link{DocumentText}}, \code{\link{DocumentXlsx}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

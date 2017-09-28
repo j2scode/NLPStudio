@@ -1,38 +1,42 @@
 #==============================================================================#
-#                                   VUpdate                                    #
+#                                   VCurator                                   #
 #==============================================================================#
-#' VUpdate
+#' VCurator
 #'
 #'
-#' \code{VUpdate} Visitor class responsible for updating an object to a prior stete
+#' \code{VCurator} Visitor class responsible for restoring an object to a prior stete
 #'
-#' \strong{VUpdate Methods:}
-#' The VUpdate methods are as follows:
+#' \strong{VCurator Methods:}
+#' The VCurator methods are as follows:
 #'  \itemize{
-#'   \item{\code{lab(object)}}{Method for updating a Lab object to its current state.}
-#'   \item{\code{documentCollection(object)}}{Method for updating a DocumentCollection object to its current state.}
-#'   \item{\code{document(object)}}{Method for updating a Document object to its current state.}
+#'   \item{\code{nlpStudio(current, prior)}}{Method for restoring the NLPStudio object a prior state.}
+#'   \item{\code{lab(current, prior)}}{Method for restoring a Lab object to a prior state.}
+#'   \item{\code{documentCollection(current, prior)}}{Method for restoring a DocumentCollection object to a prior state.}
+#'   \item{\code{documentText(current, prior)}}{Method for updating a DocumentText object to a prior state.}
+#'   \item{\code{documentCsv(current, prior)}}{Method for updating a DocumentCsv object to a prior state.}
+#'   \item{\code{documentRdata(current, prior)}}{Method for updating a DocumentRdata object to a prior state.}
+#'   \item{\code{documentXlsx(current, prior)}}{Method for updating a DocumentXlsx object to a prior state.}
 #' }
 #'
 #' @param current The object in its current state
-#' @param restored The object restored from a prior state.
+#' @param prior The object restored from a prior state.
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
 #' @family State Classes
 #' @export
-VUpdate <- R6::R6Class(
-  classname = "VUpdate",
+VCurator <- R6::R6Class(
+  classname = "VCurator",
   private = list(
 
-    validateObject = function(current, restored) {
+    validateRequest = function(method, current, prior) {
 
-      v <- ValidateClass$new()
-      if (v$validate(class = "VUpdate", method = method, fieldName = "class(restored)",
-                     level = "Error", value = restored,
+      v <- ValidatorClass$new()
+      if (v$validate(class = "VCurator", method = method, fieldName = "class(prior)",
+                     level = "Error", value = prior,
                      msg = paste0("Unable to restore object of class ",
                                  class(current)[1], " to state of ",
-                                 "object class ", class(restored)[1], ". ",
-                                 "See ?VUpdate for assistance."),
+                                 "object class ", class(prior)[1], ". ",
+                                 "See ?VCurator for assistance."),
                      expect = class(current)[1]) == FALSE) {
         stop()
       }
@@ -40,17 +44,40 @@ VUpdate <- R6::R6Class(
   ),
   public = list(
 
-    lab = function(current, restored)  {
-      private$..validateObject(current, restored)
-      current$setObject(self, restored)
+    nlpStudio = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
     },
-    documentCollection = function(current, restored)  {
-      private$..validateObject(current, restored)
-      current$setObject(self, restored)
+    lab = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
     },
-    document = function(current, restored)  {
-      private$..validateObject(current, restored)
-      current$setObject(self, restored)
+    documentCollection = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
+    },
+    documentText = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
+    },
+    documentCsv = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
+    },
+    documentRdata = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
+    },
+    documentXlsx = function(current, prior)  {
+      method <- match.call()[[1]]
+      private$..validateRequest(method, current, prior)
+      current$restore(self, prior)
     }
   )
 )

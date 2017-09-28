@@ -70,7 +70,7 @@ StateServer <- R6::R6Class(
     validateRequest = function(method, key, object = NULL) {
 
       if (key != private$..key) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "State", method = method,
                  fieldName = "key", value = key, level = "Error",
                  msg = paste("Unable to save state. The request did not",
@@ -82,7 +82,7 @@ StateServer <- R6::R6Class(
 
       if (!(is.null(object))) {
 
-        v <- ValidateClass$new()
+        v <- ValidatorClass$new()
         if (v$validate(class = "State", method = method,
                    fieldName = "class(object)", value = class(object)[1], level = "Error",
                    msg = paste("Object is not a serializable object.",

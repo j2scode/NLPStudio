@@ -30,11 +30,7 @@ and methods for writing files in binary format.
 }
 
 \seealso{
-Other Document i/o classes: \code{\link{ReadBin}},
-  \code{\link{ReadCsv}}, \code{\link{ReadRdata}},
-  \code{\link{ReadText}}, \code{\link{Write0}},
-  \code{\link{WriteCsv}}, \code{\link{WriteRdata}},
-  \code{\link{WriteText}}
+Other Document i/o classes: \code{\link{ReadBin}}
 }
 \author{
 John James, \email{j2sdatalab@gmail.com}

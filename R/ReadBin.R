@@ -30,7 +30,7 @@ ReadBin <- R6::R6Class(
 
       # Validate parameters
       if (missing(path)) {
-        v <- Validate0$new()
+        v <- Validator0$new()
         v$notify(class = "ReadBin", method = "readData", fieldName = "path",
         level = "Error", value = path,
         msg = paste("Unable to read document. Path is missing without a default",
@@ -39,7 +39,7 @@ ReadBin <- R6::R6Class(
         stop()
       }
 
-      v <- ValidateClass$new()
+      v <- ValidatorClass$new()
       if (v$validate(class = "ReadBin", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path is not a character string.",
@@ -48,7 +48,7 @@ ReadBin <- R6::R6Class(
         stop()
       }
 
-      v <- ValidatePath$new()
+      v <- ValidatorPath$new()
       if (v$validate(class = "ReadBin", method = "readData", fieldName = "path",
                  level = "Error", value = path,
                  msg = paste("Unable to read document. Path", path, "is invalid.",
