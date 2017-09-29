@@ -76,23 +76,7 @@ NLPStudio <- R6::R6Class(
           ..stateId = character(0),
           ..stateDesc = character(0),
           ..created = "None",
-          ..modified = "None",
-
-          initLog = function() {
-
-            c <- Constants$new()
-            logPath <- c$getLogPath()
-            if (!dir.exists(logPath)) {
-              dir.create(logPath)
-            }
-            futile.logger::flog.threshold(INFO)
-            futile.logger::flog.logger("green", INFO, appender=appender.tee(file.path(logPath, "green.log")))
-            futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
-            futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
-
-            futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
-          }
-
+          ..modified = "None"
         ),
 
         public = list(
@@ -114,9 +98,6 @@ NLPStudio <- R6::R6Class(
             lapply(paths, function(p) {
               if (!dir.exists(p))  dir.create(p, recursive = TRUE)
             })
-
-            # Initialize System Logger
-            private$initLog()
 
             # Create single instance of NLPStudio object
             private$..name <- name

@@ -33,7 +33,7 @@ VValidatorAddChild <- R6::R6Class(
 
   private = list(
 
-    validate = function(classes, object, ...) {
+    validate = function(classes, object, child) {
 
       # Confirm required parameters are not missing.
       if (missing(child)) {
@@ -76,20 +76,20 @@ VValidatorAddChild <- R6::R6Class(
 
   public = list(
 
-    nlpStudio = function(object,...) {
+    nlpStudio = function(object, child) {
       classes <- "Lab"
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes = classes, object = object, child))
     },
 
     lab = function(object,...) {
       classes <- "DocumentCollection"
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes = classes, object = object, child))
     },
 
     documentCollection = function(object,...) {
       classes <- c("DocumentCollection", "DocumentText", "DocumentCsv",
                    "DocumentRdata", "DocumentXlsx")
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes = classes, object = object, child))
     },
 
     documentText = function(object,...) {

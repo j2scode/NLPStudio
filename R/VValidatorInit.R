@@ -40,7 +40,7 @@ VValidatorInit <- R6::R6Class(
       )
     },
 
-    validateName = function(object, ...) {
+    validateName = function(object, name) {
 
       # Confirm required parameters are not missing.
       if (missing(name)) {
@@ -71,6 +71,8 @@ VValidatorInit <- R6::R6Class(
                      value = name, expect = FALSE) == FALSE) {
         return(FALSE)
       }
+
+      return(TRUE)
     },
 
     validateFileName = function(object, ...) {
@@ -84,6 +86,7 @@ VValidatorInit <- R6::R6Class(
                  expect = NULL)
         return(FALSE)
       }
+      return(TRUE)
     }
   ),
 

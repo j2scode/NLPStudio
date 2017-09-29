@@ -48,35 +48,35 @@ Validator <- R6::R6Class(
     },
     getObject = function(object, ...) {
       visitor <- VValidatorGetObject$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     addChild = function(object, ...) {
       visitor <- VValidatorAddChild$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     removeChild = function(object, ...) {
       visitor <- VValidatorRemoveChild$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     restore = function(object, ...) {
       visitor <- VValidatorRestore$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     readState = function(object, ...) {
       visitor <- VValidatorReadState$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     writeState = function(object, ...) {
       visitor <- VValidatorWriteState$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     read = function(object, ...) {
       visitor <- VValidatorRead$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     },
     write = function(object, ...) {
       visitor <- VValidatorWrite$new()
-      object$accept(visitor, ...)
+      object$accept(visitor, object, ...)
     }
   )
 )

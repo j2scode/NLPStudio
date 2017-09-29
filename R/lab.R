@@ -125,7 +125,7 @@ Lab <- R6::R6Class(
 
       # Instantiate variables
       private$..name <- name
-      private$..desc <- ifelse(is.null(desc), paste(name, "Lab", desc))
+      private$..desc <- ifelse(is.null(desc), paste(name, "Lab"), desc)
       private$..parent <- nlpStudio$getInstance()
       private$..stateDesc <- paste("Lab", name, "instantiated at", Sys.time())
       private$..modified <- Sys.time()
@@ -140,6 +140,10 @@ Lab <- R6::R6Class(
                          event = private$..stateDesc)
 
       invisible(self)
+    },
+
+    getName = function() {
+      return(private$..name)
     },
 
     getObject = function(requester) {
@@ -285,7 +289,7 @@ Lab <- R6::R6Class(
     #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
     accept = function(visitor, ...)  {
-      visitor$lab(self)
+      visitor$lab(self, ...)
     }
   )
 )

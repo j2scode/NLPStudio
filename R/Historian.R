@@ -33,6 +33,7 @@ Historian <- R6::R6Class(
       Class <<- R6::R6Class(
         classname = "Historian",
         private = list(
+          ..name = character(0),
           ..events = data.frame(),
           ..historyFile = character()
         ),
@@ -52,17 +53,21 @@ Historian <- R6::R6Class(
             })
 
             # Format and post instantiating event
+            private$..name <- "historian"
             private$..events <- data.frame(class = "Historian",
                                 method = "initialize",
-                                objectName = "historian",
+                                objectName = private$..name,
                                 event = paste("Instantiated object historian",
                                               "of the Historian class",
-                                              "at", Sys.time()),
+                                              "at", format(Sys.time())),
                                 date = Sys.time(),
                                 stringsAsFactors = FALSE)
 
             # Save event to history file
             saveRDS(private$..events, file = private$..historyFile)
+
+            # Assign its name in the global environment
+            assign(private$..name, self, envir = .GlobalEnv)
 
             invisible(self)
           },
@@ -85,7 +90,7 @@ Historian <- R6::R6Class(
             private$..events <- rbind(private$..events, newEvent)
 
             # Save event to history file
-            save(private$..events, file = private$..historyFile)
+            saveRDS(private$..events, file = private$..historyFile)
           },
 
           purgeEvents = function() {
@@ -99,11 +104,12 @@ Historian <- R6::R6Class(
           searchEvents = function(dateFrom = NULL, dateTo = NULL, class = NULL,
                                   objectName = NULL, method = NULL)  {
             tools <- Tools$new()
+            events <- private$..events
 
             if (!is.null(dateFrom)) {
               date <- tools$parseDate(dateFrom, class = "Historian", method = "searchEvents")
               if(date == FALSE) stop()
-              events <- subset(private$..events, date >= as.date(date))
+              events <- subset(events, date >= as.date(date))
             }
             if (!is.null(dateTo)) {
               date <- tools$parseDate(dateTo, class = "Historian", method = "searchEvents")

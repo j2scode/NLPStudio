@@ -30,9 +30,8 @@ The VCurator methods are as follows:
 }
 }
 \seealso{
-Other State Classes: \code{\link{Curator}},
-  \code{\link{StateManager}}, \code{\link{StateServer}},
-  \code{\link{State}}
+Other State Classes: \code{\link{StateManager}},
+  \code{\link{StateServer}}, \code{\link{State}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

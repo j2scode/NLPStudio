@@ -69,9 +69,8 @@ The methods for the StateManager class are as follows:
 }
 }
 \seealso{
-Other State Classes: \code{\link{Curator}},
-  \code{\link{StateServer}}, \code{\link{State}},
-  \code{\link{VCurator}}
+Other State Classes: \code{\link{StateServer}},
+  \code{\link{State}}, \code{\link{VCurator}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

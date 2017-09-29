@@ -1,7 +1,9 @@
 .onLoad <- function(libname, pkgname) {
 
-  # Greet the user
+  # Get Constants Object
   c <- Constants$new()
+
+  # Greet User
   h <- c$getHistoryFile()
   if (file.exists(h)) {
     packageStartupMessage(paste0("#=========================================================================================#"))
@@ -22,11 +24,22 @@
     packageStartupMessage(paste0("#                                                                                         #"))
     packageStartupMessage(paste0("#=========================================================================================#"))
   }
-
   # Instantiate Singleton Classes
-  nlpStudio <<- NLPStudio$new()
   historian <<- Historian$new()$getInstance()
+  nlpStudio <<- NLPStudio$new()$getInstance()
   stateManager <<- StateManager$new()$getInstance()
-
 }
 
+.onAttach <- function(libname, pkgname) {
+  c <- Constants$new()
+  logPath <- c$getLogPath()
+  if (!dir.exists(logPath)) {
+    dir.create(logPath)
+  }
+  futile.logger::flog.threshold(INFO)
+  futile.logger::flog.logger("green", INFO, appender=appender.file(file.path(logPath, "green.log")))
+  futile.logger::flog.logger("yellow", WARN, appender=appender.tee(file.path(logPath, "yellow.log")))
+  futile.logger::flog.logger("red", ERROR, appender=appender.tee(file.path(logPath, "red.log")))
+
+  futile.logger::flog.info("Welcome to the NLPStudio package", name = 'green')
+}
