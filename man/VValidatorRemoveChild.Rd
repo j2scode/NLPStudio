@@ -30,24 +30,6 @@ The VValidatorRemoveChild methods are as follows:
   \item{\code{documentXlsx(object, ...)}}{Method for validating the removeChild method parameters of the DocumentXlsx object.}
 }
 }
-\seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
-  \code{\link{VValidatorGetObject}},
-  \code{\link{VValidatorInit}},
-  \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRestore}},
-  \code{\link{Validator0}}, \code{\link{ValidatorClass}},
-  \code{\link{ValidatorDate}},
-  \code{\link{ValidatorExists}},
-  \code{\link{ValidatorLogical}},
-  \code{\link{ValidatorName}},
-  \code{\link{ValidatorNoSpaces}},
-  \code{\link{ValidatorNotEmpty}},
-  \code{\link{ValidatorNumeric}},
-  \code{\link{ValidatorPath}},
-  \code{\link{ValidatorString}},
-  \code{\link{ValidatorUrl}}, \code{\link{Validator}}
-}
 \author{
 John James, \email{jjames@DataScienceSalon.org}
 }

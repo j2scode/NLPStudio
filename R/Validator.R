@@ -14,15 +14,15 @@
 #' \strong{Validator Methods:}
 #' \describe{
 #'  \item{\code{new()}}{Creates an object of Validator class}
-#'  \item{\code{init(object, ...)}}{Dispatches the initialization validation visitor, via the accept method of the originator.}
-#'  \item{\code{getObject(object, ...)}}{Dispatches the getObject validation visitor, via the accept method of the originator.}
-#'  \item{\code{addChild(object, ...)}}{Dispatches the addChild validation visitor, via the accept method of the originator.}
-#'  \item{\code{removeChild(object, ...)}}{Dispatches the removeChild validation visitor, via the accept method of the originator.}
-#'  \item{\code{restore(object, ...)}}{Dispatches the restore validation visitor, via the accept method of the originator.}
-#'  \item{\code{readState(object, ...)}}{Dispatches the readState validation visitor, via the accept method of the originator.}
-#'  \item{\code{writeState(object, ...)}}{Dispatches the writeState validation visitor, via the accept method of the originator.}
-#'  \item{\code{read(object, ...)}}{Dispatches the read validation visitor, via the accept method of the originator.}
-#'  \item{\code{write(object, ...)}}{Dispatches the write validation visitor, via the accept method of the originator.}
+#'  \item{\code{init(object)}}{Dispatches the initialization validation visitor, via the accept method of the originator.}
+#'  \item{\code{getObject(object)}}{Dispatches the getObject validation visitor, via the accept method of the originator.}
+#'  \item{\code{addChild(object)}}{Dispatches the addChild validation visitor, via the accept method of the originator.}
+#'  \item{\code{removeChild(object)}}{Dispatches the removeChild validation visitor, via the accept method of the originator.}
+#'  \item{\code{restore(object)}}{Dispatches the restore validation visitor, via the accept method of the originator.}
+#'  \item{\code{readState(object)}}{Dispatches the readState validation visitor, via the accept method of the originator.}
+#'  \item{\code{writeState(object)}}{Dispatches the writeState validation visitor, via the accept method of the originator.}
+#'  \item{\code{read(object)}}{Dispatches the read validation visitor, via the accept method of the originator.}
+#'  \item{\code{write(object)}}{Dispatches the write validation visitor, via the accept method of the originator.}
 #' }
 #'
 #' \strong{Validator Parameters:}
@@ -42,41 +42,33 @@ Validator <- R6::R6Class(
 
   public = list(
 
-    init = function(object, ...) {
+    init = function(object) {
       visitor <- VValidatorInit$new()
-      object$accept(visitor, ...)
+      object$accept(visitor)
     },
-    getObject = function(object, ...) {
+    getObject = function(object) {
       visitor <- VValidatorGetObject$new()
-      object$accept(visitor, object, ...)
+      object$accept(visitor)
     },
-    addChild = function(object, ...) {
-      visitor <- VValidatorAddChild$new()
-      object$accept(visitor, object, ...)
+    addChild = function(object, child) {
+      visitor <- VValidatorAddChild$new(object, child)
+      object$accept(visitor)
     },
-    removeChild = function(object, ...) {
-      visitor <- VValidatorRemoveChild$new()
-      object$accept(visitor, object, ...)
+    removeChild = function(object, child) {
+      visitor <- VValidatorRemoveChild$new(object, child)
+      object$accept(visitor)
     },
-    restore = function(object, ...) {
-      visitor <- VValidatorRestore$new()
-      object$accept(visitor, object, ...)
+    restore = function(object, state) {
+      visitor <- VValidatorRestore$new(object, state)
+      object$accept(visitor)
     },
-    readState = function(object, ...) {
-      visitor <- VValidatorReadState$new()
-      object$accept(visitor, object, ...)
+    read = function(object) {
+      visitor <- VValidatorRead$new(object)
+      object$accept(visitor)
     },
-    writeState = function(object, ...) {
-      visitor <- VValidatorWriteState$new()
-      object$accept(visitor, object, ...)
-    },
-    read = function(object, ...) {
-      visitor <- VValidatorRead$new()
-      object$accept(visitor, object, ...)
-    },
-    write = function(object, ...) {
-      visitor <- VValidatorWrite$new()
-      object$accept(visitor, object, ...)
+    write = function(object, content) {
+      visitor <- VValidatorWrite$new(object, content)
+      object$accept(visitor)
     }
   )
 )

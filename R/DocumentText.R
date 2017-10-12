@@ -97,7 +97,6 @@
 #' \strong{Document Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
-#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -127,9 +126,6 @@ DocumentText <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, fileName, desc = NULL) {
 
-      v <- Validator$new()
-      if (v$init(self, name = name, fileName = fileName) == FALSE) stop()
-
       # Instantiate variables
       private$..name <- name
       private$..desc <- ifelse(is.null(desc), paste(name, "Text Document"), desc)
@@ -137,6 +133,10 @@ DocumentText <- R6::R6Class(
       private$..stateDesc <- paste("DocumentText object,", name, "instantiated at", Sys.time())
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
+
+      # Validate Document
+      v <- Validator$new()
+      if (v$init(self) == FALSE) stop()
 
       # Assign to object to name  in global environment
       assign(name, self, envir = .GlobalEnv)
@@ -147,6 +147,13 @@ DocumentText <- R6::R6Class(
       #                    event = private$..stateDesc)
 
       invisible(self)
+    },
+
+    #-------------------------------------------------------------------------#
+    #                           Visitor Methods                               #
+    #-------------------------------------------------------------------------#
+    accept = function(visitor) {
+      visitor$documentText(self)
     }
   )
 )

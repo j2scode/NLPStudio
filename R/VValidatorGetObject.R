@@ -25,16 +25,17 @@
 #'
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
-#' @family Validation Classes
+#' @family Validation Visitor Classes
 #' @export
 VValidatorGetObject <- R6::R6Class(
   classname = "VValidatorGetObject",
+  inherit = VValidator,
   lock_objects = FALSE,
   lock_class = FALSE,
 
   private = list(
 
-    validate = function(requester, object) {
+    validate = function(object, requester) {
 
       # Confirm required parameters are not missing.
       if (missing(requester)) {
@@ -66,32 +67,32 @@ VValidatorGetObject <- R6::R6Class(
 
   public = list(
 
-    nlpStudio = function(requester, object) {
-      return(private$validate(requester, object))
+    nlpStudio = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    lab = function(requester, object) {
-      return(private$validate(requester, object))
+    lab = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    documentCollection = function(requester, object) {
-      return(private$validate(requester, object))
+    documentCollection = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    documentText = function(requester, object) {
-      return(private$validate(requester, object))
+    documentText = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    documentCsv = function(requester, object) {
-      return(private$validate(requester, object))
+    documentCsv = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    documentRdata = function(requester, object) {
-      return(private$validate(requester, object))
+    documentRdata = function(object, requester) {
+      return(private$validate(object, requester))
     },
 
-    documentXlsx = function(requester, object) {
-      return(private$validate(requester, object))
+    documentXlsx = function(object, requester) {
+      return(private$validate(object, requester))
     }
   )
 )

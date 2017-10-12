@@ -10,24 +10,25 @@
 #' \strong{VValidatorAddChild Methods:}
 #' The VValidatorAddChild methods are as follows:
 #'  \itemize{
-#'   \item{\code{nlpStudio(object, ...)}}{Method for validating the addChild method parameters of the NLPStudio object}
-#'   \item{\code{lab(object, ...)}}{Method for validating the addChild method parameters of the Lab object}
-#'   \item{\code{documentCollection(object, ...)}}{Method for validating the addChild method parameters of the DocumentCollection object.}
-#'   \item{\code{documentText(object, ...)}}{Method for validating the addChild method parameters of the DocumentText object.}
-#'   \item{\code{documentCsv(object, ...)}}{Method for validating the addChild method parameters of the DocumentCsv object.}
-#'   \item{\code{documentRdata(object, ...)}}{Method for validating the addChild method parameters of the DocumentRdata object.}
-#'   \item{\code{documentXlsx(object, ...)}}{Method for validating the addChild method parameters of the DocumentXlsx object.}
+#'   \item{\code{nlpStudio(object, child)}}{Method for validating the addChild method parameters of the NLPStudio object}
+#'   \item{\code{lab(object, child)}}{Method for validating the addChild method parameters of the Lab object}
+#'   \item{\code{documentCollection(object, child)}}{Method for validating the addChild method parameters of the DocumentCollection object.}
+#'   \item{\code{documentText(object, child)}}{Method for validating the addChild method parameters of the DocumentText object.}
+#'   \item{\code{documentCsv(object, child)}}{Method for validating the addChild method parameters of the DocumentCsv object.}
+#'   \item{\code{documentRdata(object, child)}}{Method for validating the addChild method parameters of the DocumentRdata object.}
+#'   \item{\code{documentXlsx(object, child)}}{Method for validating the addChild method parameters of the DocumentXlsx object.}
 #' }
 #'
-#' @param object The object in its current state
-#' @param ... Parameters
+#' @param object The parent object
+#' @param child  The child object
 #'
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
-#' @family Validation Classes
+#' @family Validation Visitor Classes
 #' @export
 VValidatorAddChild <- R6::R6Class(
   classname = "VValidatorAddChild",
+  inherit = VValidator,
   lock_objects = FALSE,
   lock_class = FALSE,
 
@@ -62,7 +63,7 @@ VValidatorAddChild <- R6::R6Class(
       }
     },
 
-    validateDocument = function(object, ...) {
+    validateDocument = function(object, child) {
       v <- Validator0$new()
       v$notify(class = class(object)[1], method = "addChild", fieldName = "child",
                value = "", level = "Error",
@@ -78,34 +79,34 @@ VValidatorAddChild <- R6::R6Class(
 
     nlpStudio = function(object, child) {
       classes <- "Lab"
-      return(private$validate(classes = classes, object = object, child))
+      return(private$validate(object, child))
     },
 
-    lab = function(object,...) {
+    lab = function(object,child) {
       classes <- "DocumentCollection"
-      return(private$validate(classes = classes, object = object, child))
+      return(private$validate(object, child))
     },
 
-    documentCollection = function(object,...) {
+    documentCollection = function(object,child) {
       classes <- c("DocumentCollection", "DocumentText", "DocumentCsv",
                    "DocumentRdata", "DocumentXlsx")
-      return(private$validate(classes = classes, object = object, child))
+      return(private$validate(object, child))
     },
 
-    documentText = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentText = function(object,child) {
+      return(private$validateDocument(object, child))
     },
 
-    documentCsv = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentCsv = function(object,child) {
+      return(private$validateDocument(object, child))
     },
 
-    documentRdata = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentRdata = function(object,child) {
+      return(private$validateDocument(object, child))
     },
 
-    documentXlsx = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentXlsx = function(object,child) {
+      return(private$validateDocument(object, child))
     }
   )
 )

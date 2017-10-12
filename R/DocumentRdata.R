@@ -97,7 +97,6 @@
 #' \strong{Document Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
-#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -127,34 +126,6 @@ DocumentRdata <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, fileName, desc = NULL) {
 
-      # Confirm required parameters are not missing.
-      if (missing(name)) {
-        v <- Validator0$new()
-        v$notify(class = class(self)[1], method = "initialize", fieldName = "name",
-                 value = "", level = "Error",
-                 msg = paste0("Name parameter is missing with no default. ",
-                             "See ?", class(self)[1], " for further assistance."),
-                 expect = NULL)
-        stop()
-      }
-
-      # Validate name
-      v <- ValidatorName$new()
-      if (v$validate(class = class(self)[1], method = "initialize",
-                     value = name, expect = FALSE) == FALSE) {
-        stop()
-      }
-
-      if (missing(fileName)) {
-        v <- Validator0$new()
-        v$notify(class = class(self)[1], method = "initialize", fieldName = "fileName",
-                 value = "", level = "Error",
-                 msg = paste0("File name parameter is missing with no default. ",
-                             "See ?", class(self)[1], " for further assistance."),
-                 expect = NULL)
-        stop()
-      }
-
       # Instantiate variables
       private$..name <- name
       private$..desc <- ifelse(is.null(desc), paste(name, "RData Document"), desc)
@@ -162,6 +133,10 @@ DocumentRdata <- R6::R6Class(
       private$..stateDesc <- paste("DocumentRdata object,", name, "instantiated at", Sys.time())
       private$..created <- Sys.time()
       private$..modified <- Sys.time()
+
+      # Validate Document
+      v <- Validator$new()
+      if (v$init(self) == FALSE) stop()
 
       # Assign to object to name  in global environment
       assign(name, self, envir = .GlobalEnv)
@@ -172,6 +147,13 @@ DocumentRdata <- R6::R6Class(
       #                    event = private$..stateDesc)
 
       invisible(self)
+    },
+
+    #-------------------------------------------------------------------------#
+    #                           Visitor Methods                               #
+    #-------------------------------------------------------------------------#
+    accept = function(visitor) {
+      visitor$documentRdata(self)
     }
   )
 )

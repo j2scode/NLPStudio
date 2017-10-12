@@ -36,12 +36,7 @@ Throws an error if the field doesn't pass validation
 }
 
 \seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
-  \code{\link{VValidatorGetObject}},
-  \code{\link{VValidatorInit}},
-  \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
+Other Validation Classes: \code{\link{Authorizer}},
   \code{\link{Validator0}}, \code{\link{ValidatorClass}},
   \code{\link{ValidatorDate}},
   \code{\link{ValidatorExists}},

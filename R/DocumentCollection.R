@@ -95,7 +95,6 @@
 #' \strong{DocumentCollection Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
-#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #'
@@ -124,15 +123,16 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, desc = NULL) {
 
-      v <- Validator$new()
-      if (v$init(self, name = name) == FALSE) stop()
-
       # Instantiate variables
       private$..name <- name
       private$..desc <- ifelse(is.null(desc), paste(name, "Document Collection"), desc)
       private$..stateDesc <- paste("DocumentCollection", name, "instantiated at", Sys.time())
       private$..created <-Sys.time()
       private$..modified <- Sys.time()
+
+      # Validate Document Collection
+      v <- Validator$new()
+      if (v$init(self) == FALSE) stop()
 
       # Assign the name to the object in the global environment and update state
       assign(name, self, envir = .GlobalEnv)
@@ -266,8 +266,8 @@ DocumentCollection <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                             Visitor Methods                             #
     #-------------------------------------------------------------------------#
-    accept = function(visitor, ...)  {
-      visitor$documentCollection(self, ...)
+    accept = function(visitor)  {
+      visitor$documentCollection(self)
     }
   )
 )

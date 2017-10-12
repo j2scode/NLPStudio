@@ -99,7 +99,6 @@
 #' \strong{Document Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
-#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
@@ -228,8 +227,8 @@ Document <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
-    accept = function(visitor, ...)  {
-      visitor$document(self, ...)
+    accept = function(visitor)  {
+      visitor$document(self)
     }
   )
 )

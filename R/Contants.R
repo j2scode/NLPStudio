@@ -31,6 +31,7 @@ Constants <- R6::R6Class(
       states = "./NLPStudio/States"
       ),
     ..files = list(
+      policyFile = "./NLPStudio/Policy.Rdata",
       historyFile = "./NLPStudio/Log/History.Rdata"
     )
   ),
@@ -49,6 +50,7 @@ Constants <- R6::R6Class(
     getLogPath = function() private$..paths$log,
 
     # Files
-    getHistoryFile = function() private$..files$historyFile
+    getHistoryFile = function() private$..files$historyFile,
+    getPolicyFile = function() private$..files$policyFile
   )
 )

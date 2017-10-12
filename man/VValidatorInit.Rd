@@ -20,32 +20,20 @@ VValidatorInit
 \strong{VValidatorInit Methods:}
 The VValidatorInit methods are as follows:
  \itemize{
-  \item{\code{nlpStudio(object, ...)}}{Method for validating the instantiation of the NLPStudio object}
-  \item{\code{lab(object, ...)}}{Method for validating the instantiation of the Lab object}
-  \item{\code{documentCollection(object, ...)}}{Method for validating the instantiation of the DocumentCollection object.}
-  \item{\code{documentText(object, ...)}}{Method for validating the instantiation of the DocumentText object.}
-  \item{\code{documentCsv(object, ...)}}{Method for validating the instantiation of the DocumentCsv object.}
-  \item{\code{documentRdata(object, ...)}}{Method for validating the instantiation of the DocumentRdata object.}
-  \item{\code{documentXlsx(object, ...)}}{Method for validating the instantiation of the DocumentXlsx object.}
+  \item{\code{nlpStudio(object)}}{Method for validating the instantiation of the NLPStudio object}
+  \item{\code{lab(object)}}{Method for validating the instantiation of the Lab object}
+  \item{\code{documentCollection(object)}}{Method for validating the instantiation of the DocumentCollection object.}
+  \item{\code{documentText(object)}}{Method for validating the instantiation of the DocumentText object.}
+  \item{\code{documentCsv(object)}}{Method for validating the instantiation of the DocumentCsv object.}
+  \item{\code{documentRdata(object)}}{Method for validating the instantiation of the DocumentRdata object.}
+  \item{\code{documentXlsx(object)}}{Method for validating the instantiation of the DocumentXlsx object.}
 }
 }
 \seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
+Other Validation Visitor Classes: \code{\link{VValidatorAddChild}},
   \code{\link{VValidatorGetObject}},
   \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
-  \code{\link{Validator0}}, \code{\link{ValidatorClass}},
-  \code{\link{ValidatorDate}},
-  \code{\link{ValidatorExists}},
-  \code{\link{ValidatorLogical}},
-  \code{\link{ValidatorName}},
-  \code{\link{ValidatorNoSpaces}},
-  \code{\link{ValidatorNotEmpty}},
-  \code{\link{ValidatorNumeric}},
-  \code{\link{ValidatorPath}},
-  \code{\link{ValidatorString}},
-  \code{\link{ValidatorUrl}}, \code{\link{Validator}}
+  \code{\link{VValidatorRestore}}, \code{\link{VValidator}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

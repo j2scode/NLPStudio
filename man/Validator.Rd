@@ -27,26 +27,21 @@ and read/write operations.
 \strong{Validator Methods:}
 \describe{
  \item{\code{new()}}{Creates an object of Validator class}
- \item{\code{init(object, ...)}}{Dispatches the initialization validation visitor, via the accept method of the originator.}
- \item{\code{getObject(object, ...)}}{Dispatches the getObject validation visitor, via the accept method of the originator.}
- \item{\code{addChild(object, ...)}}{Dispatches the addChild validation visitor, via the accept method of the originator.}
- \item{\code{removeChild(object, ...)}}{Dispatches the removeChild validation visitor, via the accept method of the originator.}
- \item{\code{restore(object, ...)}}{Dispatches the restore validation visitor, via the accept method of the originator.}
- \item{\code{readState(object, ...)}}{Dispatches the readState validation visitor, via the accept method of the originator.}
- \item{\code{writeState(object, ...)}}{Dispatches the writeState validation visitor, via the accept method of the originator.}
- \item{\code{read(object, ...)}}{Dispatches the read validation visitor, via the accept method of the originator.}
- \item{\code{write(object, ...)}}{Dispatches the write validation visitor, via the accept method of the originator.}
+ \item{\code{init(object)}}{Dispatches the initialization validation visitor, via the accept method of the originator.}
+ \item{\code{getObject(object)}}{Dispatches the getObject validation visitor, via the accept method of the originator.}
+ \item{\code{addChild(object)}}{Dispatches the addChild validation visitor, via the accept method of the originator.}
+ \item{\code{removeChild(object)}}{Dispatches the removeChild validation visitor, via the accept method of the originator.}
+ \item{\code{restore(object)}}{Dispatches the restore validation visitor, via the accept method of the originator.}
+ \item{\code{readState(object)}}{Dispatches the readState validation visitor, via the accept method of the originator.}
+ \item{\code{writeState(object)}}{Dispatches the writeState validation visitor, via the accept method of the originator.}
+ \item{\code{read(object)}}{Dispatches the read validation visitor, via the accept method of the originator.}
+ \item{\code{write(object)}}{Dispatches the write validation visitor, via the accept method of the originator.}
 }
 
 \strong{Validator Parameters:}
 }
 \seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
-  \code{\link{VValidatorGetObject}},
-  \code{\link{VValidatorInit}},
-  \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
+Other Validation Classes: \code{\link{Authorizer}},
   \code{\link{Validator0}}, \code{\link{ValidatorClass}},
   \code{\link{ValidatorDate}},
   \code{\link{ValidatorExists}},

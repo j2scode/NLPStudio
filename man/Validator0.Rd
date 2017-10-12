@@ -41,12 +41,7 @@ and reporting validation errors.
 \strong{Validator0 Parameters:}
 }
 \seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
-  \code{\link{VValidatorGetObject}},
-  \code{\link{VValidatorInit}},
-  \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
+Other Validation Classes: \code{\link{Authorizer}},
   \code{\link{ValidatorClass}},
   \code{\link{ValidatorDate}},
   \code{\link{ValidatorExists}},

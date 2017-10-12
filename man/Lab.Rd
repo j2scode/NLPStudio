@@ -53,7 +53,7 @@ the contained documents, add a document, and remove a document.
 
 \strong{Lab Visitor Methods:}
  \describe{
-  \item{\code{accept(visitor, ...)}}{Accepts an object of the Visitor family of classes.}
+  \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
 }
 }
 \author{

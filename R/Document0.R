@@ -104,9 +104,8 @@
 #' \strong{Document0 Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
-#'   \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
 #'  }
-#'
+#' }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.
 #' @param desc Character string containing the description of the document.
@@ -194,6 +193,6 @@ Document0 <- R6::R6Class(
     restoreState = function(prior)  stop("Method is not available from Document0, an abstract class!"),
 
     # Visitor Methods
-    accept = function(visitor,...) stop("Method is not available from Document0, an abstract class!")
+    accept = function(visitor) stop("Method is not available from Document0, an abstract class!")
   )
 )

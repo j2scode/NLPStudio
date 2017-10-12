@@ -9,9 +9,9 @@
 VValidatorAddChild
 }
 \arguments{
-\item{object}{The object in its current state}
+\item{object}{The parent object}
 
-\item{...}{Parameters}
+\item{child}{The child object}
 }
 \description{
 \code{VValidatorAddChild} Visitor class responsible for validating the parameters for the addChild methods
@@ -21,32 +21,20 @@ of aggregate and composite classes.
 \strong{VValidatorAddChild Methods:}
 The VValidatorAddChild methods are as follows:
  \itemize{
-  \item{\code{nlpStudio(object, ...)}}{Method for validating the addChild method parameters of the NLPStudio object}
-  \item{\code{lab(object, ...)}}{Method for validating the addChild method parameters of the Lab object}
-  \item{\code{documentCollection(object, ...)}}{Method for validating the addChild method parameters of the DocumentCollection object.}
-  \item{\code{documentText(object, ...)}}{Method for validating the addChild method parameters of the DocumentText object.}
-  \item{\code{documentCsv(object, ...)}}{Method for validating the addChild method parameters of the DocumentCsv object.}
-  \item{\code{documentRdata(object, ...)}}{Method for validating the addChild method parameters of the DocumentRdata object.}
-  \item{\code{documentXlsx(object, ...)}}{Method for validating the addChild method parameters of the DocumentXlsx object.}
+  \item{\code{nlpStudio(object, child)}}{Method for validating the addChild method parameters of the NLPStudio object}
+  \item{\code{lab(object, child)}}{Method for validating the addChild method parameters of the Lab object}
+  \item{\code{documentCollection(object, child)}}{Method for validating the addChild method parameters of the DocumentCollection object.}
+  \item{\code{documentText(object, child)}}{Method for validating the addChild method parameters of the DocumentText object.}
+  \item{\code{documentCsv(object, child)}}{Method for validating the addChild method parameters of the DocumentCsv object.}
+  \item{\code{documentRdata(object, child)}}{Method for validating the addChild method parameters of the DocumentRdata object.}
+  \item{\code{documentXlsx(object, child)}}{Method for validating the addChild method parameters of the DocumentXlsx object.}
 }
 }
 \seealso{
-Other Validation Classes: \code{\link{VValidatorGetObject}},
+Other Validation Visitor Classes: \code{\link{VValidatorGetObject}},
   \code{\link{VValidatorInit}},
   \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
-  \code{\link{Validator0}}, \code{\link{ValidatorClass}},
-  \code{\link{ValidatorDate}},
-  \code{\link{ValidatorExists}},
-  \code{\link{ValidatorLogical}},
-  \code{\link{ValidatorName}},
-  \code{\link{ValidatorNoSpaces}},
-  \code{\link{ValidatorNotEmpty}},
-  \code{\link{ValidatorNumeric}},
-  \code{\link{ValidatorPath}},
-  \code{\link{ValidatorString}},
-  \code{\link{ValidatorUrl}}, \code{\link{Validator}}
+  \code{\link{VValidatorRestore}}, \code{\link{VValidator}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

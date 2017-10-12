@@ -124,7 +124,7 @@ NLPStudio <- R6::R6Class(
             private$..name
           },
 
-          getObject = function(requester) {
+          getObject = function() {
 
             # TODO: Uncomment after testing
             # v <- Validator$new()
@@ -262,8 +262,8 @@ NLPStudio <- R6::R6Class(
           #-------------------------------------------------------------------------#
           #                           Visitor Methods                               #
           #-------------------------------------------------------------------------#
-          accept = function(visitor, ...)  {
-            visitor$nlpStudio(self, ...)
+          accept = function(visitor)  {
+            visitor$nlpStudio(self)
           }
         )
       )

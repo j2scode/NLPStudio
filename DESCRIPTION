@@ -22,5 +22,6 @@ VignetteBuilder: knitr
 Imports:
     R6,
     dplyr,
-    parsedate
+    parsedate,
+    tools
 RoxygenNote: 6.0.1

@@ -36,7 +36,7 @@
 #'
 #' \strong{Lab Visitor Methods:}
 #'  \describe{
-#'   \item{\code{accept(visitor, ...)}}{Accepts an object of the Visitor family of classes.}
+#'   \item{\code{accept(visitor)}}{Accepts an object of the Visitor family of classes.}
 #' }
 #'
 #' @param name A character string containing the name of the Lab object. This variable is used in the instantiation and remove methods.
@@ -120,9 +120,6 @@ Lab <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, desc = NULL) {
 
-      v <- Validator$new()
-      if (v$init(self, name = name) == FALSE) stop()
-
       # Instantiate variables
       private$..name <- name
       private$..desc <- ifelse(is.null(desc), paste(name, "Lab"), desc)
@@ -130,6 +127,10 @@ Lab <- R6::R6Class(
       private$..stateDesc <- paste("Lab", name, "instantiated at", Sys.time())
       private$..modified <- Sys.time()
       private$..created <- Sys.time()
+
+      # Validate Lab
+      v <- Validator$new()
+      if (v$init(self) == FALSE) stop()
 
       # Assign its name in the global environment
       assign(name, self, envir = .GlobalEnv)
@@ -288,8 +289,8 @@ Lab <- R6::R6Class(
     #-------------------------------------------------------------------------#
     #                           Visitor Methods                               #
     #-------------------------------------------------------------------------#
-    accept = function(visitor, ...)  {
-      visitor$lab(self, ...)
+    accept = function(visitor)  {
+      visitor$lab(self)
     }
   )
 )

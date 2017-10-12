@@ -21,7 +21,7 @@ testNLPStudio <- function() {
   # Test 0: Confirm instantiation of nlpStudio
   test0 <- function() {
     test <- "test0: Instantiation"
-    cat(paste("\n",test, " Commencing\r"))
+    cat(paste(test, " Commencing\n"))
 
     # Test instantiation
     studio <<- nlpStudio$getObject() #Return list with warning
@@ -38,12 +38,12 @@ testNLPStudio <- function() {
     # Logit
     logTests(class = class, mthd = "initiate", note = "Successfully created nlpStudio")
 
-    cat(paste("\n\n", test, " Completed: Success!\n"))
+    cat(paste(test, " Completed: Success!\n"))
   }
 
   test1 <- function() {
-    test <- "test1: Add labs"
-    cat(paste("\n",test, " Commencing\r"))
+    test <- "test1: Create lab"
+    cat(paste(test, " Commencing\n"))
 
     # Instantiate lab
     Lab$new(name = "Beats", desc = "Beats Lab")
@@ -54,10 +54,31 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - l$created) < 1)
     stopifnot((Sys.time() - l$modified) < 1)
 
+    # Check history
+    stopifnot(checkHistory(class = "Lab", method = "initialize",
+                           objectName = "Beats", event = l$stateDesc))
+
+    # Logit
+    logTests(class = "Lab", mthd = "initialize", note = "Beats lab instantiated successfully")
+    cat(paste(test, " Completed: Success!\n"))
+  }
+
+  test2 <- function() {
+    test <- "test2: Add lab Validation"
+    cat(paste(test, " Commencing\n"))
 
     # Validation
-    #nlpStudio$addChild() # fails, lab missing: success
+    nlpStudio$addChild() # fails, lab missing: success
     nlpStudio$addChild(Writer) # fails, invalid class: success
+
+    # Logit
+    logTests(class = "NLPStudio", mthd = "addChild", note = "Validation for addChild method is correct!")
+    cat(paste(test, " Completed: Success!\n"))
+  }
+
+  test3 <- function() {
+    test <- "test3: Add lab"
+    cat(paste(test, " Commencing\n"))
 
     # Successful attempt
     nlpStudio$addChild(Beats)
@@ -67,6 +88,10 @@ testNLPStudio <- function() {
     stopifnot(isTRUE(all.equal(studio$labs[[1]], Beats)))
     stopifnot(studio$created < studio$modified)
 
+    # Confirm parent updated
+    l <- Beats$getObject()
+    stopifnot(isTRUE(all.equal(nlpStudio, l$parent)))
+
     # Check history
     stopifnot(checkHistory(class = "NLPStudio", method = "addChild",
                            objectName = "nlpStudio", event = studio$stateDesc))
@@ -75,16 +100,13 @@ testNLPStudio <- function() {
 
     # Logit
     logTests(class = class, mthd = "addChild", note = "Beats lab added successfully")
-
-    cat(paste("\n              Beats Lab:", l$stateDesc))
-    cat(paste("\n              NLPStudio:", studio$stateDesc))
-    cat(paste("\n\n", test, "Completed: Success!\n"))
+    cat(paste(test, " Completed: Success!\n"))
   }
 
 
-  test2 <- function() {
-    test <- "test2: addChild() #2"
-    cat(paste("\n",test, " Commencing\r"))
+  test4 <- function() {
+    test <- "test4: addChild() #2"
+    cat(paste(test, " Commencing\n"))
 
     Lab$new(name = "Bart",desc = "Simpsons Lab")
     nlpStudio$addChild(Bart)
@@ -104,21 +126,28 @@ testNLPStudio <- function() {
                            objectName = "Bart", event = lab$stateDesc))
 
     # Logit
-    logTests(class = class, mthd = "addChild(enter = 'TRUE')", note = "Successfully added lab")
-    cat(paste("\n               Bart Lab:", lab$stateDesc))
-    cat(paste("\n              NLPStudio:", studio$stateDesc))
-    cat(paste("\n\n", test, "Completed: Success!\n"))
+    logTests(class = class, mthd = "addChild", note = "Successfully added lab")
+    cat(paste(test, "Completed: Success!\n"))
   }
 
 
-  test3 <- function() {
-    test <- "test3: Remove lab"
-    cat(paste("\n",test, " Commencing\r"))
+  test5 <- function() {
+    test <- "test5: Remove lab Validation"
+    cat(paste(test, " Commencing\n"))
 
     # Validation
     nlpStudio$removeChild() # fail lab missing: success
     nlpStudio$removeChild(ditto) # fail does not exist: success
     nlpStudio$removeChild("labsDir") # fail not a lab
+
+    # Logit
+    logTests(class = class, mthd = "removeChild", note = "Successfully validated removeChild method")
+    cat(paste(test, "Completed: Success!\n"))
+  }
+
+  test6 <- function() {
+    test <- "test6: Remove Child"
+    cat(paste(test, " Commencing\n"))
 
     # Successfuly remove Bart
     nlpStudio$removeChild(Bart)
@@ -146,9 +175,7 @@ testNLPStudio <- function() {
     # Logit
     logTests(class = class, mthd = "removeChild", note = "Tested validation and removal of lab")
 
-    cat(paste("\n               Bart Lab:", lab$stateDesc))
-    cat(paste("\n              NLPStudio:", studio$stateDesc))
-    cat(paste("\n\n", test, " Completed: Success, state is", studio$stateDesc, "!\n"))
+    cat(paste(test, " Completed: Success, state is", studio$stateDesc, "!\n"))
   }
 
 
@@ -159,6 +186,7 @@ test2()
 test3()
 test4()
 test5()
+test6()
 
 }
 

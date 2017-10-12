@@ -114,7 +114,6 @@ There are six types of methods within the DocumentCollection class and they are:
 \strong{DocumentCollection Visitor Methods:}
  \itemize{
   \item{\code{accept(visitor)}}{Method for accepting the objects of a visitor class.}
-  \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
  }
 }
 \seealso{

@@ -32,22 +32,10 @@ The VValidatorGetObject methods are as follows:
 }
 }
 \seealso{
-Other Validation Classes: \code{\link{VValidatorAddChild}},
+Other Validation Visitor Classes: \code{\link{VValidatorAddChild}},
   \code{\link{VValidatorInit}},
   \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRemoveChild}},
-  \code{\link{VValidatorRestore}},
-  \code{\link{Validator0}}, \code{\link{ValidatorClass}},
-  \code{\link{ValidatorDate}},
-  \code{\link{ValidatorExists}},
-  \code{\link{ValidatorLogical}},
-  \code{\link{ValidatorName}},
-  \code{\link{ValidatorNoSpaces}},
-  \code{\link{ValidatorNotEmpty}},
-  \code{\link{ValidatorNumeric}},
-  \code{\link{ValidatorPath}},
-  \code{\link{ValidatorString}},
-  \code{\link{ValidatorUrl}}, \code{\link{Validator}}
+  \code{\link{VValidatorRestore}}, \code{\link{VValidator}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

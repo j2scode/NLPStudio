@@ -24,10 +24,11 @@
 #'
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
-#' @family Validation Classes
+#' @family Validation Validator Classes
 #' @export
 VValidatorRemoveChild <- R6::R6Class(
   classname = "VValidatorRemoveChild",
+  inherit = VValidator,
   lock_objects = FALSE,
   lock_class = FALSE,
 

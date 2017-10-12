@@ -122,7 +122,6 @@ There are six types of methods within the Document class and they are:
 \strong{Document Visitor Methods:}
  \itemize{
   \item{\code{accept(visitor)}}{Method for accepting the visitor objects.}
-  \item{\code{acceptVCurator(visitor, object)}}{Accepts an object of the VCurator class.}
  }
 }
 \seealso{
