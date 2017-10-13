@@ -27,7 +27,7 @@
 #' @export
 ValidatorName <- R6::R6Class(
   "ValidatorName",
-  inherit = Validator,
+  inherit = Validator0,
   public = list(
 
     validate = function(class, method, fieldName, value, level, msg, expect = NULL) {

@@ -66,7 +66,7 @@ The following methods are defined for this class:
 }
 \seealso{
 Other State Classes: \code{\link{StateManager}},
-  \code{\link{State}}, \code{\link{VCurator}}
+  \code{\link{State}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

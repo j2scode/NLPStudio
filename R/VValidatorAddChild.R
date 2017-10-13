@@ -34,42 +34,45 @@ VValidatorAddChild <- R6::R6Class(
 
   private = list(
 
-    validate = function(classes, object, child) {
+    ..parent = character(0),
+    ..child = character(0),
 
-      # Confirm required parameters are not missing.
-      if (missing(child)) {
+    validate = function(classes, object) {
+
+      # Confirm object and parent are a match
+      if (private$..parent$getName() != object$getName()) {
         v <- Validator0$new()
-        v$notify(class = class(object)[1], method = "addChild", fieldName = "child",
+        v$notify(class = class(object)[1], method = "addchild", fieldName = "parent",
                  value = "", level = "Error",
-                 msg = paste0("Child parameter is missing with no default. ",
-                              "See ?", class(object)[1], " for further assistance."),
+                 msg = paste0("Parent and visitor acceptor mismatch. ",
+                              "See ?", class(self)[1], " for further assistance."),
                  expect = NULL)
         return(FALSE)
       }
 
       # Confirm class of child
-      name <- child$getName()
       v <- ValidatorClass$new()
-      if (v$validate(class = class(object)[1], method = "addChild",
-                     fieldName = "child", value = child, level = "Error",
-                     msg = paste0("Unable to add ", class(child)[1],
-                                  " class object ", name,
-                                  ". to an object of class ",
-                                  class(object)[1], ".",
-                                 "See ?", class(object)[1],
+      if (v$validate(class = class(private$..parent)[1], method = "addChild",
+                     fieldName = "child", value = private$..child, level = "Error",
+                     msg = paste0("Unable to add ", class(private$..child)[1],
+                                  " class object to an object of class ",
+                                  class(private$..parent)[1], ".",
+                                 "See ?", class(private$..parent)[1],
                                  " for further assistance."),
                      expect = classes) == FALSE) {
         return(FALSE)
       }
+      return(TRUE)
     },
 
-    validateDocument = function(object, child) {
+    validateDocument = function(object) {
+
       v <- Validator0$new()
-      v$notify(class = class(object)[1], method = "addChild", fieldName = "child",
+      v$notify(class = class(private$..parent)[1], method = "addchild", fieldName = "child",
                value = "", level = "Error",
                msg = paste0("Unable to add children to objects of the ",
-                            class(object)[1], " class. ",
-                            "See ?", class(object)[1], " for further assistance."),
+                            class(private$..parent)[1], " class. ",
+                            "See ?", class(private$..parent)[1], " for further assistance."),
                expect = NULL)
       return(FALSE)
     }
@@ -77,36 +80,60 @@ VValidatorAddChild <- R6::R6Class(
 
   public = list(
 
-    nlpStudio = function(object, child) {
+    initialize = function(parent, child) {
+      if(missing(parent)) {
+        v <- Validator0$new()
+        v$notify(class = class(self)[1], method = "addChild", fieldName = "parent",
+                 value = "", level = "Error",
+                 msg = paste0("Parent parameter missing with no default. "),
+                 expect = NULL)
+        stop()
+      }
+      if(missing(child)) {
+        v <- Validator0$new()
+        v$notify(class = class(self)[1], method = "addChild", fieldName = "child",
+                 value = "", level = "Error",
+                 msg = paste0("Child parameter missing with no default. "),
+                 expect = NULL)
+        stop()
+      }
+
+      private$..parent <- parent
+      private$..child <- child
+
+      invisible(self)
+    },
+
+    nlpStudio = function(object) {
       classes <- "Lab"
-      return(private$validate(object, child))
+      return(private$validate(classes, object))
     },
 
-    lab = function(object,child) {
+    lab = function(object) {
       classes <- "DocumentCollection"
-      return(private$validate(object, child))
+      return(private$validate(classes, object))
     },
 
-    documentCollection = function(object,child) {
+    documentCollection = function(object) {
       classes <- c("DocumentCollection", "DocumentText", "DocumentCsv",
                    "DocumentRdata", "DocumentXlsx")
-      return(private$validate(object, child))
+      return(private$validate(classes, object))
     },
 
-    documentText = function(object,child) {
-      return(private$validateDocument(object, child))
+    documentText = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentCsv = function(object,child) {
-      return(private$validateDocument(object, child))
+    documentCsv = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentRdata = function(object,child) {
-      return(private$validateDocument(object, child))
+    documentRdata = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentXlsx = function(object,child) {
-      return(private$validateDocument(object, child))
+    documentXlsx = function(object) {
+      return(private$validateDocument(object))
     }
   )
 )

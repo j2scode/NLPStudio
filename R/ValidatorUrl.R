@@ -23,7 +23,7 @@
 #' @export
 ValidatorUrl <- R6::R6Class(
   "ValidatorUrl",
-  inherit = Validator,
+  inherit = Validator0,
   public = list(
     validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
       if (exists('value') & length(value) != 0) {

@@ -60,7 +60,7 @@ The following methods are defined for this class:
 }
 \seealso{
 Other State Classes: \code{\link{StateManager}},
-  \code{\link{StateServer}}, \code{\link{VCurator}}
+  \code{\link{StateServer}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

@@ -58,6 +58,10 @@ Validator <- R6::R6Class(
       visitor <- VValidatorRemoveChild$new(object, child)
       object$accept(visitor)
     },
+    setParent = function(object, parent) {
+      visitor <- VValidatorSetParent$new(object, parent)
+      object$accept(visitor)
+    },
     restore = function(object, state) {
       visitor <- VValidatorRestore$new(object, state)
       object$accept(visitor)

@@ -10,21 +10,21 @@
 #' \strong{VValidatorRemoveChild Methods:}
 #' The VValidatorRemoveChild methods are as follows:
 #'  \itemize{
-#'   \item{\code{nlpStudio(object, ...)}}{Method for validating the removeChild method parameters of the NLPStudio object}
-#'   \item{\code{lab(object, ...)}}{Method for validating the removeChild method parameters of the Lab object}
-#'   \item{\code{documentCollection(object, ...)}}{Method for validating the removeChild method parameters of the DocumentCollection object.}
-#'   \item{\code{documentText(object, ...)}}{Method for validating the removeChild method parameters of the DocumentText object.}
-#'   \item{\code{documentCsv(object, ...)}}{Method for validating the removeChild method parameters of the DocumentCsv object.}
-#'   \item{\code{documentRdata(object, ...)}}{Method for validating the removeChild method parameters of the DocumentRdata object.}
-#'   \item{\code{documentXlsx(object, ...)}}{Method for validating the removeChild method parameters of the DocumentXlsx object.}
+#'   \item{\code{nlpStudio(object, child)}}{Method for validating the removeChild method parameters of the NLPStudio object}
+#'   \item{\code{lab(object, child)}}{Method for validating the removeChild method parameters of the Lab object}
+#'   \item{\code{documentCollection(object, child)}}{Method for validating the removeChild method parameters of the DocumentCollection object.}
+#'   \item{\code{documentText(object, child)}}{Not implemented for this class.}
+#'   \item{\code{documentCsv(object, child)}}{Not implemented for this class.}
+#'   \item{\code{documentRdata(object, child)}}{Not implemented for this class.}
+#'   \item{\code{documentXlsx(object, child)}}{Not implemented for this class.}
 #' }
 #'
-#' @param object The object in its current state
-#' @param ... Parameters
+#' @param object The parent object
+#' @param child  The child object
 #'
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
-#' @family Validation Validator Classes
+#' @family Validation Visitor Classes
 #' @export
 VValidatorRemoveChild <- R6::R6Class(
   classname = "VValidatorRemoveChild",
@@ -34,42 +34,45 @@ VValidatorRemoveChild <- R6::R6Class(
 
   private = list(
 
-    validate = function(classes, object, ...) {
+    ..parent = character(0),
+    ..child = character(0),
 
-      # Confirm required parameters are not missing.
-      if (missing(child)) {
+    validate = function(classes, object) {
+
+      # Confirm parent and visitor acceptor are a match
+      if (private$..parent$getName() != object$getName()) {
         v <- Validator0$new()
-        v$notify(class = class(object)[1], method = "removeChild", fieldName = "child",
+        v$notify(class = class(object)[1], method = "removechild", fieldName = "parent",
                  value = "", level = "Error",
-                 msg = paste0("Child parameter is missing with no default. ",
-                              "See ?", class(object)[1], " for further assistance."),
+                 msg = paste0("Parent and visitor acceptor mismatch. ",
+                              "See ?", class(self)[1], " for further assistance."),
                  expect = NULL)
         return(FALSE)
       }
 
       # Confirm class of child
-      name <- child$getName()
       v <- ValidatorClass$new()
-      if (v$validate(class = class(object)[1], method = "removeChild",
-                     fieldName = "child", value = child, level = "Error",
-                     msg = paste0("Unable to remove ", class(child)[1],
-                                  " class object ", name,
-                                  ". to an object of class ",
-                                  class(object)[1], ".",
-                                 "See ?", class(object)[1],
+      if (v$validate(class = class(private$..parent)[1], method = "removeChild",
+                     fieldName = "child", value = private$..child, level = "Error",
+                     msg = paste0("Unable to remove ", class(private$..child)[1],
+                                  " class object from an object of class ",
+                                  class(private$..parent)[1], ".",
+                                 "See ?", class(private$..parent)[1],
                                  " for further assistance."),
                      expect = classes) == FALSE) {
         return(FALSE)
       }
+      return(TRUE)
     },
 
-    validateDocument = function(object, ...) {
+    validateDocument = function(object) {
+
       v <- Validator0$new()
-      v$notify(class = class(object)[1], method = "removeChild", fieldName = "child",
+      v$notify(class = class(private$..parent)[1], method = "removechild", fieldName = "child",
                value = "", level = "Error",
-               msg = paste0("Unable to remove children from objects of the ",
-                            class(object)[1], " class. ",
-                            "See ?", class(object)[1], " for further assistance."),
+               msg = paste0("Unable to remove children to objects of the ",
+                            class(private$..parent)[1], " class. ",
+                            "See ?", class(private$..parent)[1], " for further assistance."),
                expect = NULL)
       return(FALSE)
     }
@@ -77,36 +80,60 @@ VValidatorRemoveChild <- R6::R6Class(
 
   public = list(
 
-    nlpStudio = function(object,...) {
+    initialize = function(parent, child) {
+      if(missing(parent)) {
+        v <- Validator0$new()
+        v$notify(class = class(self)[1], method = "removeChild", fieldName = "parent",
+                 value = "", level = "Error",
+                 msg = paste0("Parent parameter missing with no default. "),
+                 expect = NULL)
+        stop()
+      }
+      if(missing(child)) {
+        v <- Validator0$new()
+        v$notify(class = class(self)[1], method = "removeChild", fieldName = "child",
+                 value = "", level = "Error",
+                 msg = paste0("Child parameter missing with no default. "),
+                 expect = NULL)
+        stop()
+      }
+
+      private$..parent <- parent
+      private$..child <- child
+
+      invisible(self)
+    },
+
+    nlpStudio = function(object) {
       classes <- "Lab"
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes, object))
     },
 
-    lab = function(object,...) {
+    lab = function(object) {
       classes <- "DocumentCollection"
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes, object))
     },
 
-    documentCollection = function(object,...) {
+    documentCollection = function(object) {
       classes <- c("DocumentCollection", "DocumentText", "DocumentCsv",
                    "DocumentRdata", "DocumentXlsx")
-      return(private$validate(classes = classes, object = object, ...))
+      return(private$validate(classes, object))
     },
 
-    documentText = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentText = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentCsv = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentCsv = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentRdata = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentRdata = function(object) {
+      return(private$validateDocument(object))
     },
 
-    documentXlsx = function(object,...) {
-      return(private$validateDocument(object, ...))
+    documentXlsx = function(object) {
+      return(private$validateDocument(object))
     }
   )
 )

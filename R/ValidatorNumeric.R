@@ -23,7 +23,7 @@
 #' @export
 ValidatorNumeric <- R6::R6Class(
   "ValidatorNumeric",
-  inherit = Validator,
+  inherit = Validator0,
   public = list(
     validate = function(class, method, fieldName, value, level, msg, expect = NULL) {
 

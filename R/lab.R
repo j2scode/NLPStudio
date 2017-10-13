@@ -101,8 +101,9 @@ Lab <- R6::R6Class(
         private$..modified <- Sys.time()
 
         # After
+        name <- ifelse(is.null(value), "NULL", value$getName())
         private$..stateDesc <- paste(private$..name, "parent changed to",
-                                     value, "at", Sys.time())
+                                     name, "at", Sys.time())
         # self$saveState()
 
         # Log Event

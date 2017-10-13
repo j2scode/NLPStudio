@@ -71,14 +71,15 @@ VValidatorInit <- R6::R6Class(
 
     validateParent = function(object, parentClasses) {
 
-      parent <- object$parent()
+      parent <- object$parent
+      name <- object$getName()
 
       v <- ValidatorClass$new()
       if (v$validate(class = class(object)[1], method = "initialize",
-                     fieldName = "parent", value = object, level = "Error",
+                     fieldName = "parent", value = parent, level = "Error",
                      msg = paste0("Cannot create ", class(object)[1],
                                   " object, ", name, ". Object of class ",
-                                  class(object)[1], "can not have an ",
+                                  class(object)[1], " can not have an ",
                                   "object of class ", class(parent)[1],
                                   " as a parent. ",
                                   "See ?", class(object)[1],
@@ -101,6 +102,7 @@ VValidatorInit <- R6::R6Class(
                  expect = NULL)
         return(FALSE)
       }
+      return(TRUE)
     },
 
 
@@ -133,13 +135,15 @@ VValidatorInit <- R6::R6Class(
 
   public = list(
 
+    initialize = function() {
+      invisible(self)
+    },
+
     nlpStudio = function(object) {
       return(TRUE)
     },
 
     lab = function(object) {
-      print("********************************")
-      print(" visiting validatorinit visitor lab")
       return(private$validateName(object) &
                private$validateParent(object, "NLPStudio") &
                private$validateState(object)

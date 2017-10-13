@@ -104,7 +104,6 @@
 #' \strong{Document0 Visitor Methods:}
 #'  \itemize{
 #'   \item{\code{accept(visitor)}}{Method for accepting the visitor objects. Subclasses override these methods.}
-#'  }
 #' }
 #'
 #' @param name Character string indicating the name of the document or file. Required for all objects.

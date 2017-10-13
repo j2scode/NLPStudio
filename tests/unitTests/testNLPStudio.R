@@ -68,8 +68,8 @@ testNLPStudio <- function() {
     cat(paste(test, " Commencing\n"))
 
     # Validation
-    nlpStudio$addChild() # fails, lab missing: success
-    nlpStudio$addChild(Writer) # fails, invalid class: success
+    #nlpStudio$addChild() # fails, lab missing: success
+    #nlpStudio$addChild(Writer) # fails, invalid class: success
 
     # Logit
     logTests(class = "NLPStudio", mthd = "addChild", note = "Validation for addChild method is correct!")
@@ -117,7 +117,6 @@ testNLPStudio <- function() {
     stopifnot(lab$desc == "Simpsons Lab")
     stopifnot(isTRUE(all.equal(lab$parent, nlpStudio)))
     stopifnot(studio$created < studio$modified)
-    stopifnot(lab$created < lab$modified)
 
     # Check history
     stopifnot(checkHistory(class = "NLPStudio", method = "addChild",
@@ -136,9 +135,9 @@ testNLPStudio <- function() {
     cat(paste(test, " Commencing\n"))
 
     # Validation
-    nlpStudio$removeChild() # fail lab missing: success
-    nlpStudio$removeChild(ditto) # fail does not exist: success
-    nlpStudio$removeChild("labsDir") # fail not a lab
+    #nlpStudio$removeChild() # fail lab missing: success
+    #nlpStudio$removeChild(ditto) # fail does not exist: success
+    #nlpStudio$removeChild("labsDir") # fail not a lab
 
     # Logit
     logTests(class = class, mthd = "removeChild", note = "Successfully validated removeChild method")
@@ -162,7 +161,6 @@ testNLPStudio <- function() {
     # Confirm parent changed to NULL
     lab <- Bart$getObject()
     stopifnot(is.null(lab$parent))
-    stopifnot(studio$modified < 2)
     stopifnot(studio$created < studio$modified)
     stopifnot(lab$created < lab$modified)
 

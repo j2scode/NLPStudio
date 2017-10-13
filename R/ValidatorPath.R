@@ -24,7 +24,7 @@
 #' @export
 ValidatorPath <- R6::R6Class(
   "ValidatorPath",
-  inherit = Validator,
+  inherit = Validator0,
   public = list(
 
     validate = function(class, method, fieldName, value, level, msg, expect = NULL) {

@@ -70,7 +70,7 @@ The methods for the StateManager class are as follows:
 }
 \seealso{
 Other State Classes: \code{\link{StateServer}},
-  \code{\link{State}}, \code{\link{VCurator}}
+  \code{\link{State}}
 }
 \author{
 John James, \email{jjames@datasciencesalon.org}

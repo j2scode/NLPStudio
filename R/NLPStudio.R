@@ -173,7 +173,7 @@ NLPStudio <- R6::R6Class(
           #-------------------------------------------------------------------#
           getChildren = function() private$..labs,
 
-          addChild = function(child = child) {
+          addChild = function(child) {
 
             # Perform validation
             v <- Validator$new()
@@ -209,11 +209,11 @@ NLPStudio <- R6::R6Class(
 
           },
 
-          removeChild = function(child = child) {
+          removeChild = function(child) {
 
             # Perform validation
             v <- Validator$new()
-            if (v$addChild(self, child) == FALSE) stop()
+            if (v$removeChild(self, child) == FALSE) stop()
 
             # Obtain kids name
             kidsName <- child$getName()
@@ -235,7 +235,7 @@ NLPStudio <- R6::R6Class(
             private$..modified <- Sys.time()
 
             # Save state
-            private$..stateDesc <- paste("Lab", l$name, "removed from nlpStudio.")
+            private$..stateDesc <- paste("Lab", kidsName, "removed from nlpStudio.")
             # self$saveState()
 
             historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
