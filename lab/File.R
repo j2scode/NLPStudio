@@ -87,7 +87,7 @@ File <- R6::R6Class(
       newPath <- file.path(private$..parent$getPath(), private$..fileName)
       file.rename(currentPath, newPath)
       class <- class(self)[1]
-      historian$addEvent(class = class, objectName = private$..name,
+      historian$addEvent(cls = class, objectName = private$..name,
                          method = "moveFile",
                          event = paste("Moved file from", currentPath, "to",
                                        newPath))
@@ -100,7 +100,7 @@ File <- R6::R6Class(
       newPath <- file.path(path, private$..fileName)
       file.copy(currentPath, newPath)
       class <- class(self)[1]
-      historian$addEvent(class = class, objectName = private$..name,
+      historian$addEvent(cls = class, objectName = private$..name,
                          method = "copyFile",
                          event = paste("Copied file at", currentPath, "to",
                                        newPath))
@@ -137,7 +137,7 @@ File <- R6::R6Class(
       # Move files
       self$moveFiles()
 
-      historian$addEvent(class = class(self)[1], objectName = private$..name,
+      historian$addEvent(cls = class(self)[1], objectName = private$..name,
                          method = "setAncestor",
                          event = paste("Set ancestor of,",
                                        private$..name, "to",

@@ -9,7 +9,7 @@
 #' @section Historian Methods:
 #' \describe{
 #'  \item{\code{new()}}{Initializes a singleton objectName, noting the instantiation of the nlpStudio objectName.}
-#'  \item{\code{addEvent(class, objectName, method, event)}}{Posts the event to history.}
+#'  \item{\code{addEvent(cls, objectName, method, event)}}{Posts the event to history.}
 #'  \item{\code{searchEvents(dateFrom, dateTo, class, objectName, method)}}{Returns the history of events according to the parameters provided,  in a data frame format.}
 #'  \item{\code{purgeEvents()}}{Sets events to null.}
 #'  \item{\code{restoreEvents()}}{Restores events from the history file.}
@@ -35,26 +35,37 @@ Historian <- R6::R6Class(
         private = list(
           ..name = character(0),
           ..events = data.frame(),
-          ..historyFile = character()
+          ..historyFile = character(0),
+          ..created = character(0),
+          ..modified = character(0)
         ),
 
         public = list(
 
           initialize = function() {
 
-            # Get history file name
+            # Get file and directory information
             c <- Constants$new()
-            private$..historyFile <- c$getHistoryFile()
-
-            # Create directories if they don't exist
+            file  <- c$getHistoryFile()
             paths <- c$getPaths()
-            lapply(paths, function(p) {
-              if (!dir.exists(p))  dir.create(p, recursive = TRUE)
-            })
 
-            # Format and post instantiating event
+            # Instantiate Object
             private$..name <- "historian"
-            private$..events <- data.frame(class = "Historian",
+            private$..historyFile <- file
+            private$..created <- Sys.time()
+            private$..modified <- Sys.time()
+
+            # Load history from file if exists, otherwise, created directory
+            if (file.exists(private$..historyFile)) {
+              private$..events <- readRDS(file = private$..historyFile)
+            } else {
+              lapply(paths, function(p) {
+                if (!dir.exists(p))  dir.create(p, recursive = TRUE)
+              })
+            }
+
+            # Create instantiation event
+            hello <- data.frame(class = "Historian",
                                 method = "initialize",
                                 objectName = private$..name,
                                 event = paste("Instantiated object historian",
@@ -62,6 +73,9 @@ Historian <- R6::R6Class(
                                               "at", format(Sys.time())),
                                 date = Sys.time(),
                                 stringsAsFactors = FALSE)
+
+            # Create/Update event log as appropriate
+            private$..events <- rbind(private$..events, hello)
 
             # Save event to history file
             saveRDS(private$..events, file = private$..historyFile)
@@ -72,22 +86,27 @@ Historian <- R6::R6Class(
             invisible(self)
           },
 
-          addEvent = function(class, objectName, method, event) {
+          getInstance = function() {
+            invisible(self)
+          },
+
+          addEvent = function(cls, objectName, method, event) {
 
             # Validate
-            if (!exists(class)) stop("Invalid class.")
+            if (!exists(cls)) stop("Invalid class.")
             if (!exists(objectName)) stop("Invalid objectName.")
             if (missing(method)) stop("Method parameter is missing without default.")
             if (missing(event)) stop("Event parameter is missing without default.")
 
             # Format and post event
-            newEvent <- data.frame(class = class,
+            newEvent <- data.frame(class = cls,
                                    method = method,
                                    objectName = objectName,
                                    event = event,
                                    date = Sys.time(),
                                    stringsAsFactors = FALSE)
             private$..events <- rbind(private$..events, newEvent)
+            private$..modified <- Sys.time()
 
             # Save event to history file
             saveRDS(private$..events, file = private$..historyFile)
@@ -95,29 +114,31 @@ Historian <- R6::R6Class(
 
           purgeEvents = function() {
             private$..events <- NULL
+            private$..modified <- Sys.time()
           },
 
           restoreEvents = function() {
             private$..events <- readRDS(file = private$..historyFile)
+            private$..modified <- Sys.time()
           },
 
-          searchEvents = function(dateFrom = NULL, dateTo = NULL, class = NULL,
+          searchEvents = function(dateFrom = NULL, dateTo = NULL, cls = NULL,
                                   objectName = NULL, method = NULL)  {
             tools <- Tools$new()
             events <- private$..events
 
             if (!is.null(dateFrom)) {
-              date <- tools$parseDate(dateFrom, class = "Historian", method = "searchEvents")
-              if(date == FALSE) stop()
-              events <- subset(events, date >= as.date(date))
+              dateFrom <- tools$parseDate(dateFrom, class = "Historian", method = "searchEvents")
+              if(dateFrom == FALSE) stop()
+              events <- subset(events, as.Date(date) >= as.Date(dateFrom))
             }
             if (!is.null(dateTo)) {
-              date <- tools$parseDate(dateTo, class = "Historian", method = "searchEvents")
-              if(date == FALSE) stop()
-              events <- subset(events, date <= as.date(date))
+              dateTo <- tools$parseDate(dateTo, class = "Historian", method = "searchEvents")
+              if(dateTo == FALSE) stop()
+              events <- subset(events, as.Date(date) <= as.Date(dateTo))
             }
-            if (!is.null(class)) {
-              events <- subset(events, class == class)
+            if (!is.null(cls)) {
+              events <- subset(events, class == cls)
             }
             if (!is.null(objectName)) {
               events <- subset(events, objectName == objectName)

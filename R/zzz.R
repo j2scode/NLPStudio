@@ -2,6 +2,10 @@
 
   # Get Constants Object
   c <- Constants$new()
+  # Instantiate Singleton Classes
+  historian <<- Historian$new()$getInstance()
+  nlpStudio <<- NLPStudio$new()$getInstance()
+  stateManager <<- StateManager$new()$getInstance()
 
   # Greet User
   h <- c$getHistoryFile()
@@ -9,6 +13,7 @@
     packageStartupMessage(paste0("#=========================================================================================#"))
     packageStartupMessage(paste0("#                         Welcome back to the NLPStudio (Beta)!                           #"))
     packageStartupMessage(paste0("#=========================================================================================#"))
+    historian$restoreEvents()
   } else {
     packageStartupMessage(paste0("#=========================================================================================#"))
     packageStartupMessage(paste0("#                                                                                         #"))
@@ -24,10 +29,6 @@
     packageStartupMessage(paste0("#                                                                                         #"))
     packageStartupMessage(paste0("#=========================================================================================#"))
   }
-  # Instantiate Singleton Classes
-  historian <<- Historian$new()$getInstance()
-  nlpStudio <<- NLPStudio$new()$getInstance()
-  stateManager <<- StateManager$new()$getInstance()
 }
 
 .onAttach <- function(libname, pkgname) {

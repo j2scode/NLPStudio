@@ -138,7 +138,7 @@ DocumentCollection <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log Event
-      #historian$addEvent(class = "DocumentCollection", objectName = name,
+      #historian$addEvent(cls = "DocumentCollection", objectName = name,
       #                   method = "initialize",
       #                   event = private$..stateDesc)
 
@@ -182,7 +182,7 @@ DocumentCollection <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Log event
-      # historian$addEvent(class = class(self)[1], objectName = name,
+      # historian$addEvent(cls = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
 
@@ -215,7 +215,7 @@ DocumentCollection <- R6::R6Class(
       self$saveState()
 
       # Log Event
-      # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
+      # historian$addEvent(cls = "DocumentCollection", objectName = private$..name,
       #                    method = "addChild",
       #                    event = private$..stateDesc)
     },
@@ -243,7 +243,7 @@ DocumentCollection <- R6::R6Class(
       #self$saveState()
 
       # Log Event
-      # historian$addEvent(class = "DocumentCollection", objectName = private$..name,
+      # historian$addEvent(cls = "DocumentCollection", objectName = private$..name,
       #                    method = "removeChild",
       #                    event = private$..stateDesc)
     },

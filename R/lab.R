@@ -77,7 +77,7 @@ Lab <- R6::R6Class(
         # self$saveState()
 
         # Log Event
-        historian$addEvent(class = "Lab", objectName = private$..name,
+        historian$addEvent(cls = "Lab", objectName = private$..name,
                            method = "desc",
                            event = private$..stateDesc)
       }
@@ -107,7 +107,7 @@ Lab <- R6::R6Class(
         # self$saveState()
 
         # Log Event
-        historian$addEvent(class = "Lab", objectName = private$..name,
+        historian$addEvent(cls = "Lab", objectName = private$..name,
                            method = "parent",
                            event = private$..stateDesc)
       }
@@ -137,7 +137,7 @@ Lab <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = name,
+      historian$addEvent(cls = "Lab", objectName = name,
                          method = "initialize",
                          event = private$..stateDesc)
 
@@ -188,7 +188,7 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Log event
-      # historian$addEvent(class = class(self)[1], objectName = name,
+      # historian$addEvent(cls = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
 
@@ -228,7 +228,7 @@ Lab <- R6::R6Class(
       # private$saveState(self)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = private$..name,
+      historian$addEvent(cls = "Lab", objectName = private$..name,
                          method = "addChild",
                          event = private$..stateDesc)
 
@@ -264,7 +264,7 @@ Lab <- R6::R6Class(
       # private$saveState(self)
 
       # Log Event
-      historian$addEvent(class = "Lab", objectName = private$..name,
+      historian$addEvent(cls = "Lab", objectName = private$..name,
                          method = "removeChild",
                          event = private$..stateDesc)
 

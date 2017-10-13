@@ -32,7 +32,7 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - studio$created) < 1)
     stopifnot((Sys.time() - studio$modified) < 1)
     stopifnot(studio$created == studio$modified)
-    stopifnot(checkHistory(class = "NLPStudio", method = "initialize",
+    stopifnot(checkHistory(cls = "NLPStudio", method = "initialize",
                            objectName = "nlpStudio", event = studio$stateDesc))
 
     # Logit
@@ -55,7 +55,7 @@ testNLPStudio <- function() {
     stopifnot((Sys.time() - l$modified) < 1)
 
     # Check history
-    stopifnot(checkHistory(class = "Lab", method = "initialize",
+    stopifnot(checkHistory(cls = "Lab", method = "initialize",
                            objectName = "Beats", event = l$stateDesc))
 
     # Logit
@@ -93,9 +93,9 @@ testNLPStudio <- function() {
     stopifnot(isTRUE(all.equal(nlpStudio, l$parent)))
 
     # Check history
-    stopifnot(checkHistory(class = "NLPStudio", method = "addChild",
+    stopifnot(checkHistory(cls = "NLPStudio", method = "addChild",
                            objectName = "nlpStudio", event = studio$stateDesc))
-    stopifnot(checkHistory(class = "Lab", method = "parent",
+    stopifnot(checkHistory(cls = "Lab", method = "parent",
                            objectName = "Beats", event = l$stateDesc))
 
     # Logit
@@ -119,9 +119,9 @@ testNLPStudio <- function() {
     stopifnot(studio$created < studio$modified)
 
     # Check history
-    stopifnot(checkHistory(class = "NLPStudio", method = "addChild",
+    stopifnot(checkHistory(cls = "NLPStudio", method = "addChild",
                            objectName = "nlpStudio", event = studio$stateDesc))
-    stopifnot(checkHistory(class = "Lab", method = "parent",
+    stopifnot(checkHistory(cls = "Lab", method = "parent",
                            objectName = "Bart", event = lab$stateDesc))
 
     # Logit
@@ -165,9 +165,9 @@ testNLPStudio <- function() {
     stopifnot(lab$created < lab$modified)
 
     # Check history
-    stopifnot(checkHistory(class = "NLPStudio", method = "removeChild",
+    stopifnot(checkHistory(cls = "NLPStudio", method = "removeChild",
                            objectName = "nlpStudio", event = studio$stateDesc))
-    stopifnot(checkHistory(class = "Lab", method = "parent",
+    stopifnot(checkHistory(cls = "Lab", method = "parent",
                            objectName = "Bart", event = lab$stateDesc))
 
     # Logit

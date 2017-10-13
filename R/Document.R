@@ -176,7 +176,7 @@ Document <- R6::R6Class(
       # self$savestate()
 
       # Log event
-      # historian$addEvent(class = class(self)[1], objectName = name,
+      # historian$addEvent(cls = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
       invisible(self)
@@ -196,7 +196,7 @@ Document <- R6::R6Class(
       # # Log event
       # private$..stateDesc <- paste("Added content to", class(self)[1],
       #                              "class object,", private$..name)
-      # historian$addEvent(class = class(self)[1], objectName = name,
+      # historian$addEvent(cls = class(self)[1], objectName = name,
       #                    method = "addContent",
       #                    event = private$..stateDesc)
     },

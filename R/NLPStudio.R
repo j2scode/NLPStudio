@@ -110,7 +110,7 @@ NLPStudio <- R6::R6Class(
             assign(name, self, envir = .GlobalEnv)
 
             # Log Event
-            historian$addEvent(class = "NLPStudio", objectName = name,
+            historian$addEvent(cls = "NLPStudio", objectName = name,
                               method = "initialize", event = private$..stateDesc)
 
             invisible(self)
@@ -161,7 +161,7 @@ NLPStudio <- R6::R6Class(
             private$..created <- r$created
 
             # Log event
-            # historian$addEvent(class = class(self)[1], objectName = name,
+            # historian$addEvent(cls = class(self)[1], objectName = name,
             #                    method = "restore",
             #                    event = private$..stateDesc)
 
@@ -201,7 +201,7 @@ NLPStudio <- R6::R6Class(
             # self$saveState()
 
             # Log Event
-            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+            historian$addEvent(cls = "NLPStudio", objectName = "nlpStudio",
                                method = "addChild",
                                event = private$..stateDesc)
 
@@ -238,7 +238,7 @@ NLPStudio <- R6::R6Class(
             private$..stateDesc <- paste("Lab", kidsName, "removed from nlpStudio.")
             # self$saveState()
 
-            historian$addEvent(class = "NLPStudio", objectName = "nlpStudio",
+            historian$addEvent(cls = "NLPStudio", objectName = "nlpStudio",
                                method = "removeChild",
                                event = private$..stateDesc)
 
