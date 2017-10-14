@@ -91,7 +91,7 @@ There are six types of methods within the Document0 class and they are:
   an object of the Document or DocumentCollection classes.
   Specific behaviors implemented in the subclasses. }
   \item{\code{getName()}}{Returns the name of the current object.}
-  \item{\code{getObject(requester)}}{Base method for returning the elements of the current object if invoked by an authorized method.}
+  \item{\code{exposeObject(requester)}}{Base method for returning the elements of the current object if invoked by an authorized method.}
   \item{\code{restore(requester, prior)}}{Base method for restoring an object
   to a prior state, as per the object parameter.}
 }

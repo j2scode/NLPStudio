@@ -91,7 +91,7 @@ VValidatorInit <- R6::R6Class(
     },
 
     validateState = function(object) {
-      o <- object$getObject(self)
+      o <- object$exposeObject(self)
 
       if (is.null(o$stateDesc) | is.na(o$stateDesc) | length(o$stateDesc) == 0) {
         v <- Validator0$new()
@@ -108,7 +108,7 @@ VValidatorInit <- R6::R6Class(
 
     validateFileName = function(object, ext) {
 
-      o <- object$getObject(self)
+      o <- object$exposeObject(self)
 
       if (is.null(o$fileName) | is.na(o$fileName) | length(o$fileName) == 0) {
         v <- Validator0$new()

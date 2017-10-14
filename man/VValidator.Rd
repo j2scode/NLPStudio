@@ -22,11 +22,16 @@ The VValidator methods are as follows:
 }
 }
 \seealso{
-Other Validation Visitor Classes: \code{\link{VValidatorAddChild}},
-  \code{\link{VValidatorGetObject}},
+Other Validation Visitor Classes: \code{\link{VCurator}},
+  \code{\link{VValidatorAddChild}},
   \code{\link{VValidatorInit}},
   \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRestore}}
+  \code{\link{VValidatorRemoveChild}},
+  \code{\link{VValidatorRestore}},
+  \code{\link{VValidatorSetParent}},
+  \code{\link{VValidatorSetQueryTarget}},
+  \code{\link{VValidatorSubmitQuery}},
+  \code{\link{VValidatorexposeObject}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

@@ -69,7 +69,7 @@ VisitorOrphan <- R6::R6Class(
       }
 
       # Move files to orphan directory and delete old delete.
-      c <- collection$getObject
+      c <- collection$exposeObject
       file.copy(c$path, dirs$OrphanCollections)
       base::unlink(c$path)
 
@@ -84,7 +84,7 @@ VisitorOrphan <- R6::R6Class(
       }
 
       # Move files to orphan directory and delete old directory
-      c <- collection$getObject
+      c <- collection$exposeObject
       file.copy(c$path, dirs$orphanCollection)
       base::unlink(c$path)
 

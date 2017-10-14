@@ -93,7 +93,7 @@ There are six types of methods within the Document class and they are:
  \itemize{
   \item{\code{new(name, desc)}}{Method for instantiating a document}
   \item{\code{getName()}}{Method for obtaining the document name.}
-  \item{\code{getObject(requester)}}{Method for obtaining the document data in a list format if invoked by authorized method.}
+  \item{\code{exposeObject(requester)}}{Method for obtaining the document data in a list format if invoked by authorized method.}
   \item{\code{restore(requester, prior)}}{Method for restoring an object to a prior state, as per the object parameter.}
   \item{\code{addContent(content)}}{Method for adding content to the document object. This method is invoked by the read visitor.}
  }

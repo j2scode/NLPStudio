@@ -142,7 +142,7 @@ DocumentText <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log event
-      # historian$addEvent(cls = class(self)[1], objectName = name,
+      # historian$addEvent(className = class(self)[1], objectName = name,
       #                    method = "initialize",
       #                    event = private$..stateDesc)
 

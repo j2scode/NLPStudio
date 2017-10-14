@@ -78,31 +78,6 @@ StateManager <- R6::R6Class(
             private$..stateClasses <- constants$getStateClasses()
           },
 
-          validateObject = function(method, object) {
-
-            v <- ValidatorClass$new()
-            if (v$validate(class = "StateManager", method = method,
-                           fieldName = "class(object)", value = object, level = "Error",
-                           msg = paste("Object is not a serializable object",
-                                       "See ?StateManager for further assistance."),
-                           expect = private$..stateClasses) == FALSE) {
-              return(FALSE)
-            }
-          },
-
-          validateState = function(method, stateId) {
-
-            if (!exists(private$..states[[stateId]])) {
-              v <- Validator0$new()
-              v$notify(class = "StateManager", method = method,
-                             fieldName = "stateId", value = stateId, level = "Error",
-                             msg = paste("State does not exist.",
-                                         "See ?StateManager for further assistance."),
-                             expect = TRUE)
-              return(FALSE)
-            }
-          },
-
           assignStateId = function(name) {
             seqNum <- 1
             states <- as.data.frame(private$..states)
@@ -121,30 +96,6 @@ StateManager <- R6::R6Class(
 
             stateId <- paste0(name,"-", as.Date(Sys.time()), "-", seqNum)
             return(stateId)
-          },
-
-          searchStates = function(dateFrom = NULL, dateTo = NULL, class = NULL,
-                               object = NULL)  {
-
-            states <- private$..states
-            tools <- Tools$new()
-
-            if (!is.null(dateFrom)) {
-              date <- tools$parseDate(dateFrom, class = "StateManager", method = "searchStates")
-              if(date == FALSE) stop()
-              states <- subset(states, date >= as.date(date))
-            }
-
-            if (!is.null(dateTo)) {
-              date <- tools$parseDate(dateTo, class = "StateManager", method = "searchStates")
-              if(date == FALSE) stop()
-              states <- subset(states, date <= as.date(date))
-            }
-
-            if (!is.null(class))  states <- subset(states, class == class)
-            if (!is.null(object)) states <- subset(states, object == object)
-
-            return(states)
           }
         ),
 
@@ -160,28 +111,20 @@ StateManager <- R6::R6Class(
           getInstance = function() invisible(self),
 
           #-------------------------------------------------------------------#
-          #                        State Query Methods                        #
-          #-------------------------------------------------------------------#
-
-          getStates = function(...)  return(searchStates(...)),
-
-          #-------------------------------------------------------------------#
           #                        saveState Method                           #
           #-------------------------------------------------------------------#
           saveState = function(object, stateNote = NULL) {
 
-            # Get some tools
-            t <- Tools$new()
-
-            # Validate request
-            if (private$validateObject(method = "saveState", object) == FALSE) stop()
+            #TODO: Validate request to save state through validator
+            #TODO: Validate request to explose object through validator
 
             # Obtain object information and format stateId
-            o <- object$getObject()
+            o <- object$exposeObject()
             o$class <- class(object)[1]
             stateId <- assignStateId(paste(o$class,"-",o$name))
 
             # Generate key
+            t <- Tools$new()
             key <- t$makeRandomString()
 
             # Create state object and dispatch save request
@@ -210,8 +153,7 @@ StateManager <- R6::R6Class(
 
           restoreState = function(stateId) {
 
-            # Validate request
-            if (private$validateState(method = "restoreState", stateId) == FALSE) stop()
+            #TODO: Validate request to restore through validator class
 
             # Generate key
             t <- Tools$new()
@@ -222,6 +164,15 @@ StateManager <- R6::R6Class(
             object <- state$restoreState(key = key, stateId = stateId)
 
             return(object)
+          },
+
+          #-------------------------------------------------------------------#
+          #                        State Query Methods                        #
+          #-------------------------------------------------------------------#
+
+          getStates = function(){
+            #TODO: VAlidate request to read states through validator class and visitor
+            return(private$..states)
           }
         )
       )

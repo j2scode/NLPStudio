@@ -84,7 +84,7 @@ There are six types of methods within the DocumentCollection class and they are:
  \itemize{
   \item{\code{new(name, desc)}}{Method for instantiating a document collection.}
   \item{\code{getName()}}{Method returns the name of the DocumentCollection object.}
-  \item{\code{getObject(requester)}}{Method that returns the elements of the current DocumentCollection object, if invoked by an authorized method.}
+  \item{\code{exposeObject(requester)}}{Method that returns the elements of the current DocumentCollection object, if invoked by an authorized method.}
   \item{\code{restore(requester, prior)}}{Method for restoring a document collection to a prior state, as per the object parameter.}
 }
 

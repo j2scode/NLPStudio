@@ -58,7 +58,7 @@ State <- R6::R6Class(
 
     validateRequest = function(object, method) {
 
-      o <- object$getObject()
+      o <- object$exposeObject()
 
       v <- ValidatorClass$new()
       if (v$validate(class = "State", method = method, fieldName = "class(object)",
@@ -90,7 +90,7 @@ State <- R6::R6Class(
       if (private$validateRequest(object, method = method) == FALSE) stop()
 
       # Obtain object information
-      o <- object$getObject()
+      o <- object$exposeObject()
 
       # Initiate Request variables
       tools <- Tools$new()

@@ -87,7 +87,7 @@ VValidatorAddChild <- R6::R6Class(
                  value = "", level = "Error",
                  msg = paste0("Parent parameter missing with no default. "),
                  expect = NULL)
-        stop()
+        return(FALSE)
       }
       if(missing(child)) {
         v <- Validator0$new()
@@ -95,7 +95,7 @@ VValidatorAddChild <- R6::R6Class(
                  value = "", level = "Error",
                  msg = paste0("Child parameter missing with no default. "),
                  expect = NULL)
-        stop()
+        return(FALSE)
       }
 
       private$..parent <- parent

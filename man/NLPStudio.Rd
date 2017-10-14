@@ -31,7 +31,7 @@ clients to add, remove, enter, and leave labs.
  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.},
  \item{\code{getName()}}{Returns the name of the current NLPStudio object.}
- \item{\code{getObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
+ \item{\code{exposeObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
  \item{\code{restore(requester, prior)}}{Restores the object to a prior state of invoked by an authorized requester.}
 }
 
@@ -56,7 +56,7 @@ clients to add, remove, enter, and leave labs.
 }
 \examples{
 \dontrun{
-nlpStudio$getObject() # Returns nlpStudio object and meta data in list format
+nlpStudio$exposeObject() # Returns nlpStudio object and meta data in list format
 Lab$new(name = "List", desc = "Lisa Simpon's lab")
 Lab$new(name = "Bart", desc = "Bart Simpon's lab")
 nlpStudio$addChild(Lisa, enter = FALSE) # Adds lab without setting it current.

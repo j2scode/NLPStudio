@@ -11,35 +11,70 @@ Validator
 \arguments{
 \item{object}{Originator object}
 
-\item{...}{Parameters being validated}
+\item{target}{Object which is the target of a query. Used by the Curator methods}
+
+\item{content}{Character vector containing content to be written by a write originator.}
 }
 \value{
 A logical, TRUE if validation criteria are met, FALSE, otherwise.
 }
 \description{
-\code{Validator} Class responsible for validation of objects and parameters.
+\code{Validator} Class responsible for validation of requests pertaining to:
+\itemize{
+ \item Object Create and Read: Requests to create and read object internal representation.
+ \item Composition and Aggregation: Requests to manipulate aggregate and composite objects
+ \item History: Requests to read historical records for an object or objects.#'
+ \item State: Requests to read, save, and restore object states
+ \item Document I/O: Requests to read and write documents.
+}
+}
+\section{Validator methods}{
 
-This class contains the parameter validation methods for objects. Methods
-provide validation of parameters for initialization, composite, state,
-and read/write operations.
+This section summarizes the methods in the Validator class.
 
-
-\strong{Validator Methods:}
+\strong{Object Create and Read Methods:}
 \describe{
  \item{\code{new()}}{Creates an object of Validator class}
- \item{\code{init(object)}}{Dispatches the initialization validation visitor, via the accept method of the originator.}
- \item{\code{getObject(object)}}{Dispatches the getObject validation visitor, via the accept method of the originator.}
- \item{\code{addChild(object)}}{Dispatches the addChild validation visitor, via the accept method of the originator.}
- \item{\code{removeChild(object)}}{Dispatches the removeChild validation visitor, via the accept method of the originator.}
- \item{\code{restore(object)}}{Dispatches the restore validation visitor, via the accept method of the originator.}
- \item{\code{readState(object)}}{Dispatches the readState validation visitor, via the accept method of the originator.}
- \item{\code{writeState(object)}}{Dispatches the writeState validation visitor, via the accept method of the originator.}
- \item{\code{read(object)}}{Dispatches the read validation visitor, via the accept method of the originator.}
- \item{\code{write(object)}}{Dispatches the write validation visitor, via the accept method of the originator.}
+ \item{\code{init(object)}}{Dispatches the initialization validation visitor, via the accept method of object.}
+ \item{\code{exposeObject(object)}}{Dispatches the exposeObject validation visitor, via the accept method of object.}
+ }
+
+\strong{Composition and Aggregation Methods:}
+\describe{
+ \item{\code{addChild(object)}}{Dispatches the addChild validation visitor, via the accept method of object.}
+ \item{\code{removeChild(object)}}{Dispatches the removeChild validation visitor, via the accept method of object.}
+ \item{\code{setParent(object, parent)}}{Dispatches the setParent validation visitor, via the accept method of object.}
+ }
+
+\strong{Curator Methods:}
+\describe{
+ \item{\code{setQueryTarget(object, target)}}{Dispatches the setQueryTarget validation visitor, via the accept method of object.}
+ \item{\code{submitQuery(object)}}{Dispatches the removeChild validation visitor, via the accept method of object.}
+ }
+
+\strong{History Methods:}
+\describe{
+ \item{\code{readHistory(object)}}{Dispatches the readHistory validation visitor, via the accept method of object.}
+ }
+
+\strong{State Methods:}
+\describe{
+ \item{\code{readStates(object)}}{Dispatches the readStates validation visitor, via the accept method of object.}
+ \item{\code{saveState(object)}}{Dispatches the saveState validation visitor, via the accept method of object.}
+ \item{\code{restoreState(object)}}{Dispatches the restoreState validation visitor, via the accept method of object.}
+ }
+
+\strong{Document I/O Methods:}
+\describe{
+ \item{\code{read(object)}}{Dispatches the read validation visitor, via the accept method of object.}
+ \item{\code{write(object)}}{Dispatches the write validation visitor, via the accept method of object.}
+}
 }
 
-\strong{Validator Parameters:}
+\section{Validation Class Parameters}{
+NA
 }
+
 \seealso{
 Other Validation Classes: \code{\link{Authorizer}},
   \code{\link{Validator0}}, \code{\link{ValidatorClass}},

@@ -28,7 +28,7 @@ testLab <- function() {
 
 
     # Confirm instantiation
-    b <- blue$getObject()
+    b <- blue$exposeObject()
     stopifnot("Lab" %in% class(blue))
     stopifnot(b$name == "blue")
     stopifnot(b$desc == "Blue Lab")
@@ -49,7 +49,7 @@ testLab <- function() {
 
     # Create and verify document collection
     DocumentCollection$new(name = "brown", desc = "Brown Corpus")
-    collection <<- brown$getObject()
+    collection <<- brown$exposeObject()
     stopifnot("DocumentCollection" %in% class(brown))
     stopifnot(collection$name == "brown")
     stopifnot(collection$desc == "Brown Corpus")
@@ -61,7 +61,7 @@ testLab <- function() {
     blue$addChild(brown)
 
     # Confirm Lab is updated
-    lab <<- blue$getObject()
+    lab <<- blue$exposeObject()
     stopifnot(nrow(lab$collections) == 1)
     stopifnot(lab$collections[[1]]$name == "brown")
     stopifnot(lab$collections[[1]]$desc == "Brown Corpus")
@@ -72,7 +72,7 @@ testLab <- function() {
     cat(paste("\n               Object State:", lab$stateDesc))
 
     # Confirm collection parent is updated
-    collection <<- brown$getObject()
+    collection <<- brown$exposeObject()
     stopifnot("DocumentCollection" %in% class(brown))
     stopifnot(collection$name == "brown")
     stopifnot(collection$desc == "Brown Corpus")
@@ -94,7 +94,7 @@ testLab <- function() {
 
     # Instantiate and confirm instantiation
     DocumentCollection$new(name = "oxford", desc = "Oxford Corpus")
-    o <- oxford$getObject()
+    o <- oxford$exposeObject()
     stopifnot("DocumentCollection" %in% class(oxford))
     stopifnot(o$name == "oxford")
     stopifnot(o$desc == "Oxford Corpus")
@@ -106,7 +106,7 @@ testLab <- function() {
     blue$addChild(oxford)
 
     # Confirm document added to lab
-    lab <<- blue$getObject()
+    lab <<- blue$exposeObject()
     stopifnot(nrow(lab$collections) == 2)
     stopifnot(lab$collections[[2]]$name == "oxford")
     stopifnot(lab$collections[[2]]$desc == "Oxford Corpus")
@@ -117,7 +117,7 @@ testLab <- function() {
     cat(paste("\n               Object State:", lab$stateDesc))
 
     # Confirm collection parent is updated
-    collection <<- oxford$getObject()
+    collection <<- oxford$exposeObject()
     stopifnot("DocumentCollection" %in% class(oxford))
     stopifnot(collection$name == "oxford")
     stopifnot(collection$desc == "Oxford Corpus")
@@ -152,13 +152,13 @@ testLab <- function() {
     }
 
     # Verify States
-    b <- blue$getObject()
-    o <- oxford$getObject()
+    b <- blue$exposeObject()
+    o <- oxford$exposeObject()
     cat(paste("\n               Object State:", b$stateDesc))
     cat(paste("\n               Object State:", o$stateDesc))
 
     # Verify parent of removed object set to null
-    o <- oxford$getObject()
+    o <- oxford$exposeObject()
     stopifnot(is.null(o$parent))
     stopifnot((Sys.time() - o$created) > 1)
     stopifnot((Sys.time() - o$modified) < 1)

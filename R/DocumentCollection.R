@@ -64,7 +64,7 @@
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating a document collection.}
 #'   \item{\code{getName()}}{Method returns the name of the DocumentCollection object.}
-#'   \item{\code{getObject(requester)}}{Method that returns the elements of the current DocumentCollection object, if invoked by an authorized method.}
+#'   \item{\code{exposeObject(requester)}}{Method that returns the elements of the current DocumentCollection object, if invoked by an authorized method.}
 #'   \item{\code{restore(requester, prior)}}{Method for restoring a document collection to a prior state, as per the object parameter.}
 #' }
 #'
@@ -138,17 +138,17 @@ DocumentCollection <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log Event
-      #historian$addEvent(cls = "DocumentCollection", objectName = name,
+      #historian$addEvent(className = "DocumentCollection", objectName = name,
       #                   method = "initialize",
       #                   event = private$..stateDesc)
 
       invisible(self)
     },
 
-    getObject = function(requester) {
+    exposeObject = function(requester) {
 
       v <- Validator()
-      if (v$getObject(object = self,
+      if (v$exposeObject(object = self,
                       requester = requester) == FALSE) stop()
 
       document <- list(
@@ -182,7 +182,7 @@ DocumentCollection <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Log event
-      # historian$addEvent(cls = class(self)[1], objectName = name,
+      # historian$addEvent(className = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
 
@@ -201,7 +201,7 @@ DocumentCollection <- R6::R6Class(
       if (v$addChild(object = self, child = document) == FALSE) stop()
 
       # Add document to list of documents for collection
-      d <- document$getObject()
+      d <- document$exposeObject()
       private$..documents[[d$name]] <- document
 
       # Update the parent of the document object
@@ -215,7 +215,7 @@ DocumentCollection <- R6::R6Class(
       self$saveState()
 
       # Log Event
-      # historian$addEvent(cls = "DocumentCollection", objectName = private$..name,
+      # historian$addEvent(className = "DocumentCollection", objectName = private$..name,
       #                    method = "addChild",
       #                    event = private$..stateDesc)
     },
@@ -243,7 +243,7 @@ DocumentCollection <- R6::R6Class(
       #self$saveState()
 
       # Log Event
-      # historian$addEvent(cls = "DocumentCollection", objectName = private$..name,
+      # historian$addEvent(className = "DocumentCollection", objectName = private$..name,
       #                    method = "removeChild",
       #                    event = private$..stateDesc)
     },

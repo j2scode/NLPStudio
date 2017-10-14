@@ -31,10 +31,16 @@ The VValidatorAddChild methods are as follows:
 }
 }
 \seealso{
-Other Validation Visitor Classes: \code{\link{VValidatorGetObject}},
+Other Validation Visitor Classes: \code{\link{VCurator}},
   \code{\link{VValidatorInit}},
   \code{\link{VValidatorParent}},
-  \code{\link{VValidatorRestore}}, \code{\link{VValidator}}
+  \code{\link{VValidatorRemoveChild}},
+  \code{\link{VValidatorRestore}},
+  \code{\link{VValidatorSetParent}},
+  \code{\link{VValidatorSetQueryTarget}},
+  \code{\link{VValidatorSubmitQuery}},
+  \code{\link{VValidatorexposeObject}},
+  \code{\link{VValidator}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

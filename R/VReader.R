@@ -34,7 +34,7 @@ VReader <- R6::R6Class(
 
     validateFile = function(file, method, class) {
 
-      f <- file$getObject()
+      f <- file$exposeObject()
 
       if (lengtH(f$path) == 0) {
         v <- Validator0$new()
@@ -85,7 +85,7 @@ VReader <- R6::R6Class(
     readCsv = function(file) {
 
       private$validateFile(file, method = "readCsv", class = "FileCsv")
-      f <- file$getObject()
+      f <- file$exposeObject()
       content <- read.csv(file.path(f$path, f$fileName), header = header, stringsAsFactors = FALSE,
                           sep = ",", quote = "\"'")
       file$addContent(content)
@@ -95,7 +95,7 @@ VReader <- R6::R6Class(
     readRdata = function(file) {
 
       private$validateFile(file, method = "readRdata", class = "FileRdata")
-      f <- file$getObject()
+      f <- file$exposeObject()
       env <- new.env()
       content <- load(file.path(f$path, f$fileName), envir = env)
       file$addContent(env[[content]])
@@ -105,7 +105,7 @@ VReader <- R6::R6Class(
     readText = function(file) {
 
       private$validateFile(file, method = "readText", class = "FileText")
-      f <- file$getObject()
+      f <- file$exposeObject()
       con <- file(file.path(f$path, f$fileName))
       on.exit(close(con))
       content <- readLines(con)

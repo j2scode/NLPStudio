@@ -36,11 +36,11 @@ testDocument <- function() {
                  desc = "Finance Reports")
 
     # Obtain document information
-    n <- news$getObject()
-    s <- sports$getObject()
-    f <- finance$getObject()
+    n <- news$exposeObject()
+    s <- sports$exposeObject()
+    f <- finance$exposeObject()
 
-    # Validate instantiation and getObject
+    # Validate instantiation and exposeObject
     stopifnot(n$name == "news")
     stopifnot(n$desc == "News of the World")
     stopifnot(is.TRUE(all.equal(n$parent, orphanCollection)))
@@ -77,7 +77,7 @@ testDocument <- function() {
     # Logit
     logTests(class = class, mthd = "initiate", note = "Blocked invalid document variables")
     logTests(class = class, mthd = "initiate", note = "Successfully created 3 Documents and assigned to orphan collection.")
-    logTests(class = class, mthd = "getObject", note = "Successfully obtained document information.")
+    logTests(class = class, mthd = "exposeObject", note = "Successfully obtained document information.")
 
     cat(paste("\n", test, " Completed: Success!\n"))
   }

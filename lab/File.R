@@ -18,7 +18,7 @@
 #'  \itemize{
 #'   \item{\code{new(name, fileName, desc = NULL)}}{Base method for instantiating File objects.
 #'   Specific behaviors implemented in the subclasses. }
-#'   \item{\code{getObject()}}{Base method for obtaining file object information.
+#'   \item{\code{exposeObject()}}{Base method for obtaining file object information.
 #'   Specific behaviors implemented in the subclasses. }
 #'   \item{\code{moveFile()}}{Base method for moving a file. This is invoked by
 #'   the Document class when there is a change in the composite hierarchy. }
@@ -68,7 +68,7 @@ File <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, fileName, desc = NULL) stop("This method is not implemented for this class"),
 
-    getObject = function() {
+    exposeObject = function() {
       file <- list(
         name = private$..name,
         desc = private$..desc,
@@ -87,7 +87,7 @@ File <- R6::R6Class(
       newPath <- file.path(private$..parent$getPath(), private$..fileName)
       file.rename(currentPath, newPath)
       class <- class(self)[1]
-      historian$addEvent(cls = class, objectName = private$..name,
+      historian$addEvent(className = class, objectName = private$..name,
                          method = "moveFile",
                          event = paste("Moved file from", currentPath, "to",
                                        newPath))
@@ -100,7 +100,7 @@ File <- R6::R6Class(
       newPath <- file.path(path, private$..fileName)
       file.copy(currentPath, newPath)
       class <- class(self)[1]
-      historian$addEvent(cls = class, objectName = private$..name,
+      historian$addEvent(className = class, objectName = private$..name,
                          method = "copyFile",
                          event = paste("Copied file at", currentPath, "to",
                                        newPath))
@@ -129,7 +129,7 @@ File <- R6::R6Class(
       }
 
       # Get parent information
-      p <- parent$getObject()
+      p <- parent$exposeObject()
 
       # Set parent variable
       private$..parent <- parent
@@ -137,7 +137,7 @@ File <- R6::R6Class(
       # Move files
       self$moveFiles()
 
-      historian$addEvent(cls = class(self)[1], objectName = private$..name,
+      historian$addEvent(className = class(self)[1], objectName = private$..name,
                          method = "setAncestor",
                          event = paste("Set ancestor of,",
                                        private$..name, "to",

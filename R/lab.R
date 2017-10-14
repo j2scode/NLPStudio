@@ -15,7 +15,7 @@
 #'   \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
 #'   \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
 #'   \item{\code{getName()}}{Returns the name of the Lab object.}
-#'   \item{\code{getObject(requester)}}{Returns object elements in a list format to authorized requester.}
+#'   \item{\code{exposeObject(requester)}}{Returns object elements in a list format to authorized requester.}
 #'   \item{\code{restore(requester, prior)}}{Restores an object to a prior state, if invoked by authorized requester.}
 #'  }
 #'
@@ -77,7 +77,7 @@ Lab <- R6::R6Class(
         # self$saveState()
 
         # Log Event
-        historian$addEvent(cls = "Lab", objectName = private$..name,
+        historian$addEvent(className = "Lab", objectName = private$..name,
                            method = "desc",
                            event = private$..stateDesc)
       }
@@ -107,7 +107,7 @@ Lab <- R6::R6Class(
         # self$saveState()
 
         # Log Event
-        historian$addEvent(cls = "Lab", objectName = private$..name,
+        historian$addEvent(className = "Lab", objectName = private$..name,
                            method = "parent",
                            event = private$..stateDesc)
       }
@@ -137,7 +137,7 @@ Lab <- R6::R6Class(
       assign(name, self, envir = .GlobalEnv)
 
       # Log Event
-      historian$addEvent(cls = "Lab", objectName = name,
+      historian$addEvent(className = "Lab", objectName = name,
                          method = "initialize",
                          event = private$..stateDesc)
 
@@ -148,11 +148,11 @@ Lab <- R6::R6Class(
       return(private$..name)
     },
 
-    getObject = function(requester) {
+    exposeObject = function(requester) {
 
       # TODO; Uncomment after testing
       # v <- Validator()
-      # if (v$getObject(object = self,
+      # if (v$exposeObject(object = self,
       #                 requester = requester) == FALSE) stop()
 
       lab = list(
@@ -175,7 +175,7 @@ Lab <- R6::R6Class(
       if (v$restore(object = self,
                     requester = requester, prior = prior) == FALSE) stop()
 
-      r <- restored$getObject()
+      r <- restored$exposeObject()
       private$..desc <- r$desc
       private$..parent <- r$parent
       private$..collections <- r$collections
@@ -188,7 +188,7 @@ Lab <- R6::R6Class(
       private$..modified <- Sys.time()
 
       # Log event
-      # historian$addEvent(cls = class(self)[1], objectName = name,
+      # historian$addEvent(className = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
 
@@ -228,7 +228,7 @@ Lab <- R6::R6Class(
       # private$saveState(self)
 
       # Log Event
-      historian$addEvent(cls = "Lab", objectName = private$..name,
+      historian$addEvent(className = "Lab", objectName = private$..name,
                          method = "addChild",
                          event = private$..stateDesc)
 
@@ -264,7 +264,7 @@ Lab <- R6::R6Class(
       # private$saveState(self)
 
       # Log Event
-      historian$addEvent(cls = "Lab", objectName = private$..name,
+      historian$addEvent(className = "Lab", objectName = private$..name,
                          method = "removeChild",
                          event = private$..stateDesc)
 

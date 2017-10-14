@@ -32,16 +32,16 @@ testDocumentCollection <- function() {
     Document$new(name = "stanford", desc = "Stanford Collection")
 
     # Obtain document information
-    o <- oxford$getObject()
-    o1 <- oxford_1$getObject()
-    s <- stanford$getObject()
+    o <- oxford$exposeObject()
+    o1 <- oxford_1$exposeObject()
+    s <- stanford$exposeObject()
 
     # Print states
     cat(paste("\n               Object State:", o$stateDesc))
     cat(paste("\n               Object State:", o1$stateDesc))
     cat(paste("\n               Object State:", s$stateDesc))
 
-    # Validate instantiation and getObject
+    # Validate instantiation and exposeObject
     stopifnot(o$name == "oxford")
     stopifnot(o$desc == "Oxford Collection")
     stopifnot((Sys.time() - o$modified) < 1)
@@ -76,18 +76,18 @@ testDocumentCollection <- function() {
     oxford$addChild(oxford_1)
 
     # Confirm parent
-    o <- oxford$getObject()
+    o <- oxford$exposeObject()
     children <- oxford$getChildren()
     stopifnot(length(children) == 1)
-    child <- children[[1]]$getObject()
+    child <- children[[1]]$exposeObject()
     stopifnot(child$name == "oxford_1")
     stopifnot(child$desc == "Oxford_1 Collection")
     stopifnot(o$created != o$modified)
 
     # Confirm Child
-    o1 <- oxford_1$getObject()
+    o1 <- oxford_1$exposeObject()
     parent <- oxford_1$getAncestor()
-    parent <- parent$getObject()
+    parent <- parent$exposeObject()
     stopifnot(parent$name == "oxford")
     stopifnot(o1$created != o1$modified)
 
@@ -95,18 +95,18 @@ testDocumentCollection <- function() {
     oxford$addChild(stanford)
 
     # Confirm parent
-    o <- oxford$getObject()
+    o <- oxford$exposeObject()
     children <- oxford$getChildren()
     stopifnot(length(children) == 2)
-    child <- children[[2]]$getObject()
+    child <- children[[2]]$exposeObject()
     stopifnot(child$name == "stanford")
     stopifnot(child$desc == "Stanford Collection")
     stopifnot(o$created != o$modified)
 
     # Confirm Child
-    s <- stanford$getObject()
+    s <- stanford$exposeObject()
     parent <- stanford$getAncestor()
-    parent <- parent$getObject()
+    parent <- parent$exposeObject()
     stopifnot(parent$name == "oxford")
     stopifnot(s$created != s$modified)
 

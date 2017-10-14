@@ -1,15 +1,15 @@
 #==============================================================================#
-#                              VValidatorGetObject                             #
+#                              VValidatorexposeObject                             #
 #==============================================================================#
-#' VValidatorGetObject
+#' VValidatorexposeObject
 #'
 #'
-#' \code{VValidatorGetObject} Visitor class responsible for validating requests
+#' \code{VValidatorexposeObject} Visitor class responsible for validating requests
 #' for object information.  Only permits objects of the State class to invoke
-#' getObject methods.
+#' exposeObject methods.
 #'
-#' \strong{VValidatorGetObject Methods:}
-#' The VValidatorGetObject methods are as follows:
+#' \strong{VValidatorexposeObject Methods:}
+#' The VValidatorexposeObject methods are as follows:
 #'  \itemize{
 #'   \item{\code{nlpStudio(object, ...)}}{Method for validating the instantiation of the NLPStudio object}
 #'   \item{\code{lab(object, ...)}}{Method for validating the instantiation of the Lab object}
@@ -20,15 +20,15 @@
 #'   \item{\code{documentXlsx(object, ...)}}{Method for validating the instantiation of the DocumentXlsx object.}
 #' }
 #'
-#' @param object The object for which the getObject method is invoked.
-#' @param requester The object invoking the getObject method.
+#' @param object The object for which the exposeObject method is invoked.
+#' @param requester The object invoking the exposeObject method.
 #'
 #' @docType class
 #' @author John James, \email{jjames@@DataScienceSalon.org}
 #' @family Validation Visitor Classes
 #' @export
-VValidatorGetObject <- R6::R6Class(
-  classname = "VValidatorGetObject",
+VValidatorexposeObject <- R6::R6Class(
+  classname = "VValidatorexposeObject",
   inherit = VValidator,
   lock_objects = FALSE,
   lock_class = FALSE,
@@ -40,11 +40,11 @@ VValidatorGetObject <- R6::R6Class(
       # Confirm required parameters are not missing.
       if (missing(requester)) {
         v <- Validator0$new()
-        v$notify(class = class(object)[1], method = "getObject", fieldName = "requester",
+        v$notify(class = class(object)[1], method = "exposeObject", fieldName = "requester",
                  value = "", level = "Error",
                  msg = paste0("Requester parameter is missing with no default. ",
                               "Methods invoking this method must send 'self' as ",
-                              "a parameter to the getObject() method. ",
+                              "a parameter to the exposeObject() method. ",
                               "See ?", class(object)[1], " for further assistance."),
                  expect = NULL)
         return(FALSE)
@@ -52,11 +52,11 @@ VValidatorGetObject <- R6::R6Class(
 
       # Confirm class of requester
       v <- ValidatorClass$new()
-      if (v$validate(class = class(object)[1], method = "getObject",
+      if (v$validate(class = class(object)[1], method = "exposeObject",
                      fieldName = "class(requester)", value = requester,
                      level = "Error",
                      msg = paste0("Objects of the ", class(requester)[1],
-                                  " class can not invoke the getObject()",
+                                  " class can not invoke the exposeObject()",
                                   " method. ", "See ?", class(object)[1],
                                   " for further assistance."),
                      expect = classes) == FALSE) {

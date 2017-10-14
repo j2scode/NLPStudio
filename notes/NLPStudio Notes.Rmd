@@ -27,6 +27,17 @@ opts_knit$set(width=75)
 
 
 # Log
+
+## Saturday 10/14/17
+Organized thinking about validators. Categorized validators adn updated validator class documentation. New methods created to validate requests to read history, read, save and restore states.
+
+## Friday 10/13/17
+Created Curator class that handles queries into objects that contain other objects for query purposes. The curator takes a target object to query at instantiation and calls the appropriate validation visitors to confirm that the curator can query the target object. Next, the client can set the query parameters in the curator object.  Once the paramters are set, client calls the query method in the curator object.  This initiates a visitor to verify the parameters, then instantiates the curator visitor object.  It messages the target object with an accept request for the visitor.  The target object accepts and sends itself back to the curator visitor.  
+
+Next steps:
+1) Implement get methods on target objects that return a data frame containing data on all aggregate objects.
+2) Implement code in curator visitor to call the get methods in the target, filter the data using the parameters initialized in the visitor and return the results to the acceptor,which returns the results to the curator. 
+
 ## Monday: 9/25/17
 0940: Created getObject validation visitor
 

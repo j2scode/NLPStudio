@@ -9,9 +9,9 @@
 VValidatorRemoveChild
 }
 \arguments{
-\item{object}{The object in its current state}
+\item{object}{The parent object}
 
-\item{...}{Parameters}
+\item{child}{The child object}
 }
 \description{
 \code{VValidatorRemoveChild} Visitor class responsible for validating the parameters for the removeChild methods
@@ -21,14 +21,26 @@ of aggregate and composite classes.
 \strong{VValidatorRemoveChild Methods:}
 The VValidatorRemoveChild methods are as follows:
  \itemize{
-  \item{\code{nlpStudio(object, ...)}}{Method for validating the removeChild method parameters of the NLPStudio object}
-  \item{\code{lab(object, ...)}}{Method for validating the removeChild method parameters of the Lab object}
-  \item{\code{documentCollection(object, ...)}}{Method for validating the removeChild method parameters of the DocumentCollection object.}
-  \item{\code{documentText(object, ...)}}{Method for validating the removeChild method parameters of the DocumentText object.}
-  \item{\code{documentCsv(object, ...)}}{Method for validating the removeChild method parameters of the DocumentCsv object.}
-  \item{\code{documentRdata(object, ...)}}{Method for validating the removeChild method parameters of the DocumentRdata object.}
-  \item{\code{documentXlsx(object, ...)}}{Method for validating the removeChild method parameters of the DocumentXlsx object.}
+  \item{\code{nlpStudio(object, child)}}{Method for validating the removeChild method parameters of the NLPStudio object}
+  \item{\code{lab(object, child)}}{Method for validating the removeChild method parameters of the Lab object}
+  \item{\code{documentCollection(object, child)}}{Method for validating the removeChild method parameters of the DocumentCollection object.}
+  \item{\code{documentText(object, child)}}{Not implemented for this class.}
+  \item{\code{documentCsv(object, child)}}{Not implemented for this class.}
+  \item{\code{documentRdata(object, child)}}{Not implemented for this class.}
+  \item{\code{documentXlsx(object, child)}}{Not implemented for this class.}
 }
+}
+\seealso{
+Other Validation Visitor Classes: \code{\link{VCurator}},
+  \code{\link{VValidatorAddChild}},
+  \code{\link{VValidatorInit}},
+  \code{\link{VValidatorParent}},
+  \code{\link{VValidatorRestore}},
+  \code{\link{VValidatorSetParent}},
+  \code{\link{VValidatorSetQueryTarget}},
+  \code{\link{VValidatorSubmitQuery}},
+  \code{\link{VValidatorexposeObject}},
+  \code{\link{VValidator}}
 }
 \author{
 John James, \email{jjames@DataScienceSalon.org}

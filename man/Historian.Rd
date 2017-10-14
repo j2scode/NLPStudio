@@ -27,7 +27,7 @@ events.
 
 \describe{
  \item{\code{new()}}{Initializes a singleton objectName, noting the instantiation of the nlpStudio objectName.}
- \item{\code{addEvent(class, objectName, method, event)}}{Posts the event to history.}
+ \item{\code{addEvent(className, objectName, method, event)}}{Posts the event to history.}
  \item{\code{searchEvents(dateFrom, dateTo, class, objectName, method)}}{Returns the history of events according to the parameters provided,  in a data frame format.}
  \item{\code{purgeEvents()}}{Sets events to null.}
  \item{\code{restoreEvents()}}{Restores events from the history file.}

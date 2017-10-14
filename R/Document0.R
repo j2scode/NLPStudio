@@ -70,7 +70,7 @@
 #'   an object of the Document or DocumentCollection classes.
 #'   Specific behaviors implemented in the subclasses. }
 #'   \item{\code{getName()}}{Returns the name of the current object.}
-#'   \item{\code{getObject(requester)}}{Base method for returning the elements of the current object if invoked by an authorized method.}
+#'   \item{\code{exposeObject(requester)}}{Base method for returning the elements of the current object if invoked by an authorized method.}
 #'   \item{\code{restore(requester, prior)}}{Base method for restoring an object
 #'   to a prior state, as per the object parameter.}
 #' }
@@ -177,7 +177,7 @@ Document0 <- R6::R6Class(
     # Core Methods
     initialize = function(name, desc) stop("Method is not available from Document0, an abstract class!"),
     getName = function() private$..name,
-    getObject = function(requester) stop("Method is not available from Document0, an abstract class!"),
+    exposeObject = function(requester) stop("Method is not available from Document0, an abstract class!"),
     restore = function(requester, prior) stop("Method is not available from Document0, an abstract class!"),
 
     # Composite Methods

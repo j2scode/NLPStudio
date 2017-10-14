@@ -98,7 +98,7 @@ VisitorArchive <- R6::R6Class(
       }
 
       # Obtain object information
-      o <- object$getObject()
+      o <- object$exposeObject()
 
       # Format object variables
       private$..stateId <-  stateId

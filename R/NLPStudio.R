@@ -20,7 +20,7 @@
 #'  \item{\code{new()}}{Initializes the NLPStudio. This is a singleton class in which its only object is created when the package is loaded. The object instantiated at package load time is called "nlpStudio".}
 #'  \item{\code{getInstance()}}{Returns the current NLPStudio instance object. This will be the only instantiation called "nlpStudio.},
 #'  \item{\code{getName()}}{Returns the name of the current NLPStudio object.}
-#'  \item{\code{getObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
+#'  \item{\code{exposeObject(requester)}}{Returns the current object elements in list format if invoked by ah authorized requester.}
 #'  \item{\code{restore(requester, prior)}}{Restores the object to a prior state of invoked by an authorized requester.}
 #' }
 #'
@@ -50,7 +50,7 @@
 #' @docType class
 #' @examples
 #' \dontrun{
-#' nlpStudio$getObject() # Returns nlpStudio object and meta data in list format
+#' nlpStudio$exposeObject() # Returns nlpStudio object and meta data in list format
 #' Lab$new(name = "List", desc = "Lisa Simpon's lab")
 #' Lab$new(name = "Bart", desc = "Bart Simpon's lab")
 #' nlpStudio$addChild(Lisa, enter = FALSE) # Adds lab without setting it current.
@@ -110,7 +110,7 @@ NLPStudio <- R6::R6Class(
             assign(name, self, envir = .GlobalEnv)
 
             # Log Event
-            historian$addEvent(cls = "NLPStudio", objectName = name,
+            historian$addEvent(className = "NLPStudio", objectName = name,
                               method = "initialize", event = private$..stateDesc)
 
             invisible(self)
@@ -124,11 +124,11 @@ NLPStudio <- R6::R6Class(
             private$..name
           },
 
-          getObject = function() {
+          exposeObject = function() {
 
             # TODO: Uncomment after testing
             # v <- Validator$new()
-            # if (v$getObject(object = self,
+            # if (v$exposeObject(object = self,
             #                 requester = requester) == FALSE) stop()
 
             studio = list(
@@ -150,7 +150,7 @@ NLPStudio <- R6::R6Class(
                           requester = requester,
                           prior = prior) == FALSE) stop()
 
-            r <- prior$getObject()
+            r <- prior$exposeObject()
             private$..desc <- r$desc
             private$..labs <- r$labs
             private$..stateId <- r$stateId
@@ -161,7 +161,7 @@ NLPStudio <- R6::R6Class(
             private$..created <- r$created
 
             # Log event
-            # historian$addEvent(cls = class(self)[1], objectName = name,
+            # historian$addEvent(className = class(self)[1], objectName = name,
             #                    method = "restore",
             #                    event = private$..stateDesc)
 
@@ -201,7 +201,7 @@ NLPStudio <- R6::R6Class(
             # self$saveState()
 
             # Log Event
-            historian$addEvent(cls = "NLPStudio", objectName = "nlpStudio",
+            historian$addEvent(className = "NLPStudio", objectName = "nlpStudio",
                                method = "addChild",
                                event = private$..stateDesc)
 
@@ -238,7 +238,7 @@ NLPStudio <- R6::R6Class(
             private$..stateDesc <- paste("Lab", kidsName, "removed from nlpStudio.")
             # self$saveState()
 
-            historian$addEvent(cls = "NLPStudio", objectName = "nlpStudio",
+            historian$addEvent(className = "NLPStudio", objectName = "nlpStudio",
                                method = "removeChild",
                                event = private$..stateDesc)
 

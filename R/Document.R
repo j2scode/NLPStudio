@@ -69,7 +69,7 @@
 #'  \itemize{
 #'   \item{\code{new(name, desc)}}{Method for instantiating a document}
 #'   \item{\code{getName()}}{Method for obtaining the document name.}
-#'   \item{\code{getObject(requester)}}{Method for obtaining the document data in a list format if invoked by authorized method.}
+#'   \item{\code{exposeObject(requester)}}{Method for obtaining the document data in a list format if invoked by authorized method.}
 #'   \item{\code{restore(requester, prior)}}{Method for restoring an object to a prior state, as per the object parameter.}
 #'   \item{\code{addContent(content)}}{Method for adding content to the document object. This method is invoked by the read visitor.}
 #'  }
@@ -133,10 +133,10 @@ Document <- R6::R6Class(
     #-------------------------------------------------------------------------#
     initialize = function(name, fileName, desc = NULL) {stop("This method is not implemented for the Document class.")},
 
-    getObject = function(requester) {
+    exposeObject = function(requester) {
 
       v <- Validator()
-      if (v$getObject(object = self,
+      if (v$exposeObject(object = self,
                       requester = requester) == FALSE) stop()
 
       document = list(
@@ -176,7 +176,7 @@ Document <- R6::R6Class(
       # self$savestate()
 
       # Log event
-      # historian$addEvent(cls = class(self)[1], objectName = name,
+      # historian$addEvent(className = class(self)[1], objectName = name,
       #                    method = "restore",
       #                    event = private$..stateDesc)
       invisible(self)
@@ -196,7 +196,7 @@ Document <- R6::R6Class(
       # # Log event
       # private$..stateDesc <- paste("Added content to", class(self)[1],
       #                              "class object,", private$..name)
-      # historian$addEvent(cls = class(self)[1], objectName = name,
+      # historian$addEvent(className = class(self)[1], objectName = name,
       #                    method = "addContent",
       #                    event = private$..stateDesc)
     },

@@ -35,7 +35,7 @@ VWriter <- R6::R6Class(
 
     validateFile = function(file, method, class) {
 
-      f <- file$getObject()
+      f <- file$exposeObject()
 
       if (lengtH(f$path) == 0) {
         v <- Validator0$new()
@@ -87,7 +87,7 @@ VWriter <- R6::R6Class(
     writeCsv = function(file) {
 
       private$validateFile(file, method = "writeCsv", class = "FileCsv")
-      f <- file$getObject()
+      f <- file$exposeObject()
       write.csv(f$content, file = file.path(f$path, f$fileName), row.names = FALSE)
       return(TRUE)
 
@@ -96,7 +96,7 @@ VWriter <- R6::R6Class(
     writeRdata = function(file) {
 
       private$validateFile(file, method = "writeRdata", class = "FileRdata")
-      f <- file$getObject()
+      f <- file$exposeObject()
       saveRDS(object = f$content, file = file.path(f$path, f$fileName))
       return(TRUE)
 
@@ -105,7 +105,7 @@ VWriter <- R6::R6Class(
     writeText = function(file) {
 
       private$validateFile(file, method = "writeText", class = "FileText")
-      f <- file$getObject()
+      f <- file$exposeObject()
       con <- file(file.path(f$path, f$fileName))
       on.exit(close(con))
       writeLines(f$content, con)

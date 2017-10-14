@@ -33,7 +33,7 @@ the contained documents, add a document, and remove a document.
   \item{\code{new(name, desc = NULL)}}{Creates an object of Lab Class}
   \item{\code{desc}}{A getter/setter method allowing clients to retrieve and set the Lab description variable.}
   \item{\code{getName()}}{Returns the name of the Lab object.}
-  \item{\code{getObject(requester)}}{Returns object elements in a list format to authorized requester.}
+  \item{\code{exposeObject(requester)}}{Returns object elements in a list format to authorized requester.}
   \item{\code{restore(requester, prior)}}{Restores an object to a prior state, if invoked by authorized requester.}
  }
 

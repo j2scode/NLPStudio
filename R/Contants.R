@@ -33,6 +33,9 @@ Constants <- R6::R6Class(
     ..files = list(
       policyFile = "./NLPStudio/Policy.Rdata",
       historyFile = "./NLPStudio/Log/History.Rdata"
+    ),
+    ..query = list(
+      units = c("min", "hour", "day", "week", "month")
     )
   ),
 
@@ -51,6 +54,9 @@ Constants <- R6::R6Class(
 
     # Files
     getHistoryFile = function() private$..files$historyFile,
-    getPolicyFile = function() private$..files$policyFile
+    getPolicyFile = function() private$..files$policyFile,
+
+    # Query Constants
+    getQueryVars = function() private$..query
   )
 )

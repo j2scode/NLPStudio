@@ -9,7 +9,7 @@
 #' @section Historian Methods:
 #' \describe{
 #'  \item{\code{new()}}{Initializes a singleton objectName, noting the instantiation of the nlpStudio objectName.}
-#'  \item{\code{addEvent(cls, objectName, method, event)}}{Posts the event to history.}
+#'  \item{\code{addEvent(className, objectName, method, event)}}{Posts the event to history.}
 #'  \item{\code{searchEvents(dateFrom, dateTo, class, objectName, method)}}{Returns the history of events according to the parameters provided,  in a data frame format.}
 #'  \item{\code{purgeEvents()}}{Sets events to null.}
 #'  \item{\code{restoreEvents()}}{Restores events from the history file.}
@@ -90,16 +90,16 @@ Historian <- R6::R6Class(
             invisible(self)
           },
 
-          addEvent = function(cls, objectName, method, event) {
+          addEvent = function(className, objectName, method, event) {
 
             # Validate
-            if (!exists(cls)) stop("Invalid class.")
+            if (!exists(className)) stop("Invalid class.")
             if (!exists(objectName)) stop("Invalid objectName.")
             if (missing(method)) stop("Method parameter is missing without default.")
             if (missing(event)) stop("Event parameter is missing without default.")
 
             # Format and post event
-            newEvent <- data.frame(class = cls,
+            newEvent <- data.frame(class = className,
                                    method = method,
                                    objectName = objectName,
                                    event = event,
@@ -122,7 +122,7 @@ Historian <- R6::R6Class(
             private$..modified <- Sys.time()
           },
 
-          searchEvents = function(dateFrom = NULL, dateTo = NULL, cls = NULL,
+          searchEvents = function(dateFrom = NULL, dateTo = NULL, className = NULL,
                                   objectName = NULL, method = NULL)  {
             tools <- Tools$new()
             events <- private$..events
@@ -137,8 +137,8 @@ Historian <- R6::R6Class(
               if(dateTo == FALSE) stop()
               events <- subset(events, as.Date(date) <= as.Date(dateTo))
             }
-            if (!is.null(cls)) {
-              events <- subset(events, class == cls)
+            if (!is.null(className)) {
+              events <- subset(events, class == className)
             }
             if (!is.null(objectName)) {
               events <- subset(events, objectName == objectName)
